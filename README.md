@@ -11,9 +11,9 @@
 
 ## Descripción del Proyecto
 
-Sistema desarrollado en Java que gestiona la relación unidireccional 1→1 entre **Pacientes** y sus **Historias Clínicas**. Implementa el patrón DAO, transacciones con commit/rollback, y un menú de consola para operaciones CRUD completas.
+Sistema desarrollado en Java que gestiona la relación unidireccional 1->1 entre **Pacientes** y sus **Historias Clínicas**. Implementa el patrón DAO, transacciones con commit/rollback, y un menú de consola para operaciones CRUD completas.
 
-### Dominio Elegido: Paciente → HistoriaClínica
+### Dominio Elegido: Paciente -> HistoriaClínica
 
 - **Paciente**: Información personal y datos de identificación
 - **HistoriaClínica**: Datos médicos y antecedentes del paciente
@@ -41,6 +41,48 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1→1 entr
 
 ## Diagrama UML
 
+```mermaid
+    classDiagram
+    direction LR
+        class Paciente {
+            - id: int
+            - eliminado: boolean
+            - nombre: String
+            - apellido: String
+            - dni: String
+            - fechaNacimiento: LocalDate
+            - historiaClinica: HistoriaClinica
+            + Paciente()
+        }
+
+        class HistoriaClinica {
+            - id: int
+            - eliminado: boolean
+            - numeroHistoria: String
+            - grupoSanguineo: GrupoSanguineo
+            - antecedentes: String
+            - medicacionActual: String
+            - observaciones: String
+            + HistoriaClinica()
+        }
+
+        class GrupoSanguineo {
+            + A+$
+            + A-$
+            + B+$
+            + B-$
+            + AB+$
+            + AB-$
+            + O+$
+            + O-$
+        }
+
+        <<enum>> GrupoSanguineo
+
+        Paciente --> "1" HistoriaClinica : -historiaClinica
+        HistoriaClinica --> "1" GrupoSanguineo : -grupoSanguineo
+```
+
 ## Requisitos del Sistema
 
 ## Instalación y Configuración
@@ -51,7 +93,7 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1→1 entr
 
 ## Funcionalidades Implementadas
 
-- Relación 1→1 unidireccional (Paciente → HistoriaClinica)
+- Relación 1->1 unidireccional (Paciente -> HistoriaClinica)
 - CRUD completo con baja lógica
 - Transacciones con commit/rollback
 - Validaciones de entrada robustas
@@ -63,15 +105,15 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1→1 entr
 
 ### Tabla: `Paciente`
 
-| Campo           | Tipo MySQL  | Restricciones               | Notas                            |
-| --------------- | ----------- | --------------------------- | -------------------------------- |
-| id              | BIGINT      | PRIMARY KEY, AUTO_INCREMENT | Clave primaria                   |
-| eliminado       | BOOLEAN     | DEFAULT FALSE               | Baja lógica                      |
-| nombre          | VARCHAR(80) | NOT NULL                    | Máximo 80 caracteres             |
-| apellido        | VARCHAR(80) | NOT NULL                    | Máximo 80 caracteres             |
-| dni             | VARCHAR(15) | NOT NULL, UNIQUE            | Máximo 15 caracteres, único      |
-| fechaNacimiento | DATE        | NULLABLE                    | Tipo fecha                       |
-| historiaClinica | BIGINT      | FOREIGN KEY, UNIQUE         | Relación 1→1 con HistoriaClinica |
+| Campo           | Tipo MySQL  | Restricciones               | Notas                             |
+| --------------- | ----------- | --------------------------- | --------------------------------- |
+| id              | BIGINT      | PRIMARY KEY, AUTO_INCREMENT | Clave primaria                    |
+| eliminado       | BOOLEAN     | DEFAULT FALSE               | Baja lógica                       |
+| nombre          | VARCHAR(80) | NOT NULL                    | Máximo 80 caracteres              |
+| apellido        | VARCHAR(80) | NOT NULL                    | Máximo 80 caracteres              |
+| dni             | VARCHAR(15) | NOT NULL, UNIQUE            | Máximo 15 caracteres, único       |
+| fechaNacimiento | DATE        | NULLABLE                    | Tipo fecha                        |
+| historiaClinica | BIGINT      | FOREIGN KEY, UNIQUE         | Relación 1->1 con HistoriaClinica |
 
 ### Tabla: `HistoriaClinica`
 
@@ -87,7 +129,7 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1→1 entr
 
 ## Video Demostración
 
-[Ver video de demostración](#) (10-15 minutos)
+<!-- [Ver video de demostración](#) (10-15 minutos) -->
 
 ## Licencia
 
