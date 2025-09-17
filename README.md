@@ -22,65 +22,109 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
 
 ```plaintext
     paciente-historia-cliente/
-    ├── src/
-    │   └── main/
-    │       ├── java/
-    │       │   ├── config/
-    │       │   │   └── DatabaseConnection.java
-    │       │   ├── entities/
-    │       │   │   ├── Paciente.java
-    │       │   │   └── HistoriaClinica.java
-    │       │   ├── dao/
-    │       │   ├── service/
-    │       │   └── main/
-    │       │       └── AppMenu.java
-    │       └── resources/
-    ├── sql/
-    └── docs/
+    ├── sql
+    ├── src
+    │   ├── config
+    │   │   ├── DatabaseConnection.java
+    │   │   └── TransactionManager.java
+    │   ├── dao
+    │   │   ├── GenericDAO.java
+    │   │   ├── HistoriaClinicaDAO.java
+    │   │   └── PacienteDAO.java
+    │   ├── main
+    │   │   ├── AppMenu.java
+    │   │   ├── Main.java
+    │   │   ├── NewMain.java
+    │   │   └── TestConnection.java
+    │   ├── models
+    │   │   ├── Base.java
+    │   │   ├── GrupoSanguineo.java
+    │   │   ├── HistoriaClinica.java
+    │   │   └── Paciente.java
+    │   └── service
+    │       ├── GenericService.java
+    │       ├── HistoriaClinicaService.java
+    │       └── PacienteService.java
+    ├── test
+    ├── .gitignore
+    ├── LICENSE
+    └── README.md
 ```
 
 ## Diagrama UML
 
 ```mermaid
     classDiagram
-    direction LR
-        class Paciente {
-            - id: int
-            - eliminado: boolean
-            - nombre: String
-            - apellido: String
-            - dni: String
-            - fechaNacimiento: LocalDate
-            - historiaClinica: HistoriaClinica
-            + Paciente()
-        }
+        direction LR
+            class Base {
+                - id: int
+                - eliminado: boolean
+                + Base(int)
+                + Base()
+                + getId() int
+                + setId(int) void
+                + getEliminado() boolean
+                + setEliminado(boolean) void
+            }
 
-        class HistoriaClinica {
-            - id: int
-            - eliminado: boolean
-            - numeroHistoria: String
-            - grupoSanguineo: GrupoSanguineo
-            - antecedentes: String
-            - medicacionActual: String
-            - observaciones: String
-            + HistoriaClinica()
-        }
+            class Paciente {
+                - nombre: String
+                - apellido: String
+                - dni: String
+                - fechaNacimiento: LocalDate
+                - historiaClinica: HistoriaClinica
+                + Paciente(int, String, String, String, LocalDate)
+                + Paciente()
+                + getNombre() String
+                + setNombre(String) void
+                + getApellido() String
+                + setApellido(String) void
+                + getDni() String
+                + setDni(String) void
+                + getFechaNacimiento() LocalDate
+                + setFechaNacimiento(LocalDate) void
+                + getHistoriaClinica() HistoriaClinica
+                + setHistoriaClinica(HistoriaClinica) void
+            }
 
-        class GrupoSanguineo {
-            + A+$
-            + A-$
-            + B+$
-            + B-$
-            + AB+$
-            + AB-$
-            + O+$
-            + O-$
-        }
+            class HistoriaClinica {
+                - numeroHistoria: String
+                - antecedentes: String
+                - medicacionActual: String
+                - observaciones: String
+                - grupoSanguineo: GrupoSanguineo
+                + HistoriaClinica(int, String, String, String, String)
+                + HistoriaClinica()
+                + getNumeroHistoria() String
+                + setNumeroHistoria(String) void
+                + getAntecedentes() String
+                + setAntecedentes(String) void
+                + getMedicacionActual() String
+                + setMedicacionActual(String) void
+                + getObservaciones() String
+                + setObservaciones(String) void
+                + getGrupoSanguineo() GrupoSanguineo
+                + setGrupoSanguineo(GrupoSanguineo) void
+            }
 
-        <<enum>> GrupoSanguineo
+            class GrupoSanguineo {
+                + A_PLUS$
+                + A_MINUS$
+                + B_PLUS$
+                + B_MINUS$
+                + AB_PLUS$
+                + AB_MINUS$
+                + O_PLUS$
+                + O_MINUS$
+            }
 
-        Paciente --> "1" HistoriaClinica : -historiaClinica
-        HistoriaClinica --> "1" GrupoSanguineo : -grupoSanguineo
+            <<abstract>> Base
+            <<enum>> GrupoSanguineo
+
+            Base <|-- Paciente : implemeta
+            Base <|-- HistoriaClinica : implementa
+            Paciente --> "1" HistoriaClinica : -historiaClinica
+            HistoriaClinica --> "1" GrupoSanguineo : -grupoSanguineo
 ```
 
 <!-- ## Requisitos del Sistema -->
