@@ -11,9 +11,9 @@
 
 ## Descripción del Proyecto
 
-Sistema desarrollado en Java que gestiona la relación unidireccional 1->1 entre **Pacientes** y sus **Historias Clínicas**. Implementa el patrón DAO, transacciones con commit/rollback, y un menú de consola para operaciones CRUD completas.
+Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entre **Pacientes** y sus **Historias Clínicas**. Implementa el patrón DAO, transacciones con commit/rollback, y un menú de consola para operaciones CRUD completas.
 
-### Dominio Elegido: Paciente -> HistoriaClínica
+### Dominio Elegido: Paciente --> HistoriaClínica
 
 - **Paciente**: Información personal y datos de identificación
 - **HistoriaClínica**: Datos médicos y antecedentes del paciente
@@ -83,17 +83,17 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1->1 entre
         HistoriaClinica --> "1" GrupoSanguineo : -grupoSanguineo
 ```
 
-## Requisitos del Sistema
+<!-- ## Requisitos del Sistema -->
 
-## Instalación y Configuración
+<!-- ## Instalación y Configuración -->
 
-## Uso de la Aplicación
+<!-- ## Uso de la Aplicación -->
 
-## Scripts SQL Incluidos
+<!-- ## Scripts SQL Incluidos -->
 
 ## Funcionalidades Implementadas
 
-- Relación 1->1 unidireccional (Paciente -> HistoriaClinica)
+- Relación 1-->1 unidireccional (Paciente --> HistoriaClinica)
 - CRUD completo con baja lógica
 - Transacciones con commit/rollback
 - Validaciones de entrada robustas
@@ -105,27 +105,55 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1->1 entre
 
 ### Tabla: `Paciente`
 
-| Campo           | Tipo MySQL  | Restricciones               | Notas                             |
-| --------------- | ----------- | --------------------------- | --------------------------------- |
-| id              | BIGINT      | PRIMARY KEY, AUTO_INCREMENT | Clave primaria                    |
-| eliminado       | BOOLEAN     | DEFAULT FALSE               | Baja lógica                       |
-| nombre          | VARCHAR(80) | NOT NULL                    | Máximo 80 caracteres              |
-| apellido        | VARCHAR(80) | NOT NULL                    | Máximo 80 caracteres              |
-| dni             | VARCHAR(15) | NOT NULL, UNIQUE            | Máximo 15 caracteres, único       |
-| fechaNacimiento | DATE        | NULLABLE                    | Tipo fecha                        |
-| historiaClinica | BIGINT      | FOREIGN KEY, UNIQUE         | Relación 1->1 con HistoriaClinica |
+| Campo            | Tipo MySQL  | Restricciones               | Notas                              |
+| ---------------- | ----------- | --------------------------- | ---------------------------------- |
+| id               | INT         | PRIMARY KEY, AUTO_INCREMENT | Clave primaria                     |
+| eliminado        | BOOLEAN     | DEFAULT FALSE               | Baja lógica                        |
+| nombre           | VARCHAR(80) | NOT NULL                    | Máximo 80 caracteres               |
+| apellido         | VARCHAR(80) | NOT NULL                    | Máximo 80 caracteres               |
+| dni              | VARCHAR(8)  | NOT NULL, UNIQUE            | Máximo 8 caracteres, único         |
+| fecha_nacimiento | DATE        | NULLABLE                    | Tipo fecha                         |
+| historia_clinica | INT         | FOREIGN KEY, UNIQUE         | Relación 1-->1 con HistoriaClinica |
 
 ### Tabla: `HistoriaClinica`
 
-| Campo            | Tipo MySQL                                             | Restricciones               | Notas                       |
-| ---------------- | ------------------------------------------------------ | --------------------------- | --------------------------- |
-| id               | BIGINT                                                 | PRIMARY KEY, AUTO_INCREMENT | Clave primaria              |
-| eliminado        | BOOLEAN                                                | DEFAULT FALSE               | Baja lógica                 |
-| nroHistoria      | VARCHAR(20)                                            | UNIQUE                      | Máximo 20 caracteres, único |
-| grupoSanguineo   | ENUM('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-') | NULLABLE                    | Grupo sanguíneo             |
-| antecedentes     | TEXT                                                   | NULLABLE                    | Texto largo                 |
-| medicacionActual | TEXT                                                   | NULLABLE                    | Texto largo                 |
-| observaciones    | TEXT                                                   | NULLABLE                    | Texto largo                 |
+| Campo             | Tipo MySQL                                             | Restricciones               | Notas                       |
+| ----------------- | ------------------------------------------------------ | --------------------------- | --------------------------- |
+| id                | INT                                                    | PRIMARY KEY, AUTO_INCREMENT | Clave primaria              |
+| eliminado         | BOOLEAN                                                | DEFAULT FALSE               | Baja lógica                 |
+| nro_historia      | VARCHAR(20)                                            | UNIQUE                      | Máximo 20 caracteres, único |
+| grupo_sanguineo   | ENUM('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-') | NULLABLE                    | Enumeración                 |
+| antecedentes      | TEXT                                                   | NULLABLE                    | Texto largo                 |
+| medicacion_actual | TEXT                                                   | NULLABLE                    | Texto largo                 |
+| observaciones     | TEXT                                                   | NULLABLE                    | Texto largo                 |
+
+## Diagrama ER
+
+```mermaid
+    erDiagram
+    direction LR
+        Paciente {
+            id INT PK "AUTO_INCREMENT"
+            eliminado BOOLEAN "DEFAULT FALSE"
+            nombre VARCHAR(80) "NOT NULL"
+            apellido VARCHAR(80) "NOT NULL"
+            dni VARCHAR(8) "NOT NULL, UNIQUE"
+            fecha_nacimiento DATE "NULLABLE"
+            historia_clinica INT FK "UNIQUE"
+        }
+
+        HistoriaClinica {
+            id INT PK "AUTO_INCREMENT"
+            eliminado BOOLEAN "DEFAULT FALSE"
+            nro_historia VARCHAR(20) "UNIQUE"
+            grupo_sanguineo ENUM "A+, A-, B+, B-, AB+, AB-, O+, O-"
+            antecedentes TEXT "NULLABLE"
+            medicacion_actual TEXT "NULLABLE"
+            observaciones TEXT "NULLABLE"
+        }
+
+        Paciente 1--1 HistoriaClinica : tiene
+```
 
 ## Video Demostración
 
