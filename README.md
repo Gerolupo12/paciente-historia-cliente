@@ -23,6 +23,8 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
 ```plaintext
     paciente-historia-cliente/
     ├── sql
+    │   ├── init_db.sql
+    │   ├── pruebas_constraints.sql
     │   └── schema.sql
     ├── src
     │   ├── config
@@ -129,8 +131,6 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
             HistoriaClinica --> "1" GrupoSanguineo : -grupoSanguineo
 ```
 
-<!-- ## Requisitos del Sistema -->
-
 <!-- ## Instalación y Configuración -->
 
 <!-- ## Uso de la Aplicación -->
@@ -147,29 +147,29 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
 
 ## Estructura de la Base de Datos
 
-### Tabla: `Paciente`
+### Tabla A: `Paciente`
 
-| Campo            | Tipo MySQL  | Restricciones               |
-| ---------------- | ----------- | --------------------------- |
-| id               | INT         | PRIMARY KEY, AUTO_INCREMENT |
-| eliminado        | BOOLEAN     | DEFAULT FALSE               |
-| nombre           | VARCHAR(80) | NOT NULL                    |
-| apellido         | VARCHAR(80) | NOT NULL                    |
-| dni              | VARCHAR(8)  | NOT NULL, UNIQUE            |
-| fecha_nacimiento | DATE        | NULLABLE                    |
-| historia_clinica | INT         | FOREIGN KEY, UNIQUE         |
+| Campo               | Tipo MySQL  | Restricciones                                                                       |
+| ------------------- | ----------- | ----------------------------------------------------------------------------------- |
+| id                  | BIGINT      | PRIMARY KEY, AUTO_INCREMENT                                                         |
+| eliminado           | BOOLEAN     | DEFAULT FALSE                                                                       |
+| nombre              | VARCHAR(80) | NOT NULL                                                                            |
+| apellido            | VARCHAR(80) | NOT NULL                                                                            |
+| dni                 | VARCHAR(15) | NOT NULL, UNIQUE, CHECK (LENGTH (dni) BETWEEN 7 AND 15)                             |
+| fecha_nacimiento    | DATE        | NULL, CHECK (fecha_nacimiento <= CURDATE()), CHECK (YEAR (fecha_nacimiento) > 1900) |
+| historia_clinica_id | BIGINT      | FOREIGN KEY, UNIQUE, NULL, ON DELETE SET NULL, ON UPDATE CASCADE                    |
 
-### Tabla: `HistoriaClinica`
+### Tabla B: `HistoriaClinica`
 
-| Campo             | Tipo MySQL                                                                                | Restricciones               |
-| ----------------- | ----------------------------------------------------------------------------------------- | --------------------------- |
-| id                | INT                                                                                       | PRIMARY KEY, AUTO_INCREMENT |
-| eliminado         | BOOLEAN                                                                                   | DEFAULT FALSE               |
-| nro_historia      | VARCHAR(20)                                                                               | UNIQUE                      |
-| grupo_sanguineo   | ENUM('A_PLUS','A_MINUS', 'B_PLUS', 'B_MINUS', 'AB_PLUS', 'AB_MINUS', 'O_PLUS', 'O_MINUS') | NULLABLE                    |
-| antecedentes      | TEXT                                                                                      | NULLABLE                    |
-| medicacion_actual | TEXT                                                                                      | NULLABLE                    |
-| observaciones     | TEXT                                                                                      | NULLABLE                    |
+| Campo             | Tipo MySQL                                                                                | Restricciones                                                                         |
+| ----------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| id                | BIGINT                                                                                    | PRIMARY KEY, AUTO_INCREMENT                                                           |
+| eliminado         | BOOLEAN                                                                                   | DEFAULT FALSE                                                                         |
+| nro_historia      | VARCHAR(20)                                                                               | UNIQUE, NOT NULL, CHECK (LENGTH(nro_historia) >= 4), CHECK (nro_historia LIKE 'HC-%') |
+| grupo_sanguineo   | ENUM('A_PLUS','A_MINUS', 'B_PLUS', 'B_MINUS', 'AB_PLUS', 'AB_MINUS', 'O_PLUS', 'O_MINUS') | NULL                                                                                  |
+| antecedentes      | TEXT                                                                                      | NULL                                                                                  |
+| medicacion_actual | TEXT                                                                                      | NULL                                                                                  |
+| observaciones     | TEXT                                                                                      | NULL                                                                                  |
 
 ## Diagrama ER
 
@@ -177,23 +177,23 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
     erDiagram
     direction LR
         Paciente {
-            id INT PK "AUTO_INCREMENT"
+            id BIGINT PK "AUTO_INCREMENT"
             eliminado BOOLEAN "DEFAULT FALSE"
             nombre VARCHAR(80) "NOT NULL"
             apellido VARCHAR(80) "NOT NULL"
-            dni VARCHAR(8) "NOT NULL, UNIQUE"
-            fecha_nacimiento DATE "NULLABLE"
-            historia_clinica INT FK "UNIQUE"
+            dni VARCHAR(15) "NOT NULL, UNIQUE, CHECK (LENGTH (dni) BETWEEN 7 AND 15)"
+            fecha_nacimiento DATE "NULL, CHECK (fecha_nacimiento <= CURDATE ()), CHECK (YEAR (fecha_nacimiento) > 1900)"
+            historia_clinica_id BIGINT FK "UNIQUE, ON DELETE SET NULL, ON UPDATE CASCADE"
         }
 
         HistoriaClinica {
-            id INT PK "AUTO_INCREMENT"
+            id BIGINT PK "AUTO_INCREMENT"
             eliminado BOOLEAN "DEFAULT FALSE"
-            nro_historia VARCHAR(20) "UNIQUE"
-            grupo_sanguineo ENUM "A_PLUS, A_MINUS, B_PLUS, B_MINUS, AB_PLUS, AB_MINUS, O_PLUS, O_MINUS"
-            antecedentes TEXT "NULLABLE"
-            medicacion_actual TEXT "NULLABLE"
-            observaciones TEXT "NULLABLE"
+            nro_historia VARCHAR(20) "UNIQUE, NOT NULL, CHECK (LENGTH (nro_historia) >= 4), CHECK (nro_historia LIKE 'HC-%')"
+            grupo_sanguineo ENUM(A_PLUS, A_MINUS, B_PLUS, B_MINUS, AB_PLUS, AB_MINUS, O_PLUS, O_MINUS) "NULL"
+            antecedentes TEXT "NULL"
+            medicacion_actual TEXT "NULL"
+            observaciones TEXT "NULL"
         }
 
         Paciente 1--1 HistoriaClinica : tiene

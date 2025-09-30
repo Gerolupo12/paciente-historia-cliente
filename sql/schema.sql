@@ -3,12 +3,12 @@ CREATE DATABASE IF NOT EXISTS gestion_pacientes;
 
 USE gestion_pacientes;
 
--- Tabla HistoriaClinica
+-- Tabla HistoriaClinica (clase B)
 CREATE TABLE
-    IF NOT EXISTS HistoriaClinica (
-        id INT PRIMARY KEY AUTO_INCREMENT,
+    HistoriaClinica (
+        id BIGINT PRIMARY KEY AUTO_INCREMENT,
         eliminado BOOLEAN DEFAULT FALSE,
-        nro_historia VARCHAR(20) UNIQUE,
+        nro_historia VARCHAR(20) UNIQUE NOT NULL,
         grupo_sanguineo ENUM (
             'A_PLUS',
             'A_MINUS',
@@ -18,21 +18,28 @@ CREATE TABLE
             'AB_MINUS',
             'O_PLUS',
             'O_MINUS'
-        ),
-        antecedentes TEXT,
-        medicacion_actual TEXT,
-        observaciones TEXT
+        ) NULL,
+        antecedentes TEXT NULL,
+        medicacion_actual TEXT NULL,
+        observaciones TEXT NULL,
+        -- Constraints
+        CHECK (LENGTH (nro_historia) >= 4),
+        CHECK (nro_historia LIKE 'HC-%')
     );
 
--- Tabla Paciente
+-- Tabla Paciente (clase A)
 CREATE TABLE
-    IF NOT EXISTS Paciente (
-        id INT PRIMARY KEY AUTO_INCREMENT,
+    Paciente (
+        id BIGINT PRIMARY KEY AUTO_INCREMENT,
         eliminado BOOLEAN DEFAULT FALSE,
         nombre VARCHAR(80) NOT NULL,
         apellido VARCHAR(80) NOT NULL,
-        dni VARCHAR(8) NOT NULL UNIQUE,
-        fecha_nacimiento DATE,
-        historia_clinica INT UNIQUE,
-        FOREIGN KEY (historia_clinica) REFERENCES HistoriaClinica (id)
+        dni VARCHAR(15) UNIQUE NOT NULL,
+        fecha_nacimiento DATE NULL,
+        historia_clinica_id BIGINT UNIQUE NULL,
+        -- Constraints
+        FOREIGN KEY (historia_clinica_id) REFERENCES HistoriaClinica (id) ON DELETE SET NULL ON UPDATE CASCADE,
+        CHECK (LENGTH (dni) BETWEEN 7 AND 15),
+        CHECK (fecha_nacimiento <= CURDATE ()),
+        CHECK (YEAR (fecha_nacimiento) > 1900)
     );
