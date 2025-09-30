@@ -23,6 +23,7 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
 ```plaintext
     paciente-historia-cliente/
     ├── sql
+    │   └── schema.sql
     ├── src
     │   ├── config
     │   │   ├── DatabaseConnection.java
@@ -45,10 +46,7 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
     │       ├── GenericService.java
     │       ├── HistoriaClinicaService.java
     │       └── PacienteService.java
-    ├── test
-    ├── .gitignore
-    ├── LICENSE
-    └── README.md
+    └── test
 ```
 
 ## Diagrama UML
@@ -85,6 +83,7 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
                 + setFechaNacimiento(LocalDate) void
                 + getHistoriaClinica() HistoriaClinica
                 + setHistoriaClinica(HistoriaClinica) void
+                + toString() String
             }
 
             class HistoriaClinica {
@@ -93,35 +92,38 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
                 - medicacionActual: String
                 - observaciones: String
                 - grupoSanguineo: GrupoSanguineo
-                + HistoriaClinica(int, String, String, String, String)
+                + HistoriaClinica(id: int, String, String, String, String, GrupoSanguineo)
+                + HistoriaClinica(id: int, numeroHistoria: String)
                 + HistoriaClinica()
                 + getNumeroHistoria() String
                 + setNumeroHistoria(String) void
+                + getGrupoSanguineo() GrupoSanguineo
+                + setGrupoSanguineo(GrupoSanguineo) void
                 + getAntecedentes() String
                 + setAntecedentes(String) void
                 + getMedicacionActual() String
                 + setMedicacionActual(String) void
                 + getObservaciones() String
                 + setObservaciones(String) void
-                + getGrupoSanguineo() GrupoSanguineo
-                + setGrupoSanguineo(GrupoSanguineo) void
+                + toString() String
             }
 
             class GrupoSanguineo {
-                + A_PLUS$
-                + A_MINUS$
-                + B_PLUS$
-                + B_MINUS$
-                + AB_PLUS$
-                + AB_MINUS$
-                + O_PLUS$
-                + O_MINUS$
+                A_PLUS
+                A_MINUS
+                B_PLUS
+                B_MINUS
+                AB_PLUS
+                AB_MINUS
+                O_PLUS
+                O_MINUS
+                + puedeDonarA(receptor: GrupoSanguineo) boolean
             }
 
             <<abstract>> Base
             <<enum>> GrupoSanguineo
 
-            Base <|-- Paciente : implemeta
+            Base <|-- Paciente : implementa
             Base <|-- HistoriaClinica : implementa
             Paciente --> "1" HistoriaClinica : -historiaClinica
             HistoriaClinica --> "1" GrupoSanguineo : -grupoSanguineo
@@ -132,8 +134,6 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
 <!-- ## Instalación y Configuración -->
 
 <!-- ## Uso de la Aplicación -->
-
-<!-- ## Scripts SQL Incluidos -->
 
 ## Funcionalidades Implementadas
 
@@ -149,27 +149,27 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
 
 ### Tabla: `Paciente`
 
-| Campo            | Tipo MySQL  | Restricciones               | Notas                              |
-| ---------------- | ----------- | --------------------------- | ---------------------------------- |
-| id               | INT         | PRIMARY KEY, AUTO_INCREMENT | Clave primaria                     |
-| eliminado        | BOOLEAN     | DEFAULT FALSE               | Baja lógica                        |
-| nombre           | VARCHAR(80) | NOT NULL                    | Máximo 80 caracteres               |
-| apellido         | VARCHAR(80) | NOT NULL                    | Máximo 80 caracteres               |
-| dni              | VARCHAR(8)  | NOT NULL, UNIQUE            | Máximo 8 caracteres, único         |
-| fecha_nacimiento | DATE        | NULLABLE                    | Tipo fecha                         |
-| historia_clinica | INT         | FOREIGN KEY, UNIQUE         | Relación 1-->1 con HistoriaClinica |
+| Campo            | Tipo MySQL  | Restricciones               |
+| ---------------- | ----------- | --------------------------- |
+| id               | INT         | PRIMARY KEY, AUTO_INCREMENT |
+| eliminado        | BOOLEAN     | DEFAULT FALSE               |
+| nombre           | VARCHAR(80) | NOT NULL                    |
+| apellido         | VARCHAR(80) | NOT NULL                    |
+| dni              | VARCHAR(8)  | NOT NULL, UNIQUE            |
+| fecha_nacimiento | DATE        | NULLABLE                    |
+| historia_clinica | INT         | FOREIGN KEY, UNIQUE         |
 
 ### Tabla: `HistoriaClinica`
 
-| Campo             | Tipo MySQL                                             | Restricciones               | Notas                       |
-| ----------------- | ------------------------------------------------------ | --------------------------- | --------------------------- |
-| id                | INT                                                    | PRIMARY KEY, AUTO_INCREMENT | Clave primaria              |
-| eliminado         | BOOLEAN                                                | DEFAULT FALSE               | Baja lógica                 |
-| nro_historia      | VARCHAR(20)                                            | UNIQUE                      | Máximo 20 caracteres, único |
-| grupo_sanguineo   | ENUM('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-') | NULLABLE                    | Enumeración                 |
-| antecedentes      | TEXT                                                   | NULLABLE                    | Texto largo                 |
-| medicacion_actual | TEXT                                                   | NULLABLE                    | Texto largo                 |
-| observaciones     | TEXT                                                   | NULLABLE                    | Texto largo                 |
+| Campo             | Tipo MySQL                                                                                | Restricciones               |
+| ----------------- | ----------------------------------------------------------------------------------------- | --------------------------- |
+| id                | INT                                                                                       | PRIMARY KEY, AUTO_INCREMENT |
+| eliminado         | BOOLEAN                                                                                   | DEFAULT FALSE               |
+| nro_historia      | VARCHAR(20)                                                                               | UNIQUE                      |
+| grupo_sanguineo   | ENUM('A_PLUS','A_MINUS', 'B_PLUS', 'B_MINUS', 'AB_PLUS', 'AB_MINUS', 'O_PLUS', 'O_MINUS') | NULLABLE                    |
+| antecedentes      | TEXT                                                                                      | NULLABLE                    |
+| medicacion_actual | TEXT                                                                                      | NULLABLE                    |
+| observaciones     | TEXT                                                                                      | NULLABLE                    |
 
 ## Diagrama ER
 
@@ -190,7 +190,7 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
             id INT PK "AUTO_INCREMENT"
             eliminado BOOLEAN "DEFAULT FALSE"
             nro_historia VARCHAR(20) "UNIQUE"
-            grupo_sanguineo ENUM "A+, A-, B+, B-, AB+, AB-, O+, O-"
+            grupo_sanguineo ENUM "A_PLUS, A_MINUS, B_PLUS, B_MINUS, AB_PLUS, AB_MINUS, O_PLUS, O_MINUS"
             antecedentes TEXT "NULLABLE"
             medicacion_actual TEXT "NULLABLE"
             observaciones TEXT "NULLABLE"
