@@ -190,7 +190,7 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
             id BIGINT PK "AUTO_INCREMENT"
             eliminado BOOLEAN "DEFAULT FALSE"
             nro_historia VARCHAR(20) "UNIQUE, NOT NULL, CHECK (LENGTH (nro_historia) >= 4), CHECK (nro_historia LIKE 'HC-%')"
-            grupo_sanguineo ENUM(A_PLUS, A_MINUS, B_PLUS, B_MINUS, AB_PLUS, AB_MINUS, O_PLUS, O_MINUS) "NULL"
+            grupo_sanguineo ENUM "(A_PLUS, A_MINUS, B_PLUS, B_MINUS, AB_PLUS, AB_MINUS, O_PLUS, O_MINUS), NULL"
             antecedentes TEXT "NULL"
             medicacion_actual TEXT "NULL"
             observaciones TEXT "NULL"
