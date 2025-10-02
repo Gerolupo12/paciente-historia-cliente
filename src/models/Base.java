@@ -55,8 +55,8 @@ public abstract class Base {
      * 
      * @return true si la entidad está eliminada, false en caso contrario
      */
-    public Boolean getEliminado() {
-        return eliminado;
+    public String getEliminado() {
+        return (eliminado ? "Si" : "No");
     }
 
     /**

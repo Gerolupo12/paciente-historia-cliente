@@ -163,11 +163,10 @@ public class HistoriaClinica extends Base {
         return "HistoriaClinica{"
                 + "id=" + getId()
                 + ", numeroHistoria=" + numeroHistoria
-                + ", grupoSanguineo=" + grupoSanguineo
+                + ", " + grupoSanguineo
                 + ", antecedentes=" + antecedentes
                 + ", medicacionActual=" + medicacionActual
-                + ", observaciones=" + observaciones
-                + ", eliminado=" + getEliminado() + '}';
+                + ", observaciones=" + observaciones + '}';
     }
 
 }

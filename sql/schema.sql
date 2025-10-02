@@ -40,6 +40,5 @@ CREATE TABLE
         -- Constraints
         FOREIGN KEY (historia_clinica_id) REFERENCES HistoriaClinica (id) ON DELETE SET NULL ON UPDATE CASCADE,
         CHECK (LENGTH (dni) BETWEEN 7 AND 15),
-        CHECK (fecha_nacimiento <= CURDATE ()),
         CHECK (YEAR (fecha_nacimiento) > 1900)
     );

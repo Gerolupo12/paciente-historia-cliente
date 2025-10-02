@@ -37,10 +37,10 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
     │   ├── main
     │   │   ├── AppMenu.java
     │   │   ├── Main.java
-    │   │   ├── NewMain.java
     │   │   └── TestConnection.java
     │   ├── models
     │   │   ├── Base.java
+    │   │   ├── FactorRh.java
     │   │   ├── GrupoSanguineo.java
     │   │   ├── HistoriaClinica.java
     │   │   └── Paciente.java
@@ -63,7 +63,7 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
                 + Base()
                 + getId() int
                 + setId(int) void
-                + getEliminado() boolean
+                + getEliminado() String
                 + setEliminado(boolean) void
             }
 
@@ -119,16 +119,29 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
                 AB_MINUS
                 O_PLUS
                 O_MINUS
-                + puedeDonarA(receptor: GrupoSanguineo) boolean
+                - factorRh$
+                - GrupoSanguineo(FactorRh)
+                + getTipoGrupo() String
+                + puedeDonarA(GrupoSanguineo) boolean
+                + toString() String
+            }
+
+            class FactorRh {
+                POSITIVO
+                NEGATIVO
+                + toSymbol() String
+                + toString() String
             }
 
             <<abstract>> Base
             <<enum>> GrupoSanguineo
+            <<enum>> FactorRh
 
             Base <|-- Paciente : implementa
             Base <|-- HistoriaClinica : implementa
             Paciente --> "1" HistoriaClinica : -historiaClinica
             HistoriaClinica --> "1" GrupoSanguineo : -grupoSanguineo
+            GrupoSanguineo --> "1" FactorRh : -factorRh
 ```
 
 <!-- ## Instalación y Configuración -->
@@ -149,15 +162,15 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
 
 ### Tabla A: `Paciente`
 
-| Campo               | Tipo MySQL  | Restricciones                                                                       |
-| ------------------- | ----------- | ----------------------------------------------------------------------------------- |
-| id                  | BIGINT      | PRIMARY KEY, AUTO_INCREMENT                                                         |
-| eliminado           | BOOLEAN     | DEFAULT FALSE                                                                       |
-| nombre              | VARCHAR(80) | NOT NULL                                                                            |
-| apellido            | VARCHAR(80) | NOT NULL                                                                            |
-| dni                 | VARCHAR(15) | NOT NULL, UNIQUE, CHECK (LENGTH (dni) BETWEEN 7 AND 15)                             |
-| fecha_nacimiento    | DATE        | NULL, CHECK (fecha_nacimiento <= CURDATE()), CHECK (YEAR (fecha_nacimiento) > 1900) |
-| historia_clinica_id | BIGINT      | FOREIGN KEY, UNIQUE, NULL, ON DELETE SET NULL, ON UPDATE CASCADE                    |
+| Campo               | Tipo MySQL  | Restricciones                                                    |
+| ------------------- | ----------- | ---------------------------------------------------------------- |
+| id                  | BIGINT      | PRIMARY KEY, AUTO_INCREMENT                                      |
+| eliminado           | BOOLEAN     | DEFAULT FALSE                                                    |
+| nombre              | VARCHAR(80) | NOT NULL                                                         |
+| apellido            | VARCHAR(80) | NOT NULL                                                         |
+| dni                 | VARCHAR(15) | NOT NULL, UNIQUE, CHECK (LENGTH (dni) BETWEEN 7 AND 15)          |
+| fecha_nacimiento    | DATE        | NULL, CHECK (YEAR (fecha_nacimiento) > 1900)                     |
+| historia_clinica_id | BIGINT      | FOREIGN KEY, UNIQUE, NULL, ON DELETE SET NULL, ON UPDATE CASCADE |
 
 ### Tabla B: `HistoriaClinica`
 
@@ -182,7 +195,7 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
             nombre VARCHAR(80) "NOT NULL"
             apellido VARCHAR(80) "NOT NULL"
             dni VARCHAR(15) "NOT NULL, UNIQUE, CHECK (LENGTH (dni) BETWEEN 7 AND 15)"
-            fecha_nacimiento DATE "NULL, CHECK (fecha_nacimiento <= CURDATE ()), CHECK (YEAR (fecha_nacimiento) > 1900)"
+            fecha_nacimiento DATE "NULL, CHECK (YEAR (fecha_nacimiento) > 1900)"
             historia_clinica_id BIGINT FK "UNIQUE, ON DELETE SET NULL, ON UPDATE CASCADE"
         }
 

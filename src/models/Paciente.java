@@ -145,7 +145,7 @@ public class Paciente extends Base {
         this.historiaClinica = historiaClinica;
     }
 
-    /**
+     /**
      * Representación en String del objeto Paciente.
      * Incluye todos los datos básicos y referencia a historia clínica.
      * 
@@ -155,12 +155,11 @@ public class Paciente extends Base {
     public String toString() {
         return "Paciente{"
                 + "id=" + getId()
-                + ", nombre=" + nombre
-                + ", apellido=" + apellido
+                + ", nombre=" + apellido
+                + ", " + nombre 
                 + ", dni=" + dni
                 + ", fechaNacimiento=" + fechaNacimiento
-                + ", " + getHistoriaClinica()
-                + ", eliminado=" + getEliminado() + '}';
+                + ", " + getHistoriaClinica() + '}';
     }
 
 }

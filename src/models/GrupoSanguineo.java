@@ -1,38 +1,59 @@
 package models;
 
 /**
- * Enumeración que representa los posibles grupos sanguíneos en el sistema.
- * Incluye todos los tipos de grupos sanguíneos con sus factores Rh positivos y
- * negativos.
+ * Enumeración que representa los grupos sanguíneos con su factor Rh.
+ * Combina el tipo de grupo (A, B, AB, O) con el factor Rh (positivo/negativo).
  * 
  * @author alpha team
+ * @see FactorRh
  * @see HistoriaClinica
  */
 public enum GrupoSanguineo {
 
     /** Grupo A con factor Rh positivo */
-    A_PLUS,
+    A_PLUS(FactorRh.POSITIVO),
 
     /** Grupo A con factor Rh negativo */
-    A_MINUS,
+    A_MINUS(FactorRh.NEGATIVO),
 
     /** Grupo B con factor Rh positivo */
-    B_PLUS,
+    B_PLUS(FactorRh.POSITIVO),
 
     /** Grupo B con factor Rh negativo */
-    B_MINUS,
+    B_MINUS(FactorRh.NEGATIVO),
 
     /** Grupo AB con factor Rh positivo */
-    AB_PLUS,
+    AB_PLUS(FactorRh.POSITIVO),
 
     /** Grupo AB con factor Rh negativo */
-    AB_MINUS,
+    AB_MINUS(FactorRh.NEGATIVO),
 
     /** Grupo O con factor Rh positivo */
-    O_PLUS,
+    O_PLUS(FactorRh.POSITIVO),
 
     /** Grupo O con factor Rh negativo */
-    O_MINUS;
+    O_MINUS(FactorRh.NEGATIVO);
+
+    private final FactorRh factorRh;
+
+    /**
+     * Constructor que asocia un GrupoSanguineo con factor Rh específico.
+     * 
+     * @param factorRh El factor Rh del grupo sanguíneo
+     */
+    GrupoSanguineo(FactorRh factorRh) {
+        this.factorRh = factorRh;
+    }
+
+    /**
+     * Obtiene el tipo de grupo sanguíneo (sin el factor Rh).
+     * 
+     * @return El tipo de grupo (A, B, AB, O)
+     */
+    public String getTipoGrupo() {
+        String name = this.name();
+        return name.substring(0, name.indexOf('_'));
+    }
 
     /**
      * Verifica si el grupo sanguíneo es compatible para donación con otro grupo.
@@ -67,4 +88,17 @@ public enum GrupoSanguineo {
             default -> false;
         };
     }
+
+    /**
+     * Representación en String del enum GrupoSanguineo.
+     * 
+     * @return String en formato legible (ej: "A+", "O-")
+     */
+    @Override
+    public String toString() {
+        String tipo = getTipoGrupo();
+        String simbolo = factorRh.toSymbol();
+        return "GrupoSanguineo=" + tipo + simbolo;
+    }
+
 }
