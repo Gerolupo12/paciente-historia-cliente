@@ -55,7 +55,7 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
 
 ```mermaid
     classDiagram
-        direction LR
+        direction TB
             class Base {
                 - id: int
                 - eliminado: boolean
@@ -188,7 +188,7 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
 
 ```mermaid
     erDiagram
-    direction LR
+    direction TB
         Paciente {
             id BIGINT PK "AUTO_INCREMENT"
             eliminado BOOLEAN "DEFAULT FALSE"
@@ -209,7 +209,7 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
             observaciones TEXT "NULL"
         }
 
-        Paciente 1--1 HistoriaClinica : tiene
+        Paciente }o--|| HistoriaClinica : tiene
 ```
 
 ## Video Demostración
