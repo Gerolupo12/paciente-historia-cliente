@@ -22,10 +22,19 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
 
 ```plaintext
     paciente-historia-cliente/
+    ├── informes
+    │   ├── Base_de_Datos_I.md
+    │   └── Programacion_II.md
     ├── sql
-    │   ├── init_db.sql
-    │   ├── pruebas_constraints.sql
-    │   └── schema.sql
+    │   ├── tablas_3FN
+    │   │   ├── init_db.sql
+    │   │   ├── init_schema.sql
+    │   │   ├── pruebas_constraints.sql
+    │   │   └── pruebas_consultas.sql
+    │   └── tablas_sin_normalizar
+    │       ├── init_db.sql
+    │       ├── init_schema.sql
+    │       └── pruebas_constraints.sql
     ├── src
     │   ├── config
     │   │   ├── DatabaseConnection.java
@@ -43,6 +52,7 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
     │   │   ├── FactorRh.java
     │   │   ├── GrupoSanguineo.java
     │   │   ├── HistoriaClinica.java
+    │   │   ├── MainDePrueba.java
     │   │   └── Paciente.java
     │   └── service
     │       ├── GenericService.java
@@ -211,6 +221,11 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
 
         Paciente }o--|| HistoriaClinica : tiene
 ```
+
+## Informes
+
+- [x] [Base de Datos I](./informes/Base_de_Datos_I.md)
+- [ ] [Programación II](./informes/Programacion_II.md)
 
 ## Video Demostración
 

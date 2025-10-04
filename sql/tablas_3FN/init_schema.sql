@@ -23,17 +23,16 @@ CREATE TABLE
         id INT PRIMARY KEY AUTO_INCREMENT,
         tipo_grupo ENUM ('A', 'B', 'AB', 'O') NOT NULL,
         factor_rh ENUM ('+', '-') NOT NULL,
-        simbolo VARCHAR(3) AS (CONCAT (tipo_grupo, factor_rh)) STORED,
+        simbolo VARCHAR(3) AS (CONCAT(tipo_grupo, factor_rh)) STORED, -- Crea una columna calculada. STORED asegura que el resultado de esta concatenación se almacene físicamente en la tabla
         -- Constraints
-        -- Evita duplicados en la lógica de negocio (combinación tipo + factor).
-        -- Ej: No puede haber dos registros con (A, +)
-        UNIQUE KEY uk_grupo_factor (tipo_grupo, factor_rh)
+        UNIQUE KEY uk_grupo_factor (tipo_grupo, factor_rh) -- Evita duplicados en la lógica de negocio (combinación tipo + factor). Ej: No puede haber dos registros con (A, +)
     );
 
 -- Tabla HistoriaClinica (clase B)
 CREATE TABLE
     HistoriaClinica (
         id BIGINT PRIMARY KEY AUTO_INCREMENT,
+        eliminado BOOLEAN DEFAULT FALSE,
         nro_historia VARCHAR(20) NOT NULL UNIQUE,
         grupo_sanguineo_id INT NULL,
         antecedentes TEXT NULL,
