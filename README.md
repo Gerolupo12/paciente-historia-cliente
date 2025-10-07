@@ -66,84 +66,49 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
 ```mermaid
 classDiagram
     direction TB
-    class Base {
+    class Persona {
         - id: int
         - eliminado: boolean
-        + Base(int)
-        + Base()
-        + getId() int
-        + setId(int) void
-        + getEliminado() String
-        + setEliminado(boolean) void
-    }
-
-    class Persona {
         - nombre: String
         - apellido: String
         - dni: String
         - fechaNacimiento: LocalDate
-        + Persona(int, String, String, String, LocalDate)
         + Persona()
-        + getNombre() String
-        + setNombre(String) void
-        + getApellido() String
-        + setApellido(String) void
-        + getDni() String
-        + setDni(String) void
-        + getFechaNacimiento() LocalDate
-        + setFechaNacimiento(LocalDate) void
+        + getters/setters()
         + toString() String
     }
 
     class Paciente {
+        - id: int
+        - eliminado: boolean
         - persona: Persona
         - historiaClinica: HistoriaClinica
-        + Paciente(int, Persona, HistoriaClinica)
         + Paciente()
-        + getPersona() Persona
-        + setPersona(Persona) void
-        + getHistoriaClinica() HistoriaClinica
-        + setHistoriaClinica(HistoriaClinica) void
+        + getters/setters()
         + toString() String
     }
 
     class Profesional {
+        - id: int
+        - eliminado: boolean
         - persona: Persona
         - matricula: String
         - especialidad: String
-        + Profesional(int, Persona, String, String)
         + Profesional()
-        + getPersona() Persona
-        + setPersona(Persona) void
-        + getMatricula() String
-        + setMatricula(String) void
-        + getEspecialidad() String
-        + setEspecialidad(String) void
+        + getters/setters()
         + toString() String
     }
 
     class HistoriaClinica {
+        - id: int
         - numeroHistoria: String
         - antecedentes: String
         - medicacionActual: String
         - observaciones: String
         - grupoSanguineo: GrupoSanguineo
         - profesional: Profesional
-        + HistoriaClinica(id: int, String, String, String, String, GrupoSanguineo, Profesional)
-        + HistoriaClinica(id: int, numeroHistoria: String)
         + HistoriaClinica()
-        + getNumeroHistoria() String
-        + setNumeroHistoria(String) void
-        + getGrupoSanguineo() GrupoSanguineo
-        + setGrupoSanguineo(GrupoSanguineo) void
-        + getAntecedentes() String
-        + setAntecedentes(String) void
-        + getMedicacionActual() String
-        + setMedicacionActual(String) void
-        + getObservaciones() String
-        + setObservaciones(String) void
-        + getProfesional() Profesional
-        + setProfesional(Profesional) void
+        + getters/setters()
         + toString() String
     }
 
@@ -152,31 +117,11 @@ classDiagram
         - tipoGrupo: String
         - factorRh: String
         - simbolo: String
-        + GrupoSanguineo(int, String, String)
         + GrupoSanguineo()
-        + getId() int
-        + setId(int) void
-        + getTipoGrupo() String
-        + setTipoGrupo(String) void
-        + getFactorRh() String
-        + setFactorRh(String) void
-        + getSimbolo() String
+        + getters/setters()
         + toString() String
     }
 
-    <<abstract>> Base
-    <<entity>> Persona
-    <<entity>> Paciente
-    <<entity>> Profesional
-    <<entity>> HistoriaClinica
-    <<entity>> GrupoSanguineo
-
-    Base <|-- Persona : implementa
-    Base <|-- Paciente : implementa
-    Base <|-- Profesional : implementa
-    Base <|-- HistoriaClinica : implementa
-    Base <|-- GrupoSanguineo : implementa
-    
     Persona "1" -- "1" Paciente : es
     Persona "1" -- "1" Profesional : es
     Paciente "1" -- "1" HistoriaClinica : tiene
