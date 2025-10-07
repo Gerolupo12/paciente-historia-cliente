@@ -4,10 +4,11 @@
 
 ## Integrantes del Grupo
 
-- **Ariana Maldonado** - [GitHub](https://github.com/AriMaldo19)
-- **Gerónimo Ramallo** - [GitHub](https://github.com/Gerolupo12)
-- **Alejandro Lagos** - [GitHub](https://github.com/Alejandrovans)
-- **Cristian Lahoz** - [GitHub](https://github.com/m415x)
+
+- **Lagos, Alejandro** - [GitHub](https://github.com/Alejandrovans)
+- **Lahoz, Cristian** - [GitHub](https://github.com/m415x)
+- **Maldonado, Ariana** - [GitHub](https://github.com/AriMaldo19)
+- **Ramallo, Gerónimo** - [GitHub](https://github.com/Gerolupo12)
 
 ## Descripción del Proyecto
 
