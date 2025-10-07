@@ -64,94 +64,124 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
 ## Diagrama UML
 
 ```mermaid
-    classDiagram
-        direction TB
-            class Base {
-                - id: int
-                - eliminado: boolean
-                + Base(int)
-                + Base()
-                + getId() int
-                + setId(int) void
-                + getEliminado() String
-                + setEliminado(boolean) void
-            }
+classDiagram
+    direction TB
+    class Base {
+        - id: int
+        - eliminado: boolean
+        + Base(int)
+        + Base()
+        + getId() int
+        + setId(int) void
+        + getEliminado() String
+        + setEliminado(boolean) void
+    }
 
-            class Paciente {
-                - nombre: String
-                - apellido: String
-                - dni: String
-                - fechaNacimiento: LocalDate
-                - historiaClinica: HistoriaClinica
-                + Paciente(int, String, String, String, LocalDate)
-                + Paciente()
-                + getNombre() String
-                + setNombre(String) void
-                + getApellido() String
-                + setApellido(String) void
-                + getDni() String
-                + setDni(String) void
-                + getFechaNacimiento() LocalDate
-                + setFechaNacimiento(LocalDate) void
-                + getHistoriaClinica() HistoriaClinica
-                + setHistoriaClinica(HistoriaClinica) void
-                + toString() String
-            }
+    class Persona {
+        - nombre: String
+        - apellido: String
+        - dni: String
+        - fechaNacimiento: LocalDate
+        + Persona(int, String, String, String, LocalDate)
+        + Persona()
+        + getNombre() String
+        + setNombre(String) void
+        + getApellido() String
+        + setApellido(String) void
+        + getDni() String
+        + setDni(String) void
+        + getFechaNacimiento() LocalDate
+        + setFechaNacimiento(LocalDate) void
+        + toString() String
+    }
 
-            class HistoriaClinica {
-                - numeroHistoria: String
-                - antecedentes: String
-                - medicacionActual: String
-                - observaciones: String
-                - grupoSanguineo: GrupoSanguineo
-                + HistoriaClinica(id: int, String, String, String, String, GrupoSanguineo)
-                + HistoriaClinica(id: int, numeroHistoria: String)
-                + HistoriaClinica()
-                + getNumeroHistoria() String
-                + setNumeroHistoria(String) void
-                + getGrupoSanguineo() GrupoSanguineo
-                + setGrupoSanguineo(GrupoSanguineo) void
-                + getAntecedentes() String
-                + setAntecedentes(String) void
-                + getMedicacionActual() String
-                + setMedicacionActual(String) void
-                + getObservaciones() String
-                + setObservaciones(String) void
-                + toString() String
-            }
+    class Paciente {
+        - persona: Persona
+        - historiaClinica: HistoriaClinica
+        + Paciente(int, Persona, HistoriaClinica)
+        + Paciente()
+        + getPersona() Persona
+        + setPersona(Persona) void
+        + getHistoriaClinica() HistoriaClinica
+        + setHistoriaClinica(HistoriaClinica) void
+        + toString() String
+    }
 
-            class GrupoSanguineo {
-                A_PLUS
-                A_MINUS
-                B_PLUS
-                B_MINUS
-                AB_PLUS
-                AB_MINUS
-                O_PLUS
-                O_MINUS
-                - factorRh$
-                - GrupoSanguineo(FactorRh)
-                + getTipoGrupo() String
-                + puedeDonarA(GrupoSanguineo) boolean
-                + toString() String
-            }
+    class Profesional {
+        - persona: Persona
+        - matricula: String
+        - especialidad: String
+        + Profesional(int, Persona, String, String)
+        + Profesional()
+        + getPersona() Persona
+        + setPersona(Persona) void
+        + getMatricula() String
+        + setMatricula(String) void
+        + getEspecialidad() String
+        + setEspecialidad(String) void
+        + toString() String
+    }
 
-            class FactorRh {
-                POSITIVO
-                NEGATIVO
-                + toSymbol() String
-                + toString() String
-            }
+    class HistoriaClinica {
+        - numeroHistoria: String
+        - antecedentes: String
+        - medicacionActual: String
+        - observaciones: String
+        - grupoSanguineo: GrupoSanguineo
+        - profesional: Profesional
+        + HistoriaClinica(id: int, String, String, String, String, GrupoSanguineo, Profesional)
+        + HistoriaClinica(id: int, numeroHistoria: String)
+        + HistoriaClinica()
+        + getNumeroHistoria() String
+        + setNumeroHistoria(String) void
+        + getGrupoSanguineo() GrupoSanguineo
+        + setGrupoSanguineo(GrupoSanguineo) void
+        + getAntecedentes() String
+        + setAntecedentes(String) void
+        + getMedicacionActual() String
+        + setMedicacionActual(String) void
+        + getObservaciones() String
+        + setObservaciones(String) void
+        + getProfesional() Profesional
+        + setProfesional(Profesional) void
+        + toString() String
+    }
 
-            <<abstract>> Base
-            <<enum>> GrupoSanguineo
-            <<enum>> FactorRh
+    class GrupoSanguineo {
+        - id: int
+        - tipoGrupo: String
+        - factorRh: String
+        - simbolo: String
+        + GrupoSanguineo(int, String, String)
+        + GrupoSanguineo()
+        + getId() int
+        + setId(int) void
+        + getTipoGrupo() String
+        + setTipoGrupo(String) void
+        + getFactorRh() String
+        + setFactorRh(String) void
+        + getSimbolo() String
+        + toString() String
+    }
 
-            Base <|-- Paciente : implementa
-            Base <|-- HistoriaClinica : implementa
-            Paciente --> "1" HistoriaClinica : -historiaClinica
-            HistoriaClinica --> "1" GrupoSanguineo : -grupoSanguineo
-            GrupoSanguineo --> "1" FactorRh : -factorRh
+    <<abstract>> Base
+    <<entity>> Persona
+    <<entity>> Paciente
+    <<entity>> Profesional
+    <<entity>> HistoriaClinica
+    <<entity>> GrupoSanguineo
+
+    Base <|-- Persona : implementa
+    Base <|-- Paciente : implementa
+    Base <|-- Profesional : implementa
+    Base <|-- HistoriaClinica : implementa
+    Base <|-- GrupoSanguineo : implementa
+    
+    Persona "1" -- "1" Paciente : es
+    Persona "1" -- "1" Profesional : es
+    Paciente "1" -- "1" HistoriaClinica : tiene
+    HistoriaClinica "1" -- "1" GrupoSanguineo : tiene
+    HistoriaClinica "1" -- "1" Profesional : médico tratante
 ```
 
 <!-- ## Instalación y Configuración -->
