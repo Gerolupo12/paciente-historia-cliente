@@ -9,11 +9,10 @@
 
 ## Integrantes del Grupo
 
-- **Ariana Maldonado** - [GitHub](https://github.com/AriMaldo19)
-- **Gerónimo Ramallo** - [GitHub](https://github.com/Gerolupo12)
 - **Alejandro Lagos** - [GitHub](https://github.com/Alejandrovans)
 - **Cristian Lahoz** - [GitHub](https://github.com/m415x)
-
+- **Ariana Maldonado** - [GitHub](https://github.com/AriMaldo19)
+- **Gerónimo Ramallo** - [GitHub](https://github.com/Gerolupo12)
 ---
 
 ## Etapa 1 - Modelado y Definición de Constraints
