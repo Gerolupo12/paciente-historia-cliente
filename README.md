@@ -23,10 +23,19 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
 
 ```plaintext
     paciente-historia-cliente/
+    ├── informes
+    │   ├── Base_de_Datos_I.md
+    │   └── Programacion_II.md
     ├── sql
-    │   ├── init_db.sql
-    │   ├── pruebas_constraints.sql
-    │   └── schema.sql
+    │   ├── tablas_3FN
+    │   │   ├── init_db.sql
+    │   │   ├── init_schema.sql
+    │   │   ├── pruebas_constraints.sql
+    │   │   └── pruebas_consultas.sql
+    │   └── tablas_sin_normalizar
+    │       ├── init_db.sql
+    │       ├── init_schema.sql
+    │       └── pruebas_constraints.sql
     ├── src
     │   ├── config
     │   │   ├── DatabaseConnection.java
@@ -44,6 +53,7 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
     │   │   ├── FactorRh.java
     │   │   ├── GrupoSanguineo.java
     │   │   ├── HistoriaClinica.java
+    │   │   ├── MainDePrueba.java
     │   │   └── Paciente.java
     │   └── service
     │       ├── GenericService.java
@@ -55,94 +65,69 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
 ## Diagrama UML
 
 ```mermaid
-    classDiagram
-        direction LR
-            class Base {
-                - id: int
-                - eliminado: boolean
-                + Base(int)
-                + Base()
-                + getId() int
-                + setId(int) void
-                + getEliminado() String
-                + setEliminado(boolean) void
-            }
+classDiagram
+    direction TB
+    class Persona {
+        - id: int
+        - eliminado: boolean
+        - nombre: String
+        - apellido: String
+        - dni: String
+        - fechaNacimiento: LocalDate
+        + Persona()
+        + getters/setters()
+        + toString() String
+    }
 
-            class Paciente {
-                - nombre: String
-                - apellido: String
-                - dni: String
-                - fechaNacimiento: LocalDate
-                - historiaClinica: HistoriaClinica
-                + Paciente(int, String, String, String, LocalDate)
-                + Paciente()
-                + getNombre() String
-                + setNombre(String) void
-                + getApellido() String
-                + setApellido(String) void
-                + getDni() String
-                + setDni(String) void
-                + getFechaNacimiento() LocalDate
-                + setFechaNacimiento(LocalDate) void
-                + getHistoriaClinica() HistoriaClinica
-                + setHistoriaClinica(HistoriaClinica) void
-                + toString() String
-            }
+    class Paciente {
+        - id: int
+        - eliminado: boolean
+        - persona: Persona
+        - historiaClinica: HistoriaClinica
+        + Paciente()
+        + getters/setters()
+        + toString() String
+    }
 
-            class HistoriaClinica {
-                - numeroHistoria: String
-                - antecedentes: String
-                - medicacionActual: String
-                - observaciones: String
-                - grupoSanguineo: GrupoSanguineo
-                + HistoriaClinica(id: int, String, String, String, String, GrupoSanguineo)
-                + HistoriaClinica(id: int, numeroHistoria: String)
-                + HistoriaClinica()
-                + getNumeroHistoria() String
-                + setNumeroHistoria(String) void
-                + getGrupoSanguineo() GrupoSanguineo
-                + setGrupoSanguineo(GrupoSanguineo) void
-                + getAntecedentes() String
-                + setAntecedentes(String) void
-                + getMedicacionActual() String
-                + setMedicacionActual(String) void
-                + getObservaciones() String
-                + setObservaciones(String) void
-                + toString() String
-            }
+    class Profesional {
+        - id: int
+        - eliminado: boolean
+        - persona: Persona
+        - matricula: String
+        - especialidad: String
+        + Profesional()
+        + getters/setters()
+        + toString() String
+    }
 
-            class GrupoSanguineo {
-                A_PLUS
-                A_MINUS
-                B_PLUS
-                B_MINUS
-                AB_PLUS
-                AB_MINUS
-                O_PLUS
-                O_MINUS
-                - factorRh$
-                - GrupoSanguineo(FactorRh)
-                + getTipoGrupo() String
-                + puedeDonarA(GrupoSanguineo) boolean
-                + toString() String
-            }
+    class HistoriaClinica {
+        - id: int
+        - numeroHistoria: String
+        - antecedentes: String
+        - medicacionActual: String
+        - observaciones: String
+        - grupoSanguineo: GrupoSanguineo
+        - profesional: Profesional
+        + HistoriaClinica()
+        + getters/setters()
+        + toString() String
+    }
 
-            class FactorRh {
-                POSITIVO
-                NEGATIVO
-                + toSymbol() String
-                + toString() String
-            }
+    class GrupoSanguineo {
+        - id: int
+        - tipoGrupo: String
+        - factorRh: String
+        - simbolo: String
+        + GrupoSanguineo()
+        + getters/setters()
+        + toString() String
+    }
 
-            <<abstract>> Base
-            <<enum>> GrupoSanguineo
-            <<enum>> FactorRh
-
-            Base <|-- Paciente : implementa
-            Base <|-- HistoriaClinica : implementa
-            Paciente --> "1" HistoriaClinica : -historiaClinica
-            HistoriaClinica --> "1" GrupoSanguineo : -grupoSanguineo
-            GrupoSanguineo --> "1" FactorRh : -factorRh
+    Persona "1" -- "1" Paciente : es
+    Persona "1" -- "1" Profesional : es
+    Paciente "1" -- "1" HistoriaClinica : tiene
+    HistoriaClinica "1" -- "1" GrupoSanguineo : tiene
+    HistoriaClinica "1" -- "1" Profesional : médico tratante
 ```
 
 <!-- ## Instalación y Configuración -->
@@ -189,7 +174,7 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
 
 ```mermaid
     erDiagram
-    direction LR
+    direction TB
         Paciente {
             id BIGINT PK "AUTO_INCREMENT"
             eliminado BOOLEAN "DEFAULT FALSE"
@@ -210,8 +195,13 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1-->1 entr
             observaciones TEXT "NULL"
         }
 
-        Paciente 1--1 HistoriaClinica : tiene
+        Paciente }o--|| HistoriaClinica : tiene
 ```
+
+## Informes
+
+- [x] [Base de Datos I](./informes/Base_de_Datos_I.md)
+- [ ] [Programación II](./informes/Programacion_II.md)
 
 ## Video Demostración
 
