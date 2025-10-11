@@ -31,11 +31,10 @@ paciente-historia-cliente
 │   ├── informe_db_i.md
 │   └── informe_prog_ii.md
 ├── sql
-│   ├── 01_sentencias_DDL.sql
-│   ├── 02_carga_masiva_datos.sql
-│   ├── pruebas_constraints.sql
-│   ├── pruebas_consultas.sql
-│   └── pruebas_inserciones.sql
+│   ├── carga_masiva_datos.sql
+│   ├── consultas_complejas.sql
+│   ├── sentencias_creacion.sql
+│   └── validacion_constraints.sql
 ├── src
 │   ├── config
 │   │   ├── DatabaseConnection.java
@@ -199,7 +198,6 @@ classDiagram
 
 ```mermaid
 erDiagram
-    direction TB
     Persona {
         id BIGINT PK "AUTO_INCREMENT"
         eliminado BOOLEAN "DEFAULT FALSE"
@@ -219,7 +217,7 @@ erDiagram
     Profesional {
         id BIGINT PK "AUTO_INCREMENT"
         eliminado BOOLEAN "DEFAULT FALSE"
-        matricula VARCHAR(20) "NOT NULL, UNIQUE"
+        matricula VARCHAR(20) "NOT NULL, UNIQUE, CHECK (matricula RLIKE '^(MP|MN|MI)-[0-9]{5,17}$')"
         especialidad VARCHAR(80) "NOT NULL"
         persona_id BIGINT FK "NOT NULL, UNIQUE"
     }
@@ -227,7 +225,7 @@ erDiagram
     HistoriaClinica {
         id BIGINT PK "AUTO_INCREMENT"
         eliminado BOOLEAN "DEFAULT FALSE"
-        nro_historia VARCHAR(20) "NOT NULL, UNIQUE"
+        nro_historia VARCHAR(20) "NOT NULL, UNIQUE, CHECK (nro_historia RLIKE '^HC-[0-9]{4,17}$')"
         grupo_sanguineo_id INT FK "NULL"
         antecedentes TEXT "NULL"
         medicacion_actual TEXT "NULL"
@@ -251,13 +249,13 @@ erDiagram
 
 ## Decisiones de Diseño
 
-El diseño de la base de datos y de la arquitectura de la aplicación se guió por principios de **normalización, integridad, escalabilidad y consistencia** entre el modelo relacional y el modelo de objetos en Java. A continuación, se detallan las decisiones más importantes tomadas durante el proyecto.
+El diseño de la base de datos y de la arquitectura de la aplicación se guió por principios de normalización, integridad, escalabilidad y consistencia entre el modelo relacional y el modelo de objetos en Java. A continuación, se detallan las decisiones más importantes tomadas durante el proyecto.
 
 ### 1. Abstracción de la Entidad `Persona` para Cumplir la 3FN
 
-La decisión de diseño más importante fue la **creación de una entidad `Persona`** para centralizar los atributos comunes que originalmente se encontraban duplicados en `Paciente` y `Profesional`.
+La decisión de diseño más importante fue la creación de una entidad `Persona` para centralizar los atributos comunes que originalmente se encontraban duplicados en `Paciente` y `Profesional`.
 
-- **Problema Detectado:** En el modelo inicial, tanto `Paciente` como `Profesional` contenían campos como `nombre`, `apellido`, `dni` y `fecha_nacimiento`. Esto generaba una **dependencia transitiva** (`id → dni → nombre, apellido`), lo cual es una violación de la Tercera Forma Normal (3FN), tal como se documentó en el informe.
+- **Problema Detectado:** En el modelo inicial, tanto `Paciente` como `Profesional` contenían campos como `nombre`, `apellido`, `dni` y `fecha_nacimiento`. Esto generaba una dependencia transitiva (`id → dni → nombre, apellido`), lo cual es una violación de la Tercera Forma Normal (3FN), tal como se documentó en el informe.
 - **Solución Adoptada:** Se extrajeron los atributos personales a una tabla `Persona`. Las tablas `Paciente` y `Profesional` pasaron a ser "roles" que se vinculan a una `Persona` a través de una clave foránea (`persona_id`).
 - **Beneficios:**
   - **Eliminación de Redundancia:** Se evita almacenar la misma información personal en múltiples lugares.
@@ -268,10 +266,10 @@ La decisión de diseño más importante fue la **creación de una entidad `Perso
 
 Para cumplir con el requisito central de la materia Programación II de una relación 1→1 unidireccional `Paciente → HistoriaClinica`, se tomó una decisión específica a nivel de base de datos.
 
-- **Implementación:** La relación se implementó en la tabla `Paciente` mediante una clave foránea (`historia_clinica_id`) que apunta a `HistoriaClinica` y, crucialmente, tiene una **restricción `UNIQUE`**.
+- **Implementación:** La relación se implementó en la tabla `Paciente` mediante una clave foránea (`historia_clinica_id`) que apunta a `HistoriaClinica` y, crucialmente, tiene una restricción `UNIQUE`.
 - **Justificación:**
   - El `FOREIGN KEY` establece el enlace entre las dos entidades.
-  - El `UNIQUE` garantiza que un registro de `HistoriaClinica` solo pueda ser asociado a **un único** `Paciente`, cumpliendo así la cardinalidad 1 a 1.
+  - El `UNIQUE` garantiza que un registro de `HistoriaClinica` solo pueda ser asociado a un único `Paciente`, cumpliendo así la cardinalidad 1 a 1.
   - Se permitió que esta clave foránea sea `NULL`, aportando flexibilidad para poder registrar un paciente antes de que su historia clínica sea creada.
 
 ### 3. `GrupoSanguineo`: Tabla en la Base de Datos vs. `Enum` en Java
@@ -279,7 +277,7 @@ Para cumplir con el requisito central de la materia Programación II de una rela
 Se tomó una decisión consciente de modelar el grupo sanguíneo de dos maneras distintas en cada capa, optimizando para el contexto de cada una.
 
 - **En la Base de Datos (Tabla):** Se creó una tabla maestra `GrupoSanguineo`. Esto responde a los principios de normalización, creando una única fuente de verdad para los tipos de sangre y evitando el uso de campos de texto libre. Permite a futuro agregar más información (ej. compatibilidades) sin alterar el esquema.
-- **En Java (`Enum`):** En el código Java, se optó por un `Enum`. Esta decisión prioriza la **seguridad de tipos y la simplicidad**. El `Enum` asegura que solo se puedan usar valores válidos en tiempo de compilación, previene errores de programación y hace el código más legible y mantenible, sin la necesidad de crear una clase, un DAO y un servicio adicional para una entidad cuyos valores son estáticos y universalmente conocidos.
+- **En Java (`Enum`):** En el código Java, se optó por un `Enum`. Esta decisión prioriza la seguridad de tipos y la simplicidad. El `Enum` asegura que solo se puedan usar valores válidos en tiempo de compilación, previene errores de programación y hace el código más legible y mantenible, sin la necesidad de crear una clase, un DAO y un servicio adicional para una entidad cuyos valores son estáticos y universalmente conocidos.
 
 ### 4. Incorporación de la Entidad `Profesional`
 
