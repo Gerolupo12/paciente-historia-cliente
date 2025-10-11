@@ -1,32 +1,34 @@
--- SCRIPT CORREGIDO - CUMPLE REQUISITOS EXACTOS
+-- SCRIPT DE INSERCIÓN MASIVA DE REGISTROS
 USE GestionPacientes;
 
 -- LIMPIAR TODO
+-- Desactivar temporalmente las revisiones de claves foráneas
 SET FOREIGN_KEY_CHECKS = 0;
+-- Vacíar tablas de forma eficiente
 TRUNCATE TABLE Paciente;
 TRUNCATE TABLE HistoriaClinica;
 TRUNCATE TABLE Profesional;
 TRUNCATE TABLE Persona;
 TRUNCATE TABLE GrupoSanguineo;
+-- Volver a activar las revisiones
 SET FOREIGN_KEY_CHECKS = 1;
 
--- 1. GRUPOS SANGUÍNEOS (8 REGISTROS)
+-- 1. INSERTAR 8 REGISTROS EN GRUPOS SANGUÍNEOS (TABLA MAESTRA)
 INSERT INTO GrupoSanguineo (tipo_grupo, factor_rh) VALUES
 ('A', '+'), ('A', '-'), ('B', '+'), ('B', '-'),
 ('AB', '+'), ('AB', '-'), ('O', '+'), ('O', '-');
 
--- 2. PERSONAS (200,000 EXACTOS) - MÉTODO CORREGIDO
+-- 2. GENERAR 200.000 PERSONAS ALEATORIAMENTE (VERSIÓN MODERNA CON RECURSIVIDAD)
+-- Definimos el número inicial para los DNI
+SET @dni_inicial = 1000000;
+
 INSERT INTO Persona (nombre, apellido, dni, fecha_nacimiento)
-WITH number_sequence AS (
-    SELECT 
-        (a.N + b.N * 10 + c.N * 100 + d.N * 1000 + e.N * 10000 + f.N * 100000) as num
-    FROM 
-        (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,
-        (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) b,
-        (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) c,
-        (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) d,
-        (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) e,
-        (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) f
+WITH RECURSIVE number_sequence (num) AS (
+    -- Inicia la secuencia en 1
+    SELECT 1
+    UNION ALL
+    -- Continúa sumando 1 hasta llegar al límite
+    SELECT num + 1 FROM number_sequence WHERE num < 200000
 )
 SELECT 
     CONCAT(ELT(1 + (num % 20), 
@@ -37,12 +39,11 @@ SELECT
         'Gómez', 'López', 'Rodríguez', 'García', 'Martínez', 'Pérez', 'Fernández', 
         'González', 'Sánchez', 'Romero', 'Díaz', 'Torres', 'Vázquez', 'Rojas', 
         'Moreno', 'Álvarez'), ' ', CHAR(65 + ((num + 7) % 26))),
-    CONCAT('DNI', LPAD(num, 8, '0')),
-    DATE_ADD('1970-01-01', INTERVAL (num * 53) % 18250 DAY)
-FROM number_sequence
-WHERE num BETWEEN 1 AND 200000;
+    CONCAT('DNI ', LPAD(@dni_inicial + num - 1, 8, '0')),
+    DATE_ADD('1940-01-01', INTERVAL (num * 53) % 31025 DAY)
+FROM number_sequence;
 
--- 3. PROFESIONALES (2,000 EXACTOS)
+-- 3. CREAR 2.000 PROFESIONALES
 INSERT INTO Profesional (persona_id, matricula, especialidad)
 SELECT 
     id,
@@ -55,22 +56,17 @@ FROM Persona
 ORDER BY id 
 LIMIT 2000;
 
--- 4. HISTORIAS CLÍNICAS (150,000 EXACTOS)
+-- 4. CREAR 150.000 HISTORIAS CLÍNICAS CON PROFESIONALES ASIGNADOS (VERSIÓN MODERNA CON RECURSIVIDAD)
 INSERT INTO HistoriaClinica (nro_historia, grupo_sanguineo_id, profesional_id, antecedentes, medicacion_actual, observaciones)
-WITH number_sequence AS (
-    SELECT 
-        (a.N + b.N * 10 + c.N * 100 + d.N * 1000 + e.N * 10000) as seq
-    FROM 
-        (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,
-        (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) b,
-        (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) c,
-        (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) d,
-        (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) e
+WITH RECURSIVE number_sequence (seq) AS (
+    SELECT 1
+    UNION ALL
+    SELECT seq + 1 FROM number_sequence WHERE seq < 150000
 )
 SELECT 
     CONCAT('HC-', LPAD(seq, 6, '0')),
-    1 + (seq % 8),
-    CASE WHEN seq <= 2000 THEN (seq % 2000) + 1 ELSE NULL END,
+    1 + ((seq - 1) % 8),
+    ((seq - 1) % 2000) + 1, -- LÍNEA MODIFICADA PARA ASIGNACIÓN CÍCLICA
     ELT(1 + (seq % 5), 
         'Antecedentes familiares de diabetes',
         'Alergia a penicilina', 
@@ -86,10 +82,9 @@ SELECT
         'Paciente estable, control en 6 meses',
         'Requiere seguimiento estrecho', 
         'Evolución favorable')
-FROM number_sequence
-WHERE seq BETWEEN 1 AND 150000;
+FROM number_sequence;
 
--- 5. PACIENTES (150,000 EXACTOS) - RELACIÓN CORREGIDA
+-- 5. CREAR 150.000 PACIENTES
 INSERT INTO Paciente (persona_id, historia_clinica_id)
 SELECT 
     p.id,
