@@ -175,7 +175,20 @@ CREATE TABLE GrupoSanguineo (
     UNIQUE KEY uk_grupo_factor (tipo_grupo, factor_rh)
 );
 ```
+##### Tabla `Profesional`
 
+```sql
+CREATE TABLE Profesional (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    eliminado BOOLEAN DEFAULT FALSE,
+    persona_id BIGINT UNIQUE NOT NULL,
+    matricula VARCHAR(20) NOT NULL UNIQUE,
+    especialidad VARCHAR(100) NOT NULL,
+    -- Constraints
+    FOREIGN KEY (persona_id) REFERENCES Persona(id) ON DELETE CASCADE,
+    CHECK (LENGTH(matricula) BETWEEN 5 AND 20)
+);
+```
 ##### Tabla `HistoriaClinica`
 
 ```sql
@@ -183,11 +196,15 @@ CREATE TABLE HistoriaClinica (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     nro_historia VARCHAR(20) NOT NULL UNIQUE,
     grupo_sanguineo_id INT NULL,
+    profesional_id BIGINT NULL,
     antecedentes TEXT NULL,
     medicacion_actual TEXT NULL,
     observaciones TEXT NULL,
     -- Constraints
-    FOREIGN KEY (grupo_sanguineo_id) REFERENCES GrupoSanguineo(id) ON DELETE SET NULL
+    FOREIGN KEY (grupo_sanguineo_id) REFERENCES GrupoSanguineo(id) ON DELETE SET NULL,
+    FOREIGN KEY (profesional_id) REFERENCES Profesional(id) ON DELETE SET NULL,
+    CHECK (LENGTH(nro_historia) >= 4),
+    CHECK (nro_historia LIKE 'HC-%')
 );
 ```
 
@@ -203,6 +220,7 @@ CREATE TABLE Paciente (
     FOREIGN KEY (persona_id) REFERENCES Persona(id) ON DELETE CASCADE,
     FOREIGN KEY (historia_clinica_id) REFERENCES HistoriaClinica(id) ON DELETE SET NULL
 );
+
 ```
 
 ### 4. Validación de Constraints
@@ -212,7 +230,7 @@ CREATE TABLE Paciente (
 ```sql
 -- Inserción CORRECTA 1: Persona y Paciente válidos
 INSERT INTO Persona (nombre, apellido, dni, fecha_nacimiento)
-VALUES ('Juan', 'Pérez', '12345678', '1990-01-01');
+VALUES ('Julian', 'Marnich', '37345678', '1990-01-01');
 
 INSERT INTO Paciente (persona_id, historia_clinica_id)
 VALUES (1, 1);
@@ -220,22 +238,47 @@ VALUES (1, 1);
 -- Inserción CORRECTA 2: Historia clínica con grupo sanguíneo válido
 INSERT INTO HistoriaClinica (nro_historia, grupo_sanguineo_id)
 VALUES ('HC-1', 1);
+
+-- Inserción CORRECTA 3: Profesional válido
+INSERT INTO Persona (nombre, apellido, dni, fecha_nacimiento)
+VALUES ('Dra. Florencia', 'Gurdulich', '36654321', '1991-05-15');
+
+INSERT INTO Profesional (persona_id, matricula, especialidad)
+VALUES (2, 'MP-54234', 'Cardiologia');
+
+-- Inserción CORRECTA 4: Historia clínica con médico tratante
+INSERT INTO HistoriaClinica (nro_historia, grupo_sanguineo_id, profesional_id)
+VALUES ('HC-2', 1, 1);
 ```
 
 #### 4.2 Inserciones Erróneas (Validación de Constraints)
 
 ```sql
 -- ERROR 1: Violación UNIQUE en DNI
+-- RAZÓN: Ya existe una persona con DNI '37345678' - viola constraint UNIQUE del campo dni.
 INSERT INTO Persona (nombre, apellido, dni, fecha_nacimiento)
-VALUES ('Duplicado', 'DNI', '12345678', '1990-01-01');
+VALUES ('Martin', 'Caseres', '37345678', '1985-05-15');
 
 -- ERROR 2: Violación CHECK en fecha_nacimiento
+-- RAZÓN: La fecha 1830-01-01 es menor a 1900 - viola CHECK (YEAR(fecha_nacimiento) > 1900).
 INSERT INTO Persona (nombre, apellido, dni, fecha_nacimiento)
-VALUES ('Fecha', 'Inválida', '99999999', '1830-01-01');
+VALUES ('Ana', 'Martinez', '11111111', '1830-01-01');
 
 -- ERROR 3: Violación FOREIGN KEY (historia_clinica_id inexistente)
+-- RAZÓN: No existe historia clínica con id 50000 - viola FOREIGN KEY hacia HistoriaClinica(id).
 INSERT INTO Paciente (persona_id, historia_clinica_id)
-VALUES (1, 999);
+VALUES (1, 50000);
+
+
+-- ERROR 4: Violación UNIQUE en matrícula
+-- RAZÓN: Ya existe un profesional con matrícula 'MP-54234' - viola constraint UNIQUE del campo matricula.
+INSERT INTO Profesional (persona_id, matricula, especialidad)
+VALUES (2, 'MP-54234', 'Pediatria');
+
+-- ERROR 5: Violación CHECK en matrícula (muy corta)
+-- RAZÓN: La matrícula 'MP' tiene solo 2 caracteres - viola CHECK (LENGTH(matricula) BETWEEN 5 AND 20). 
+INSERT INTO Profesional (persona_id, matricula, especialidad)
+VALUES (2, 'MP', 'Pediatria');
 ```
 
 ### 5. Uso Pedagógico de IA en el Proceso
@@ -309,13 +352,34 @@ GROUP BY
     gs.simbolo
 ORDER BY
     gs.simbolo;
+
+-- Consultas con profesionales (NUEVAS CAPACIDADES)
+SELECT 
+    hc.nro_historia,
+    per_pac.nombre AS paciente_nombre,
+    per_prof.nombre AS medico_nombre,
+    prof.especialidad
+FROM HistoriaClinica hc
+    JOIN Paciente pac ON hc.id = pac.historia_clinica_id
+    JOIN Persona per_pac ON pac.persona_id = per_pac.id
+    LEFT JOIN Profesional prof ON hc.profesional_id = prof.id
+    LEFT JOIN Persona per_prof ON prof.persona_id = per_prof.id;
+
+-- Estadísticas por especialidad médica
+SELECT 
+    prof.especialidad,
+    COUNT(hc.id) AS historias_atendidas
+FROM Profesional prof
+    LEFT JOIN HistoriaClinica hc ON prof.id = hc.profesional_id
+GROUP BY prof.especialidad;
 ```
 
 ##### **Escalabilidad Futura:**
 
-- **Múltiples roles**: Fácil agregar `Medico`, `Enfermero` reutilizando `Persona`
-- **Datos maestros**: `GrupoSanguineo` puede extenderse con más atributos
-- **Búsquedas cruzadas**: Consultas entre diferentes roles de persona
+- **Múltiples roles**: Fácil agregar `Medico`, `Enfermero` reutilizando `Persona`.
+- **Datos maestros**: `GrupoSanguineo` puede extenderse con más atributos.
+- **Búsquedas cruzadas**: Consultas entre diferentes roles de persona.
+- **Gestión profesional:**: Control de matrículas y especialidades médicas.
 
 #### 6.3 Comparativa de Rendimiento
 
