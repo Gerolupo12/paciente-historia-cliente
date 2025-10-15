@@ -553,7 +553,148 @@ La creación de un índice estratégico en las columnas `(apellido, nombre)` res
 
 ---
 
-## Etapa 3 - Consultas complejas y útiles
+## Etapa 3 - Consultas Complejas y Útiles
+
+### 1. Descripción
+
+El propósito de esta etapa fue trascender las operaciones básicas de un CRUD (`INSERT`, `SELECT *`, `UPDATE`, `DELETE`) para diseñar y ejecutar consultas SQL complejas y de alto valor. El objetivo era extraer información significativa y generar reportes útiles que no podrían obtenerse con consultas simples. Para ello, se aplicaron cláusulas avanzadas como `JOIN` (para combinar datos de múltiples tablas), `GROUP BY` y `HAVING` (para agregar y filtrar datos), subconsultas (para realizar consultas anidadas) y la creación de `VIEW`s (para simplificar el acceso a los datos). Todas las consultas fueron probadas sobre el conjunto de datos masivos para asegurar su correctitud y rendimiento.
+
+### 2. Metodología
+
+El desarrollo de las consultas siguió un proceso metodológico enfocado en la utilidad práctica:
+
+1. **Identificación de Casos de Uso:** Se analizaron las necesidades de diferentes roles en un entorno clínico (administrativos, médicos) para identificar qué tipo de reportes y búsquedas agregarían más valor al sistema.
+2. **Diseño de la Lógica:** Para cada caso de uso, se diseñó una consulta SQL utilizando las cláusulas requeridas por la consigna, asegurando la correcta unión y filtrado de las tablas normalizadas.
+3. **Validación y Pruebas:** Cada consulta fue ejecutada y validada contra el set de más de 500,000 registros para verificar que los resultados fueran correctos y que el tiempo de respuesta fuera aceptable, aprovechando los índices creados.
+4. **Documentación:** Se documentó la utilidad práctica de cada consulta, explicando qué problema resuelve o qué información clave proporciona.
+
+### 3. Consultas Desarrolladas
+
+A continuación, se presentan las consultas diseñadas, cumpliendo con los requisitos de la consigna.
+
+#### Consulta 1: `JOIN` - Ficha Completa de Pacientes Activos
+
+Esta consulta es el núcleo de la aplicación para visualizar la información de un paciente. Unifica en una sola vista los datos personales, los detalles médicos de su historia clínica y la información del profesional que lo atiende. Es la base para cualquier pantalla de "Detalle de Paciente" o reporte individual.
+
+```sql
+SELECT
+    p.id AS paciente_id,
+    per.dni,
+    CONCAT(per.apellido, ', ', per.nombre) AS nombre_completo,
+    TIMESTAMPDIFF(YEAR, per.fecha_nacimiento, CURDATE()) AS edad,
+    hc.nro_historia,
+    gs.simbolo AS grupo_sanguineo,
+    CONCAT(per_prof.apellido, ', ', per_prof.nombre) AS profesional_asignado,
+    prof.especialidad
+FROM
+    Paciente p
+    INNER JOIN Persona per ON p.persona_id = per.id
+    LEFT JOIN HistoriaClinica hc ON p.historia_clinica_id = hc.id
+    LEFT JOIN GrupoSanguineo gs ON hc.grupo_sanguineo_id = gs.id
+    LEFT JOIN Profesional prof ON hc.profesional_id = prof.id
+    LEFT JOIN Persona per_prof ON prof.persona_id = per_prof.id
+WHERE
+    per.eliminado = FALSE AND p.eliminado = FALSE
+ORDER BY
+    per.apellido, per.nombre;
+```
+
+#### Consulta 2: `JOIN` - Búsqueda de Pacientes por Especialidad Médica
+
+Permite a un administrativo generar un listado de todos los pacientes que son atendidos por una especialidad específica (ej. 'Cardiología'). Es una herramienta fundamental para auditorías, gestión de turnos por área o para contactar a un grupo de pacientes bajo el cuidado de un mismo tipo de especialista.
+
+```sql
+SELECT
+    prof.especialidad,
+    CONCAT(per_pro.apellido, ', ', per_pro.nombre) AS profesional,
+    hc.nro_historia,
+    per_pac.dni AS dni_paciente,
+    CONCAT(per_pac.apellido, ', ', per_pac.nombre) AS nombre_paciente
+FROM HistoriaClinica hc
+    INNER JOIN Profesional prof ON hc.profesional_id = prof.id
+    INNER JOIN Persona per_pro ON prof.persona_id = per_pro.id
+    INNER JOIN Paciente pac ON hc.id = pac.historia_clinica_id
+    INNER JOIN Persona per_pac ON pac.persona_id = per_pac.id
+WHERE
+    prof.especialidad = 'Cardiología' AND hc.eliminado = FALSE
+ORDER BY
+    prof.matricula;
+```
+
+#### Consulta 3: `GROUP BY` + `HAVING` - Grupos Sanguíneos Minoritarios
+
+Este reporte estadístico es clave para la gestión de recursos. Identifica los grupos sanguíneos menos comunes entre los pacientes, una información vital para campañas de donación de sangre, gestión de stock en bancos de sangre o para estudios epidemiológicos.
+
+```sql
+SELECT
+    gs.simbolo AS grupo_sanguineo,
+    COUNT(p.id) AS cantidad_pacientes
+FROM
+    GrupoSanguineo gs
+    LEFT JOIN HistoriaClinica hc ON gs.id = hc.grupo_sanguineo_id
+    LEFT JOIN Paciente p ON hc.id = p.historia_clinica_id
+WHERE
+    p.eliminado = FALSE
+GROUP BY
+    gs.simbolo
+HAVING
+    COUNT(p.id) <= 19000 -- Umbral para definir un grupo como "minoritario"
+ORDER BY
+    cantidad_pacientes ASC;
+```
+
+#### Consulta 4: `Subconsulta` - Historias Clínicas sin Profesional Asignado
+
+Esta consulta funciona como un reporte de "tareas pendientes" para el personal administrativo. Genera una lista de todas las historias clínicas activas que aún no tienen un médico asignado, ayudando a garantizar que ningún paciente quede sin seguimiento y mejorando la calidad del servicio.
+
+```sql
+SELECT
+    hc.nro_historia,
+    hc.antecedentes,
+    (SELECT CONCAT(per.apellido, ', ', per.nombre)
+     FROM Persona per
+     JOIN Paciente p ON per.id = p.persona_id
+     WHERE p.historia_clinica_id = hc.id) AS paciente
+FROM
+    HistoriaClinica hc
+WHERE
+    hc.profesional_id IS NULL AND hc.eliminado = FALSE;
+```
+
+### 4. Creación de Vista (VIEW)
+
+#### Vista 1: `vw_pacientes_activos`
+
+Una vista es una tabla virtual basada en una consulta. Esta vista, `vw_pacientes_activos`, simplifica radicalmente el acceso a los datos más comunes de los pacientes. El equipo de desarrollo puede consultarla como si fuera una tabla simple (`SELECT * FROM vw_pacientes_activos`) sin tener que reescribir el complejo `JOIN` cada vez. Además, abstrae la lógica de negocio de filtrar siempre por registros no eliminados, reduciendo errores y simplificando el código de la aplicación.
+
+```sql
+CREATE OR REPLACE VIEW vw_pacientes_activos AS
+SELECT
+    p.id AS paciente_id,
+    per.dni,
+    per.nombre,
+    per.apellido,
+    hc.nro_historia,
+    prof.especialidad AS especialidad_medico
+FROM
+    Paciente p
+    INNER JOIN Persona per ON p.persona_id = per.id
+    LEFT JOIN HistoriaClinica hc ON p.historia_clinica_id = hc.id
+    LEFT JOIN Profesional prof ON hc.profesional_id = prof.id
+WHERE
+    p.eliminado = FALSE AND per.eliminado = FALSE;
+
+-- Ejemplo de uso de la vista:
+SELECT * FROM vw_pacientes_activos WHERE especialidad_medico = 'Pediatría';
+```
+
+### 5. Conclusión
+
+En esta etapa se demostró con éxito cómo un esquema de base de datos bien normalizado y poblado con datos masivos permite la creación de consultas analíticas y reportes de gran valor. Se diseñaron y validaron cuatro consultas complejas y una vista que cumplen con los requisitos técnicos y resuelven problemas prácticos de un sistema de gestión de pacientes. El uso de `JOIN`, `GROUP BY`, `HAVING` y subconsultas se ha consolidado como una herramienta esencial para la extracción de inteligencia de negocio a partir de los datos almacenados.
+
+---
+
+## Etapa 4 - Seguridad e Integridad
 
 ---
 
