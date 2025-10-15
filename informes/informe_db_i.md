@@ -554,3 +554,29 @@ La creación de un índice estratégico en las columnas `(apellido, nombre)` res
 ---
 
 ## Etapa 3 - Consultas complejas y útiles
+
+---
+
+## Anexo
+
+### Uso Pedagógico de la IA en el proceso
+
+- Etapa 1: Modelado y Definición de Constraints
+
+![Captura](../anexos/chats-ia/uso_pedagogico_ia_etapa_1.jpg)
+
+- Etapa 2: Implementación y Carga Masiva de Datos
+
+![Captura](../anexos/chats-ia/uso_pedagogico_ia_etapa_2.jpg)
+
+- Etapa 3: Consultas Complejas y Útiles
+
+![Captura](../anexos/chats-ia/uso_pedagogico_ia_etapa_3.jpg)
+
+- Etapa 4: Seguridad e Integridad
+
+![Captura](../anexos/chats-ia/uso_pedagogico_ia_etapa_4.jpg)
+
+- Etapa 5: Concurrencia y Transacciones
+
+![Captura](../anexos/chats-ia/uso_pedagogico_ia_etapa_5.jpg)
