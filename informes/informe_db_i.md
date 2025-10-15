@@ -18,6 +18,15 @@ Este proyecto fue desarrollado de manera colaborativa por el siguiente equipo:
 
 ---
 
+## Scripts Completos
+
+- [`sentencias_creacion.sql`](../sql/sentencias_creacion.sql) - Creación de tablas, constraints e índices
+- [`carga_masiva_datos.sql`](../sql/carga_masiva_datos.sql) - Generación de datos masivos con SQL puro
+- [`validacion_constraints.sql`](../sql/validacion_constraints.sql) - Inserciones para validación de restricciones
+- [`consultas_avanzadas.sql`](../sql/consultas_avanzadas.sql) - Consultas avanzadas con JOINs
+
+---
+
 ## Etapa 1 - Modelado y Definición de Constraints
 
 ### 1. Modelo Original (Pre-Normalización)
@@ -343,29 +352,9 @@ VALUES ('INVALIDO-123');
 
 ![Captura](../anexos/capturas/inserciones_erroneas.png)
 
-### 6. Uso Pedagógico de IA en el Proceso
+### 6. Beneficios de la Normalización
 
-#### 6.1 Interacciones Documentadas con IA
-
-**Prompt inicial utilizado:**
-
-> "Estoy trabajando en la normalización a 3FN de un sistema de gestión de pacientes e historias clínicas. He identificado las dependencias transitivas en la tabla Paciente donde dni determina nombre, apellido y fecha_nacimiento. ¿Puedes guiarme en el proceso de descomposición sin darme la solución completa?"
-
-**Asistencia recibida:**
-
-- Sugerencias para la creación de tablas Persona y GrupoSanguineo
-- Revisión de constraints y relaciones cardinales
-
-#### 6.2 Evidencias de Aprendizaje
-
-1. Proceso iterativo: Múltiples revisiones del modelo ER
-2. Validación de decisiones: Consultas sobre elección de PK/FK
-3. Corrección de errores: Sintaxis SQL y diseño de constraints
-4. Optimización: Índices y estructuras para mejor performance
-
-### 7. Beneficios de la Normalización
-
-#### 7.1 Cumplimiento de 3FN
+#### 6.1 Cumplimiento de 3FN
 
 | Aspecto                      | Original         | Normalizado    |
 | ---------------------------- | ---------------- | -------------- |
@@ -374,7 +363,7 @@ VALUES ('INVALIDO-123');
 | Integridad Referencial       | ✅ Básica        | ✅ Robusta     |
 | Consistencia con Modelo Java | ❌ Inconsistente | ✅ Consistente |
 
-#### 7.2 Ventajas Operacionales
+#### 6.2 Ventajas Operacionales
 
 ##### Búsquedas Más Eficientes
 
@@ -448,7 +437,7 @@ ORDER BY
 - **Búsquedas cruzadas**: Consultas entre diferentes roles de persona.
 - **Gestión profesional:**: Control de matrículas y especialidades médicas.
 
-#### 7.3 Comparativa de Rendimiento
+#### 6.3 Comparativa de Rendimiento
 
 | Operación            | Original      | Normalizado        | Mejora |
 | -------------------- | ------------- | ------------------ | ------ |
@@ -457,7 +446,7 @@ ORDER BY
 | Consultas analíticas | Scan completo | Índices eficientes | ⬆️     |
 | Mantenimiento datos  | Complejo      | Simple             | ⬆️     |
 
-### 8. Conclusión
+### 7. Conclusión
 
 #### Logros Obtenidos
 
@@ -468,23 +457,6 @@ ORDER BY
 5. Evidencia de interacción con IA
 
 La normalización a 3FN es altamente recomendable para este sistema, ya que los beneficios en mantenibilidad, escalabilidad e integridad de datos superan ampliamente la complejidad adicional inicial.
-
-### 9. Anexo
-
-#### A. Scripts Completos
-
-- [`sentencias_creacion.sql`](../sql/sentencias_creacion.sql) - Creación de tablas, constraints e índices
-- [`carga_masiva_datos.sql`](../sql/carga_masiva_datos.sql) - Generación de datos masivos con SQL puro
-- [`validacion_constraints.sql`](../sql/validacion_constraints.sql) - Validación de restricciones
-- [`consultas_complejas.sql`](../sql/consultas_complejas.sql) - Consultas complejas y útiles a partir del CRUD inicial
-
-<!-- TODO (ADJUNTAR CAPTURAS)
-#### B. Evidencias de IA [`CHAT IA`](../anexos/chat_ia_dbi.pdf)
-
-- Capturas de chat con proceso iterativo
-- Decisiones validadas mediante IA
-- Optimizaciones sugeridas e implementadas
--->
 
 ---
 
@@ -573,21 +545,12 @@ MySQL ahora utiliza el índice (`key: idx_persona_apellido_nombre`). En lugar de
 | **Sin índice** | Full Table Scan (200000 filas) | ~ 0.031 sec         | -                     |
 | **Con índice** | Index Seek                     | ~ 0.001 sec         | **~ 96% más rápida**  |
 
-### 4. Conclusión de la Etapa
+### 4. Conclusión
 
 La carga masiva de datos y las pruebas de rendimiento demuestran de manera contundente la importancia crítica de los índices en bases de datos con volúmenes de datos realistas. Una consulta simple puede volverse ineficiente si el motor se ve forzado a escanear tablas enteras.
 
 La creación de un índice estratégico en las columnas `(apellido, nombre)` resultó en una mejora del rendimiento superior al 96%, transformando una consulta lenta en una operación casi instantánea. Esto confirma que un diseño de indexación adecuado es tan importante como la normalización para el buen funcionamiento de un sistema de gestión de datos.
 
-<!-- TODO (ADJUNTAR CAPTURAS)
-### 5. Interacción con IA
-
-Durante esta etapa, se utilizó una IA generativa como herramienta de tutoría para refinar las estrategias de generación de datos.
-
-- **Consulta a la IA:** Se plantearon problemas como: _"¿Cómo puedo generar datos que no sean uniformes, sino que sigan una distribución ponderada más realista para los grupos sanguíneos?"_
-- **Asistencia Recibida:** La IA guió en la construcción de la declaración `CASE` con `RAND()` para simular probabilidades. También sugirió el uso de `WITH RECURSIVE` como una alternativa moderna a los métodos más antiguos para generar secuencias, lo que resultó en un script final más limpio y legible.
--->
-
 ---
 
-## Etapa 3 - Consultas complejas y útiles a partir del CRUD inicial
+## Etapa 3 - Consultas complejas y útiles

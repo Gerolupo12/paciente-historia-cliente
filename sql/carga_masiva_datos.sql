@@ -40,6 +40,9 @@ INSERT INTO GrupoSanguineo (tipo_grupo, factor_rh) VALUES
 -- DNIs en un rango numérico más realista, comenzando en 10 millones.
 SET @dni_inicial = 10000000;
 
+-- Aumenta el límite de recursión permitido para este CTE.
+SET SESSION cte_max_recursion_depth = 200000;
+
 INSERT INTO Persona (nombre, apellido, dni, fecha_nacimiento)
 -- Se utiliza un CTE (Common Table Expression) recursivo para generar una
 -- secuencia de números del 1 al 200000. Es la forma moderna y legible
