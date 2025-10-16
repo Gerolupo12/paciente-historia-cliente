@@ -23,7 +23,7 @@ Este proyecto fue desarrollado de manera colaborativa por el siguiente equipo:
 - [`sentencias_creacion.sql`](../sql/sentencias_creacion.sql) - Creación de tablas, constraints e índices
 - [`carga_masiva_datos.sql`](../sql/carga_masiva_datos.sql) - Generación de datos masivos con SQL puro
 - [`validacion_constraints.sql`](../sql/validacion_constraints.sql) - Inserciones para validación de restricciones
-- [`consultas_avanzadas.sql`](../sql/consultas_avanzadas.sql) - Consultas avanzadas con JOINs
+- [`consultas_complejas.sql`](../sql/consultas_complejas.sql) - Consultas complejas con JOINs
 
 ---
 
@@ -33,7 +33,7 @@ Este proyecto fue desarrollado de manera colaborativa por el siguiente equipo:
 
 #### 1.1 Diagrama ER Original
 
-```mermaid
+<!-- ```mermaid
 erDiagram
     direction TB
     Paciente {
@@ -70,7 +70,9 @@ erDiagram
 
     Paciente }o--|| HistoriaClinica : tiene
     Profesional }o--|| HistoriaClinica : tiene
-```
+``` -->
+
+![DER Original](../anexos/capturas/der_original.png)
 
 #### 1.2 Problemas Detectados en el Modelo Original
 
@@ -132,7 +134,7 @@ id → dni → (nombre, apellido, fecha_nacimiento)  ← DEPENDENCIA TRANSITIVA
 
 #### 3.1 Diagrama ER Normalizado
 
-```mermaid
+<!-- ```mermaid
 erDiagram
     Persona {
         id BIGINT PK "AUTO_INCREMENT"
@@ -181,7 +183,9 @@ erDiagram
     Paciente ||--o| HistoriaClinica : "tiene"
     HistoriaClinica }o--|| Profesional : "tiene"
     HistoriaClinica }o--|| GrupoSanguineo : "pertenece"
-```
+``` -->
+
+![DER Normalizada](../anexos/capturas/der_normalizado.png)
 
 #### 3.2 Estructura de Tablas Normalizadas
 
@@ -468,14 +472,15 @@ El objetivo de esta etapa fue poblar la base de datos normalizada con un gran vo
 
 ### 2. Metodología y Técnicas Utilizadas
 
-Para generar los datos, se emplearon técnicas avanzadas de SQL para asegurar la eficiencia, aleatoriedad y consistencia de los registros, respetando todas las `constraints` definidas en la Etapa 1.
+Para generar los datos, se emplearon técnicas avanzadas de SQL para asegurar la eficiencia, aleatoriedad y consistencia de los registros, respetando todas las `constraints` definidas en la Etapa 1. La estrategia se basó en una combinación de los siguientes métodos:
 
-- **Generación de Secuencias con CTE Recursivos:** En lugar de métodos verbosos, se utilizó `WITH RECURSIVE` para generar secuencias numéricas de forma limpia y moderna. Esta técnica fue la base para crear un número determinado de registros en las tablas `Persona` e `HistoriaClinica`.
-- **Aleatoriedad y Variedad de Datos:**
-  - Se utilizaron listas con 50 nombres y 50 apellidos para aumentar la variedad.
-  - La función `RAND()` se usó para seleccionar nombres y apellidos de forma aleatoria y para generar fechas de nacimiento realistas (con edades entre 18 y 75 años).
-- **Garantía de Unicidad:** Para el campo `dni`, que tiene una restricción `UNIQUE`, se utilizó una secuencia numérica predecible (`@dni_inicial + num - 1`) para garantizar que no hubiera duplicados durante la inserción masiva.
-- **Distribución Ponderada:** Para que los datos estadísticos fueran realistas, la asignación de `grupo_sanguineo_id` se realizó mediante una distribución ponderada usando una declaración `CASE`. Esto simula la frecuencia real de los tipos de sangre en una población (ej. O+ y A+ son más comunes).
+- **CTE Recursivo (Common Table Expression):** En lugar de métodos más verbosos, se utilizó `WITH RECURSIVE` para generar las secuencias numéricas que sirvieron de base para la creación de 200000 `Persona` y 150000 `HistoriaClinica`. Esta es una técnica moderna y legible que funciona como una "tabla de números" (Tally Table) virtual generada al momento.
+
+- **Datos Semilla (Seed Data) en Línea:** Para la generación de nombres y apellidos, se utilizaron listas expandidas con 50 nombres y 50 apellidos directamente dentro de la consulta `INSERT`. Estas listas actúan como "datos semilla" que, combinados con la función `RAND()`, permiten generar una gran variedad de combinaciones realistas.
+
+- **Garantía de Unicidad con Secuencias:** Para el campo `dni`, que tiene una restricción `UNIQUE`, se combinó la aleatoriedad con la predictibilidad. Se utilizó la secuencia numérica del CTE (`@dni_inicial + num - 1`) para generar el valor, garantizando así que no hubiera duplicados durante la inserción masiva y evitando fallos.
+
+- **Distribución Ponderada para Datos Realistas:** Con el fin de que los análisis estadísticos fueran significativos, la asignación del `grupo_sanguineo_id` se realizó mediante una distribución ponderada, utilizando una declaración `CASE` que evalúa el resultado de `RAND()`. Esto simula la frecuencia real de los tipos de sangre en una población, donde O+ y A+ son mucho más comunes que AB-.
 
 ### 3. Pruebas de Rendimiento con Índices
 
@@ -643,22 +648,31 @@ ORDER BY
     cantidad_pacientes ASC;
 ```
 
-#### Consulta 4: `Subconsulta` - Historias Clínicas sin Profesional Asignado
+#### Consulta 4: `Subconsulta` - Profesionales con Más Pacientes que el Promedio
 
-Esta consulta funciona como un reporte de "tareas pendientes" para el personal administrativo. Genera una lista de todas las historias clínicas activas que aún no tienen un médico asignado, ayudando a garantizar que ningún paciente quede sin seguimiento y mejorando la calidad del servicio.
+Utilidad Práctica: Este reporte analítico es una herramienta clave para la gestión de recursos humanos. Identifica a los profesionales que tienen una carga de pacientes significativamente superior al promedio del sistema, lo que permite detectar una posible sobrecarga de trabajo. Es fundamental para la toma de decisiones administrativas, como la redistribución de pacientes, la contratación de nuevos especialistas o la planificación de turnos, asegurando una carga de trabajo más equilibrada y manteniendo la calidad de la atención.
 
 ```sql
 SELECT
-    hc.nro_historia,
-    hc.antecedentes,
-    (SELECT CONCAT(per.apellido, ', ', per.nombre)
-     FROM Persona per
-     JOIN Paciente p ON per.id = p.persona_id
-     WHERE p.historia_clinica_id = hc.id) AS paciente
-FROM
-    HistoriaClinica hc
-WHERE
-    hc.profesional_id IS NULL AND hc.eliminado = FALSE;
+    CONCAT(per.apellido, ', ', per.nombre) AS profesional,
+    prof.especialidad,
+    COUNT(pac.id) AS total_pacientes
+FROM Profesional prof
+    JOIN Persona per ON prof.persona_id = per.id
+    JOIN HistoriaClinica hc ON hc.profesional_id = prof.id
+    JOIN Paciente pac ON pac.historia_clinica_id = hc.id
+GROUP BY prof.id, profesional, prof.especialidad
+HAVING COUNT(pac.id) > (
+    SELECT AVG(pacientes_por_prof)
+    FROM (
+        SELECT COUNT(p2.id) AS pacientes_por_prof
+        FROM Profesional prof2
+        JOIN HistoriaClinica hc2 ON hc2.profesional_id = prof2.id
+        JOIN Paciente p2 ON p2.historia_clinica_id = hc2.id
+        GROUP BY prof2.id
+    ) AS sub
+)
+ORDER BY total_pacientes DESC;
 ```
 
 ### 4. Creación de Vista (VIEW)
