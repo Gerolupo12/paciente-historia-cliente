@@ -24,6 +24,7 @@ Este proyecto fue desarrollado de manera colaborativa por el siguiente equipo:
 - [`carga_masiva_datos.sql`](../sql/carga_masiva_datos.sql) - Generación de datos masivos con SQL puro
 - [`validacion_constraints.sql`](../sql/validacion_constraints.sql) - Inserciones para validación de restricciones
 - [`consultas_complejas.sql`](../sql/consultas_complejas.sql) - Consultas complejas con JOINs
+- [`seguridad_integridad.sql`](../sql/seguridad_integridad.sql) - Medidas de seguridad y pruebas de restricciones de integridad del sistema
 
 ---
 

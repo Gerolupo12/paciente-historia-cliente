@@ -24,15 +24,17 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1→1 entr
 
 ```plaintext
 paciente-historia-cliente
+.
 ├── anexos
-│   ├── chat_ia_db_i.pdf
-│   └── chat_ia_prog_ii.pdf
+│   ├── capturas
+│   └── chats-ia
 ├── informes
 │   ├── informe_db_i.md
 │   └── informe_prog_ii.md
 ├── sql
 │   ├── carga_masiva_datos.sql
 │   ├── consultas_complejas.sql
+│   ├── seguridad_integridad.sql
 │   ├── sentencias_creacion.sql
 │   └── validacion_constraints.sql
 ├── src
@@ -54,8 +56,7 @@ paciente-historia-cliente
 │   │   ├── HistoriaClinica.java
 │   │   ├── Paciente.java
 │   │   ├── Persona.java
-│   │   ├── Profesional.java
-│   │   └── ClasePrincipalParaPruebas.java
+│   │   └── Profesional.java
 │   └── service
 │       ├── GenericService.java
 │       ├── HistoriaClinicaService.java
