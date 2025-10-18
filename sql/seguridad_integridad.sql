@@ -182,6 +182,14 @@ VALUES (9999999, 1);
 -- Esta técnica evita inyección SQL al separar la consulta de los valores
 -- ingresados por el usuario.
 -- =====================================================================
+-- Ataque de Inyección para DNI:
+-- Si el usuario ingresa:
+
+-- DNI: 12345678' OR '1'='1
+
+-- La consulta resultante sería:
+-- SELECT * FROM usuarios WHERE dni = '12345678' OR '1'='1'
+-- Resultado: ¡Devuelve TODOS los usuarios de la tabla!
 
 /* 
 public boolean loginSeguro(String usuario, String password) {
@@ -199,6 +207,13 @@ public boolean loginSeguro(String usuario, String password) {
     return rs.next();
 }
 */
+-- Con el mismo ataque:
+-- DNI ingresado: 12345678' OR '1'='1
+
+-- La consulta ejecutada sería equivalente a:
+-- SELECT * FROM usuarios WHERE dni = '12345678\' OR \'1\'=\'1'
+-- ¡El ataque se neutraliza completamente!
+
 -- Vectores de Ataque Probados:
 -- 1. `40123456' OR '1'='1` - Inyección para obtener todos los registros
 -- 2. `40123456' --` - Intento de comentar condiciones adicionales  
@@ -219,7 +234,7 @@ public boolean loginSeguro(String usuario, String password) {
 -- 5. INTERACCIÓN CON IA (EVIDENCIA PEDAGÓGICA)
 -- =====================================================================
 -- Prompt utilizado:
--- "¿Cómo puedo crear un usuario con privilegios limitados en MySQL
+-- "¿Cómo puedo crear un usuario con bprivilegios limitados en MySQL
 -- para que la aplicación solo pueda leer e insertar datos sin poder
 -- borrar ni alterar tablas?"
 --
