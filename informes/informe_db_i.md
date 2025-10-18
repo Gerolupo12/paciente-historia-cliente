@@ -23,7 +23,8 @@ Este proyecto fue desarrollado de manera colaborativa por el siguiente equipo:
 - [`sentencias_creacion.sql`](../sql/sentencias_creacion.sql) - Creación de tablas, constraints e índices
 - [`carga_masiva_datos.sql`](../sql/carga_masiva_datos.sql) - Generación de datos masivos con SQL puro
 - [`validacion_constraints.sql`](../sql/validacion_constraints.sql) - Inserciones para validación de restricciones
-- [`consultas_avanzadas.sql`](../sql/consultas_avanzadas.sql) - Consultas avanzadas con JOINs
+- [`consultas_complejas.sql`](../sql/consultas_complejas.sql) - Consultas complejas con JOINs
+- [`seguridad_integridad.sql`](../sql/seguridad_integridad.sql) - Medidas de seguridad y pruebas de restricciones de integridad del sistema
 
 ---
 
@@ -33,7 +34,7 @@ Este proyecto fue desarrollado de manera colaborativa por el siguiente equipo:
 
 #### 1.1 Diagrama ER Original
 
-```mermaid
+<!-- ```mermaid
 erDiagram
     direction TB
     Paciente {
@@ -70,7 +71,9 @@ erDiagram
 
     Paciente }o--|| HistoriaClinica : tiene
     Profesional }o--|| HistoriaClinica : tiene
-```
+``` -->
+
+![DER Original](../anexos/capturas/der_original.png)
 
 #### 1.2 Problemas Detectados en el Modelo Original
 
@@ -132,7 +135,7 @@ id → dni → (nombre, apellido, fecha_nacimiento)  ← DEPENDENCIA TRANSITIVA
 
 #### 3.1 Diagrama ER Normalizado
 
-```mermaid
+<!-- ```mermaid
 erDiagram
     Persona {
         id BIGINT PK "AUTO_INCREMENT"
@@ -181,7 +184,9 @@ erDiagram
     Paciente ||--o| HistoriaClinica : "tiene"
     HistoriaClinica }o--|| Profesional : "tiene"
     HistoriaClinica }o--|| GrupoSanguineo : "pertenece"
-```
+``` -->
+
+![DER Normalizada](../anexos/capturas/der_normalizado.png)
 
 #### 3.2 Estructura de Tablas Normalizadas
 
@@ -468,14 +473,15 @@ El objetivo de esta etapa fue poblar la base de datos normalizada con un gran vo
 
 ### 2. Metodología y Técnicas Utilizadas
 
-Para generar los datos, se emplearon técnicas avanzadas de SQL para asegurar la eficiencia, aleatoriedad y consistencia de los registros, respetando todas las `constraints` definidas en la Etapa 1.
+Para generar los datos, se emplearon técnicas avanzadas de SQL para asegurar la eficiencia, aleatoriedad y consistencia de los registros, respetando todas las `constraints` definidas en la Etapa 1. La estrategia se basó en una combinación de los siguientes métodos:
 
-- **Generación de Secuencias con CTE Recursivos:** En lugar de métodos verbosos, se utilizó `WITH RECURSIVE` para generar secuencias numéricas de forma limpia y moderna. Esta técnica fue la base para crear un número determinado de registros en las tablas `Persona` e `HistoriaClinica`.
-- **Aleatoriedad y Variedad de Datos:**
-  - Se utilizaron listas con 50 nombres y 50 apellidos para aumentar la variedad.
-  - La función `RAND()` se usó para seleccionar nombres y apellidos de forma aleatoria y para generar fechas de nacimiento realistas (con edades entre 18 y 75 años).
-- **Garantía de Unicidad:** Para el campo `dni`, que tiene una restricción `UNIQUE`, se utilizó una secuencia numérica predecible (`@dni_inicial + num - 1`) para garantizar que no hubiera duplicados durante la inserción masiva.
-- **Distribución Ponderada:** Para que los datos estadísticos fueran realistas, la asignación de `grupo_sanguineo_id` se realizó mediante una distribución ponderada usando una declaración `CASE`. Esto simula la frecuencia real de los tipos de sangre en una población (ej. O+ y A+ son más comunes).
+- **CTE Recursivo (Common Table Expression):** En lugar de métodos más verbosos, se utilizó `WITH RECURSIVE` para generar las secuencias numéricas que sirvieron de base para la creación de 200000 `Persona` y 150000 `HistoriaClinica`. Esta es una técnica moderna y legible que funciona como una "tabla de números" (Tally Table) virtual generada al momento.
+
+- **Datos Semilla (Seed Data) en Línea:** Para la generación de nombres y apellidos, se utilizaron listas expandidas con 50 nombres y 50 apellidos directamente dentro de la consulta `INSERT`. Estas listas actúan como "datos semilla" que, combinados con la función `RAND()`, permiten generar una gran variedad de combinaciones realistas.
+
+- **Garantía de Unicidad con Secuencias:** Para el campo `dni`, que tiene una restricción `UNIQUE`, se combinó la aleatoriedad con la predictibilidad. Se utilizó la secuencia numérica del CTE (`@dni_inicial + num - 1`) para generar el valor, garantizando así que no hubiera duplicados durante la inserción masiva y evitando fallos.
+
+- **Distribución Ponderada para Datos Realistas:** Con el fin de que los análisis estadísticos fueran significativos, la asignación del `grupo_sanguineo_id` se realizó mediante una distribución ponderada, utilizando una declaración `CASE` que evalúa el resultado de `RAND()`. Esto simula la frecuencia real de los tipos de sangre en una población, donde O+ y A+ son mucho más comunes que AB-.
 
 ### 3. Pruebas de Rendimiento con Índices
 
@@ -553,7 +559,157 @@ La creación de un índice estratégico en las columnas `(apellido, nombre)` res
 
 ---
 
-## Etapa 3 - Consultas complejas y útiles
+## Etapa 3 - Consultas Complejas y Útiles
+
+### 1. Descripción
+
+El propósito de esta etapa fue trascender las operaciones básicas de un CRUD (`INSERT`, `SELECT *`, `UPDATE`, `DELETE`) para diseñar y ejecutar consultas SQL complejas y de alto valor. El objetivo era extraer información significativa y generar reportes útiles que no podrían obtenerse con consultas simples. Para ello, se aplicaron cláusulas avanzadas como `JOIN` (para combinar datos de múltiples tablas), `GROUP BY` y `HAVING` (para agregar y filtrar datos), subconsultas (para realizar consultas anidadas) y la creación de `VIEW`s (para simplificar el acceso a los datos). Todas las consultas fueron probadas sobre el conjunto de datos masivos para asegurar su correctitud y rendimiento.
+
+### 2. Metodología
+
+El desarrollo de las consultas siguió un proceso metodológico enfocado en la utilidad práctica:
+
+1. **Identificación de Casos de Uso:** Se analizaron las necesidades de diferentes roles en un entorno clínico (administrativos, médicos) para identificar qué tipo de reportes y búsquedas agregarían más valor al sistema.
+2. **Diseño de la Lógica:** Para cada caso de uso, se diseñó una consulta SQL utilizando las cláusulas requeridas por la consigna, asegurando la correcta unión y filtrado de las tablas normalizadas.
+3. **Validación y Pruebas:** Cada consulta fue ejecutada y validada contra el set de más de 500,000 registros para verificar que los resultados fueran correctos y que el tiempo de respuesta fuera aceptable, aprovechando los índices creados.
+4. **Documentación:** Se documentó la utilidad práctica de cada consulta, explicando qué problema resuelve o qué información clave proporciona.
+
+### 3. Consultas Desarrolladas
+
+A continuación, se presentan las consultas diseñadas, cumpliendo con los requisitos de la consigna.
+
+#### Consulta 1: `JOIN` - Ficha Completa de Pacientes Activos
+
+Esta consulta es el núcleo de la aplicación para visualizar la información de un paciente. Unifica en una sola vista los datos personales, los detalles médicos de su historia clínica y la información del profesional que lo atiende. Es la base para cualquier pantalla de "Detalle de Paciente" o reporte individual.
+
+```sql
+SELECT
+    p.id AS paciente_id,
+    per.dni,
+    CONCAT(per.apellido, ', ', per.nombre) AS nombre_completo,
+    TIMESTAMPDIFF(YEAR, per.fecha_nacimiento, CURDATE()) AS edad,
+    hc.nro_historia,
+    gs.simbolo AS grupo_sanguineo,
+    CONCAT(per_prof.apellido, ', ', per_prof.nombre) AS profesional_asignado,
+    prof.especialidad
+FROM
+    Paciente p
+    INNER JOIN Persona per ON p.persona_id = per.id
+    LEFT JOIN HistoriaClinica hc ON p.historia_clinica_id = hc.id
+    LEFT JOIN GrupoSanguineo gs ON hc.grupo_sanguineo_id = gs.id
+    LEFT JOIN Profesional prof ON hc.profesional_id = prof.id
+    LEFT JOIN Persona per_prof ON prof.persona_id = per_prof.id
+WHERE
+    per.eliminado = FALSE AND p.eliminado = FALSE
+ORDER BY
+    per.apellido, per.nombre;
+```
+
+#### Consulta 2: `JOIN` - Búsqueda de Pacientes por Especialidad Médica
+
+Permite a un administrativo generar un listado de todos los pacientes que son atendidos por una especialidad específica (ej. 'Cardiología'). Es una herramienta fundamental para auditorías, gestión de turnos por área o para contactar a un grupo de pacientes bajo el cuidado de un mismo tipo de especialista.
+
+```sql
+SELECT
+    prof.especialidad,
+    CONCAT(per_pro.apellido, ', ', per_pro.nombre) AS profesional,
+    hc.nro_historia,
+    per_pac.dni AS dni_paciente,
+    CONCAT(per_pac.apellido, ', ', per_pac.nombre) AS nombre_paciente
+FROM HistoriaClinica hc
+    INNER JOIN Profesional prof ON hc.profesional_id = prof.id
+    INNER JOIN Persona per_pro ON prof.persona_id = per_pro.id
+    INNER JOIN Paciente pac ON hc.id = pac.historia_clinica_id
+    INNER JOIN Persona per_pac ON pac.persona_id = per_pac.id
+WHERE
+    prof.especialidad = 'Cardiología' AND hc.eliminado = FALSE
+ORDER BY
+    prof.matricula;
+```
+
+#### Consulta 3: `GROUP BY` + `HAVING` - Grupos Sanguíneos Minoritarios
+
+Este reporte estadístico es clave para la gestión de recursos. Identifica los grupos sanguíneos menos comunes entre los pacientes, una información vital para campañas de donación de sangre, gestión de stock en bancos de sangre o para estudios epidemiológicos.
+
+```sql
+SELECT
+    gs.simbolo AS grupo_sanguineo,
+    COUNT(p.id) AS cantidad_pacientes
+FROM
+    GrupoSanguineo gs
+    LEFT JOIN HistoriaClinica hc ON gs.id = hc.grupo_sanguineo_id
+    LEFT JOIN Paciente p ON hc.id = p.historia_clinica_id
+WHERE
+    p.eliminado = FALSE
+GROUP BY
+    gs.simbolo
+HAVING
+    COUNT(p.id) <= 19000 -- Umbral para definir un grupo como "minoritario"
+ORDER BY
+    cantidad_pacientes ASC;
+```
+
+#### Consulta 4: `Subconsulta` - Profesionales con Más Pacientes que el Promedio
+
+Utilidad Práctica: Este reporte analítico es una herramienta clave para la gestión de recursos humanos. Identifica a los profesionales que tienen una carga de pacientes significativamente superior al promedio del sistema, lo que permite detectar una posible sobrecarga de trabajo. Es fundamental para la toma de decisiones administrativas, como la redistribución de pacientes, la contratación de nuevos especialistas o la planificación de turnos, asegurando una carga de trabajo más equilibrada y manteniendo la calidad de la atención.
+
+```sql
+SELECT
+    CONCAT(per.apellido, ', ', per.nombre) AS profesional,
+    prof.especialidad,
+    COUNT(pac.id) AS total_pacientes
+FROM Profesional prof
+    JOIN Persona per ON prof.persona_id = per.id
+    JOIN HistoriaClinica hc ON hc.profesional_id = prof.id
+    JOIN Paciente pac ON pac.historia_clinica_id = hc.id
+GROUP BY prof.id, profesional, prof.especialidad
+HAVING COUNT(pac.id) > (
+    SELECT AVG(pacientes_por_prof)
+    FROM (
+        SELECT COUNT(p2.id) AS pacientes_por_prof
+        FROM Profesional prof2
+        JOIN HistoriaClinica hc2 ON hc2.profesional_id = prof2.id
+        JOIN Paciente p2 ON p2.historia_clinica_id = hc2.id
+        GROUP BY prof2.id
+    ) AS sub
+)
+ORDER BY total_pacientes DESC;
+```
+
+### 4. Creación de Vista (VIEW)
+
+#### Vista 1: `vw_pacientes_activos`
+
+Una vista es una tabla virtual basada en una consulta. Esta vista, `vw_pacientes_activos`, simplifica radicalmente el acceso a los datos más comunes de los pacientes. El equipo de desarrollo puede consultarla como si fuera una tabla simple (`SELECT * FROM vw_pacientes_activos`) sin tener que reescribir el complejo `JOIN` cada vez. Además, abstrae la lógica de negocio de filtrar siempre por registros no eliminados, reduciendo errores y simplificando el código de la aplicación.
+
+```sql
+CREATE OR REPLACE VIEW vw_pacientes_activos AS
+SELECT
+    p.id AS paciente_id,
+    per.dni,
+    per.nombre,
+    per.apellido,
+    hc.nro_historia,
+    prof.especialidad AS especialidad_medico
+FROM
+    Paciente p
+    INNER JOIN Persona per ON p.persona_id = per.id
+    LEFT JOIN HistoriaClinica hc ON p.historia_clinica_id = hc.id
+    LEFT JOIN Profesional prof ON hc.profesional_id = prof.id
+WHERE
+    p.eliminado = FALSE AND per.eliminado = FALSE;
+
+-- Ejemplo de uso de la vista:
+SELECT * FROM vw_pacientes_activos WHERE especialidad_medico = 'Pediatría';
+```
+
+### 5. Conclusión
+
+En esta etapa se demostró con éxito cómo un esquema de base de datos bien normalizado y poblado con datos masivos permite la creación de consultas analíticas y reportes de gran valor. Se diseñaron y validaron cuatro consultas complejas y una vista que cumplen con los requisitos técnicos y resuelven problemas prácticos de un sistema de gestión de pacientes. El uso de `JOIN`, `GROUP BY`, `HAVING` y subconsultas se ha consolidado como una herramienta esencial para la extracción de inteligencia de negocio a partir de los datos almacenados.
+
+---
+
+## Etapa 4 - Seguridad e Integridad
 
 ---
 
