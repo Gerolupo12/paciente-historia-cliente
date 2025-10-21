@@ -1,6 +1,6 @@
 # Trabajo Final Integrador - Sistema de Gestión de Pacientes e Historias Clínicas
 
-![MySQL](https://img.shields.io/badge/MySQL-8.0.43-blue?logo=mysql) ![MySQL Workbench](https://img.shields.io/badge/MySQL%20Workbench-4479A1.svg?logo=mysql&logoColor=white) ![phpMyAdmin](https://img.shields.io/badge/phpMyAdmin-6C78B3.svg?logo=phpmyadmin&logoColor=white) ![Git](https://img.shields.io/badge/Git-F05032?logo=git&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green.svg) [![Ver en GitHub](https://img.shields.io/badge/Repositorio-GitHub-black?logo=github)](https://github.com/Gerolupo12/paciente-historia-cliente)
+![MySQL](https://img.shields.io/badge/MySQL-8.0.43-blue?logo=mysql) ![MySQL Workbench](https://img.shields.io/badge/MySQL%20Workbench-4479A1.svg?logo=mysql&logoColor=white) ![phpMyAdmin](https://img.shields.io/badge/phpMyAdmin-6C78B3.svg?logo=phpmyadmin&logoColor=white) ![DBeaver](https://img.shields.io/badge/DBeaver-38698C?logo=dbeaver&logoColor=white) ![Git](https://img.shields.io/badge/Git-F05032?logo=git&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green.svg) [![Ver en GitHub](https://img.shields.io/badge/Repositorio-GitHub-black?logo=github)](https://github.com/Gerolupo12/paciente-historia-cliente)
 
 ## Datos del Proyecto
 
@@ -25,6 +25,7 @@ Este proyecto fue desarrollado de manera colaborativa por el siguiente equipo:
 - [`validacion_constraints.sql`](../sql/validacion_constraints.sql) - Inserciones para validación de restricciones
 - [`consultas_complejas.sql`](../sql/consultas_complejas.sql) - Consultas complejas con JOINs
 - [`seguridad_integridad.sql`](../sql/seguridad_integridad.sql) - Medidas de seguridad y pruebas de restricciones de integridad del sistema
+- [`concurrencia_transacciones.sql`](../sql/concurrencia_transacciones.sql) - Pruebas de comportamiento ante accesos simultaneos, implementando transacciones y realizando bloqueos, deadlocks y niveles de aislamiento
 
 ---
 
@@ -387,6 +388,10 @@ Todas las tablas incluyen un campo `eliminado` para la baja lógica. Adicionalme
 
 La normalización a 3FN es altamente recomendable para este sistema, ya que los beneficios en mantenibilidad, escalabilidad e integridad de datos superan ampliamente la complejidad adicional inicial.
 
+### 9. Interacción con IA
+
+**Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
+
 ---
 
 ## Etapa 2 - Implementación y Carga Masiva de Datos
@@ -427,10 +432,6 @@ La carga masiva de datos y las pruebas de rendimiento demuestran de manera contu
 La creación de un índice estratégico en las columnas `(apellido, nombre)` resultó en una mejora del rendimiento superior al 96%, transformando una consulta lenta en una operación casi instantánea. Esto confirma que un diseño de indexación adecuado es tan importante como la normalización para el buen funcionamiento de un sistema de gestión de datos.
 
 ### 5. Interacción con IA
-
-Se consultó a la IA sobre estrategias para generar datos con distribuciones ponderadas (grupos sanguíneos) y sobre alternativas a los generadores de secuencias.
-
-- **Asistencia Recibida:** La IA explicó la lógica de `CASE` con `RAND()` y sugirió el uso de CTE recursivos.
 
 **Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
 
@@ -580,17 +581,13 @@ WHERE
 SELECT * FROM vw_pacientes_activos WHERE especialidad_medico = 'Pediatría';
 ```
 
-### 5. Interacción con IA
-
-Se consultó a la IA sobre la optimización de la consulta 4, comparando el enfoque de subconsulta correlacionada con una alternativa usando `JOIN`.
-
-- **Asistencia Recibida:** La IA explicó las ventajas de rendimiento del `JOIN` sobre la subconsulta correlacionada para grandes volúmenes de datos. _(Nota: Aunque finalmente se optó por otra consulta con subconsulta no correlacionada para cumplir la consigna, la reflexión fue valiosa)._
-
-**Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
-
-### 6. Conclusión
+### 5. Conclusión
 
 En esta etapa se demostró con éxito cómo un esquema de base de datos bien normalizado y poblado con datos masivos permite la creación de consultas analíticas y reportes de gran valor. Se diseñaron y validaron cuatro consultas complejas y una vista que cumplen con los requisitos técnicos y resuelven problemas prácticos de un sistema de gestión de pacientes. El uso de `JOIN`, `GROUP BY`, `HAVING` y subconsultas se ha consolidado como una herramienta esencial para la extracción de inteligencia de negocio a partir de los datos almacenados.
+
+### 6. Interacción con IA
+
+**Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
 
 ---
 
@@ -709,17 +706,115 @@ public boolean existeUsuarioPorDni(String dni, Connection connection) {
 
 - **Justificación:** `PreparedStatement` precompila la consulta SQL y trata los parámetros como datos literales, no como parte ejecutable de la consulta. Esto neutraliza por completo el riesgo de ataques de inyección SQL, donde un usuario malintencionado podría intentar manipular la consulta original.
 
-### 4. Interacción con IA
-
-Se consultó a la IA sobre las mejores prácticas para definir los privilegios mínimos de un usuario de aplicación.
-
-- **Consulta:** _"¿Cuáles son los 4 permisos SQL esenciales para un usuario de aplicación que solo necesita hacer CRUD y por qué no debería darle `ALTER` o `DROP`?"_
-- **Respuesta (Resumen):** La IA confirmó que `SELECT`, `INSERT`, `UPDATE`, `DELETE` son los permisos correctos y explicó que otorgar permisos como `ALTER` o `DROP` violaría el principio de mínimos privilegios, exponiendo la base de datos a riesgos innecesarios si las credenciales de la aplicación se vieran comprometidas. Esta guía validó la correcta implementación de los permisos para `user_gestion`.
-
-**Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
-
-### 5. Conclusión
+### 4. Conclusión
 
 Esta etapa demostró la implementación exitosa de medidas de seguridad esenciales y la robustez del diseño del esquema en cuanto a la integridad de los datos. La creación de un usuario con privilegios mínimos, el uso estratégico de vistas y la confirmación activa de las `constraints` son pasos fundamentales para construir una base de datos segura y confiable. La adopción de `PreparedStatement` en la capa de aplicación complementa estas medidas, asegurando una protección integral contra vulnerabilidades comunes.
 
+### 5. Interacción con IA
+
+**Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
+
 ---
+
+## Etapa 5 - Concurrencia y Transacciones
+
+### 1. Descripción
+
+Esta etapa final se centró en comprender y gestionar los desafíos que surgen cuando múltiples usuarios (o procesos) acceden y modifican la base de datos simultáneamente. Se exploraron conceptos cruciales como las transacciones, los niveles de aislamiento, los bloqueos y los temidos deadlocks. El objetivo fue simular estos escenarios en un entorno controlado para observar el comportamiento del SGBD (MySQL) y aprender a implementar soluciones tanto a nivel de base de datos como en la aplicación Java.
+
+### 2. Metodología
+
+Para abordar los requisitos de esta etapa, se siguieron estos pasos:
+
+1. **Simulación Multi-Sesión:** Se utilizaron dos sesiones (conexiones) independientes a la base de datos `GestionPacientes` en `localhost` (simuladas con dos pestañas de consulta en MySQL Workbench) para representar a dos usuarios concurrentes.
+2. **Simulación de Deadlock:** Se diseñó una secuencia específica de operaciones `UPDATE` cruzadas entre las dos sesiones, dentro de transacciones explícitas (`BEGIN`/`COMMIT`), para forzar una situación de interbloqueo (deadlock) y observar cómo MySQL lo detecta y resuelve.
+3. **Comparación de Niveles de Aislamiento:** Se configuraron las sesiones con los niveles de aislamiento `READ COMMITTED` y `REPEATABLE READ` (el predeterminado en InnoDB) y se realizaron lecturas (`SELECT`) concurrentes a modificaciones (`UPDATE`) no confirmadas para visualizar experimentalmente fenómenos como las lecturas no repetibles.
+4. **Gestión de Transacciones en Java:** Se incorporó el manejo explícito de transacciones (`Connection.setAutoCommit(false)`, `commit()`, `rollback()`) en la capa de servicio de la aplicación Java (conceptualizado en el script) para garantizar la atomicidad de las operaciones compuestas.
+
+### 3. Implementación y Pruebas
+
+#### 3.1. Simulación de Deadlock
+
+Se ejecutó el guion documentado en el script, donde:
+
+- La Sesión 1 bloquea la fila de `Persona` con `id = 1`.
+- La Sesión 2 bloquea la fila de `HistoriaClinica` con `id = 1`.
+- La Sesión 1 intenta bloquear la fila de `HistoriaClinica` (`id = 1`), quedando en espera.
+- La Sesión 2 intenta bloquear la fila de `Persona` (`id = 1`), creando un ciclo de dependencias.
+
+**Resultado:** MySQL detectó el interbloqueo y automáticamente canceló una de las transacciones (generalmente la que realizó menos cambios o la más reciente), emitiendo un error específico.
+
+- **Error de Deadlock:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
+
+#### 3.2. Comparación Práctica de Niveles de Aislamiento
+
+Se realizaron pruebas siguiendo el script:
+
+- **`READ COMMITTED`:**
+
+  - La Sesión 2 **no pudo ver** la modificación de la Sesión 1 antes de que esta hiciera `COMMIT`.
+  - La Sesión 2 **sí pudo ver** la modificación después de que la Sesión 1 hiciera `COMMIT`, demostrando una **lectura no repetible** dentro de la misma transacción de la Sesión 2.
+
+- **`REPEATABLE READ`:**
+
+  - La Sesión 2 **no pudo ver** la modificación de la Sesión 1 antes del `COMMIT`.
+  - La Sesión 2 **tampoco pudo ver** la modificación después del `COMMIT` de la Sesión 1. Mantuvo una "vista" consistente (snapshot) del dato desde el inicio de su transacción, demostrando la prevención de lecturas no repetibles.
+
+- **Resultados Comparativos:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
+
+#### 3.3. Implementación de Transacciones en Java
+
+En la capa `Service` de la aplicación Java, las operaciones que involucran múltiples pasos (como crear un `Paciente` y su `HistoriaClinica` asociada) se encapsularon dentro de bloques `try-catch-finally` que gestionan la transacción:
+
+```java
+// Ejemplo Conceptual (en PacienteService.java)
+Connection conn = null;
+try {
+    conn = DatabaseConnection.getConnection();
+    conn.setAutoCommit(false); // Iniciar transacción
+
+    // 1. Crear HistoriaClinica via DAO
+    historiaDAO.crear(nuevaHistoria, conn);
+
+    // 2. Asociar y Crear Paciente via DAO
+    nuevoPaciente.setHistoriaClinica(nuevaHistoria);
+    pacienteDAO.crear(nuevoPaciente, conn);
+
+    conn.commit(); // Confirmar transacción si todo OK
+
+} catch (SQLException e) {
+    if (conn != null) {
+        try {
+            conn.rollback(); // Deshacer cambios en caso de error
+        } catch (SQLException ex) {
+            // Loggear error de rollback
+        }
+    }
+    // Relanzar o manejar excepción
+} finally {
+    if (conn != null) {
+        try {
+            conn.setAutoCommit(true); // Restaurar modo autocommit
+            conn.close(); // Cerrar conexión
+        } catch (SQLException e) {
+             // Loggear error al cerrar
+        }
+    }
+}
+```
+
+### 4. Informe de Observaciones sobre Concurrencia y Transacciones
+
+Las pruebas realizadas en esta etapa permitieron extraer conclusiones importantes:
+
+- **Los Deadlocks son Reales:** Aunque MySQL los detecta, pueden ocurrir en aplicaciones con alta concurrencia si las operaciones no se diseñan cuidadosamente (ej. actualizando registros siempre en el mismo orden).
+- **El Nivel de Aislamiento Importa:** La elección del nivel de aislamiento tiene un impacto directo en la consistencia de los datos que ve cada usuario. `READ COMMITTED` ofrece mayor concurrencia pero puede llevar a lecturas no repetibles, mientras que `REPEATABLE READ` (default) ofrece mayor consistencia a costa de potencialmente reducir la concurrencia. La elección depende de los requisitos específicos de la aplicación.
+- **Las Transacciones son Esenciales:** El manejo explícito de transacciones en la capa de servicio es fundamental para garantizar la atomicidad de las operaciones de negocio que involucran múltiples pasos en la base de datos. Sin ellas, un error a mitad de camino podría dejar los datos en un estado inconsistente.
+
+### 5. Conclusión
+
+Esta etapa final consolidó la comprensión de los mecanismos que utilizan los SGBD para gestionar el acceso concurrente y mantener la consistencia de los datos a través de las transacciones y los niveles de aislamiento. La simulación práctica de deadlocks y la comparación experimental de los niveles de aislamiento proporcionaron una visión clara de los desafíos y las soluciones disponibles. La correcta implementación de la gestión transaccional en la capa de aplicación se reafirma como una práctica indispensable para desarrollar sistemas robustos y fiables.
+
+### 6. Interacción con IA
+
+**Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)

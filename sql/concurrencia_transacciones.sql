@@ -1,7 +1,7 @@
 -- =====================================================================
 -- ETAPA 5 – CONCURRENCIA Y TRANSACCIONES
 -- =====================================================================
--- En esta etapa se disenian y ejecutan pruebas que muestran el comportamiento de la 
+-- En esta etapa se diseñan y ejecutan pruebas que muestran el comportamiento de la 
 -- base ante accesos simultaneos, implementando transaccionesy realizando bloqueos,
 -- deadlocks y niveles de aislamiento.
 
