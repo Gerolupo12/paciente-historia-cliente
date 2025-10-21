@@ -184,16 +184,16 @@ VALUES (9999999, 1);
 -- =====================================================================
 
 /* 
-public boolean loginSeguro(String usuario, String password) {
+public boolean existeUsuarioPorDni(String dni, Connection connection) {
     String sql = "SELECT * FROM usuarios WHERE dni = ?";
     
-    -- Preparar la declaración
+    // Preparar la declaración
     PreparedStatement stmt = connection.prepareStatement(sql);
     
-    -- Establecer parámetros DNI
+    // Establecer parámetros DNI
     stmt.setString(1, dni);  // Primer parámetro (?)
     
-    -- Ejecutar
+    // Ejecutar
     ResultSet rs = stmt.executeQuery();
     
     return rs.next();

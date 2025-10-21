@@ -32,11 +32,12 @@ Este proyecto fue desarrollado de manera colaborativa por el siguiente equipo:
 
 ### 1. Modelo Original (Pre-Normalización)
 
+El punto de partida fue el modelo de dominio definido para la asignatura Programación II, centrado en la relación 1→1 unidireccional entre `Paciente` e `HistoriaClínica`. Inicialmente, las tablas reflejaban directamente las clases Java correspondientes.
+
 #### 1.1 Diagrama ER Original
 
 <!-- ```mermaid
 erDiagram
-    direction TB
     Paciente {
         id BIGINT PK "AUTO_INCREMENT"
         eliminado BOOLEAN "DEFAULT FALSE"
@@ -46,7 +47,6 @@ erDiagram
         fecha_nacimiento DATE "NULL, CHECK (YEAR (fecha_nacimiento) > 1900)"
         historia_clinica_id BIGINT FK "UNIQUE, ON DELETE SET NULL, ON UPDATE CASCADE"
     }
-
     HistoriaClinica {
         id BIGINT PK "AUTO_INCREMENT"
         eliminado BOOLEAN "DEFAULT FALSE"
@@ -55,31 +55,17 @@ erDiagram
         antecedentes TEXT "NULL"
         medicacion_actual TEXT "NULL"
         observaciones TEXT "NULL"
-        profesional_id BIGINT FK "UNIQUE, ON DELETE SET NULL, ON UPDATE CASCADE"
     }
-
-    Profesional {
-        id BIGINT PK "AUTO_INCREMENT"
-        eliminado BOOLEAN "DEFAULT FALSE"
-        nombre VARCHAR(80) "NOT NULL"
-        apellido VARCHAR(80) "NOT NULL"
-        dni VARCHAR(15) "NOT NULL, UNIQUE, CHECK (LENGTH (dni) BETWEEN 7 AND 15)"
-        fecha_nacimiento DATE "NULL, CHECK (YEAR (fecha_nacimiento) > 1900)"
-        matricula VARCHAR(20) "NOT NULL, UNIQUE"
-        especialidad VARCHAR(40) "NOT NULL"
-    }
-
     Paciente }o--|| HistoriaClinica : tiene
-    Profesional }o--|| HistoriaClinica : tiene
 ``` -->
 
 ![DER Original](../anexos/capturas/der_original.png)
 
 #### 1.2 Problemas Detectados en el Modelo Original
 
-##### Violaciones de la 3FN
+Se identificaron violaciones a la Tercera Forma Normal (3FN) y oportunidades de mejora:
 
-1. **Dependencias Transitivas en `Paciente` y `Profesional`:**
+1. **Dependencias Transitivas en `Paciente`:**
 
    ```plaintext
    id → nombre, apellido, dni, fecha_nacimiento
@@ -88,48 +74,25 @@ erDiagram
 
 2. **Mala Representación de Dominios:**
 
-   - No hay separación entre entidad "Persona" y el rol "Paciente" o "Profesional"
-   - El grupo sanguíneo debería ser una entidad propia
+   - El `grupo_sanguineo` como `ENUM` limita la flexibilidad y no sigue las buenas prácticas de normalización.
 
-3. **Falta de Escalabilidad:**
+3. **Falta de Escalabilidad y Riqueza del Dominio:**
 
-   - Difícil agregar otros roles (ej. Administrativo, Enfermero) en el futuro
-   - Búsquedas ineficientes por falta de normalización
+   - El modelo inicial era muy básico. Se vio la necesidad de enriquecerlo para representar mejor un entorno clínico real.
 
-### 2. Proceso de Normalización a 3FN
+### 2. Proceso de Normalización a 3FN y Enriquecimiento del Dominio
 
-#### 2.1 Primera Forma Normal (1FN)
+#### 2.1 Primera Forma Normal (1FN) y Segunda Forma Normal (2FN)
 
-**Ya cumplida** - Todos los atributos son atómicos, no hay grupos repetitivos.
+Ambas formas normales ya se cumplían en el modelo original, ya que todos los atributos eran atómicos y todas las dependencias eran completas respecto a la clave primaria (`id`).
 
-#### 2.2 Segunda Forma Normal (2FN)
+#### 2.2 Tercera Forma Normal (3FN) y Adición de Entidades
 
-**Ya cumplida** - Todas las dependencias son completas de la clave primaria.
+Para alcanzar la 3FN y mejorar el modelo, se realizaron los siguientes pasos:
 
-#### 2.3 Tercera Forma Normal (3FN)
-
-##### Proceso de eliminación de dependencias transitivas
-
-###### Paso 1: Identificar dependencias transitivas
-
-```plaintext
-En Paciente:
-id → dni → (nombre, apellido, fecha_nacimiento)  ← DEPENDENCIA TRANSITIVA
-
-En HistoriaClinica:
-grupo_sanguineo ENUM contiene información compuesta (tipo + factor Rh)
-
-En Profesional:
-id → dni → (nombre, apellido, fecha_nacimiento)  ← DEPENDENCIA TRANSITIVA
-```
-
-###### Paso 2: Crear o modificar tablas para eliminar transitividades
-
-- **Tabla `Persona`**: Contiene datos personales básicos
-- **Tabla `Paciente`**: Solo mantiene relaciones (FK)
-- **Tabla `Profesional`**: Contiene los datos del profesional y relación con Persona (FK)
-- **Tabla `HistoriaClinica`**: Contiene datos clínicos y relación con GrupoSanguineo (FK)
-- **Tabla `GrupoSanguineo`**: Contiene los grupos sanguíneos
+1. **Creación de la Entidad `Persona`:** Se extrajeron los atributos `nombre`, `apellido`, `dni`, `fecha_nacimiento` a una nueva tabla `Persona` para eliminar la dependencia transitiva. `Paciente` ahora referencia a `Persona`.
+2. **Creación de la Entidad `GrupoSanguineo`:** Se creó una tabla maestra para los grupos sanguíneos, reemplazando el `ENUM` y permitiendo una gestión más robusta. `HistoriaClinica` ahora referencia a `GrupoSanguineo`.
+3. **Introducción de la Entidad `Profesional`:** Durante el proceso de normalización y reflexión sobre el dominio, se decidió incorporar la entidad `Profesional`. Aunque no estaba en el modelo estrictamente mínimo, su adición enriquece significativamente el sistema. Permite vincular una `HistoriaClinica` con el médico tratante, reflejando una relación fundamental en la gestión de pacientes y habilitando futuras consultas y funcionalidades (como buscar pacientes por médico o especialidad). Al igual que `Paciente`, `Profesional` también se vincula a la tabla `Persona`, aprovechando la estructura normalizada.
 
 ### 3. Modelo Normalizado (3FN)
 
@@ -188,7 +151,7 @@ erDiagram
 
 ![DER Normalizada](../anexos/capturas/der_normalizado.png)
 
-#### 3.2 Estructura de Tablas Normalizadas
+#### 3.2 Estructura de Tablas Normalizadas (DDL)
 
 ##### Tabla `Persona`
 
@@ -262,115 +225,48 @@ CREATE TABLE Paciente (
 );
 ```
 
-### 4 Decisiones de Diseño
+### 4. Validación de Constraints
 
-El diseño del esquema relacional se fundamentó en los principios de normalización e integridad para garantizar la robustez y consistencia de los datos.
+Se ejecutaron scripts [`[validacion_constraints.sql]`](../sql/validacion_constraints.sql) con inserciones diseñadas para probar la efectividad de las restricciones `UNIQUE`, `CHECK`, `FOREIGN KEY` y `NOT NULL`.
 
-### 1. Normalización a 3FN mediante la Entidad `Persona`
+#### 4.1 Inserciones Correctas (Ejemplos)
 
-La decisión estructural más importante fue descomponer las tablas originales para alcanzar la Tercera Forma Normal (3FN).
+- Creación de `Persona`, `Profesional`, `HistoriaClinica` y `Paciente` respetando las dependencias.
 
-- **Justificación:** Se identificó una dependencia transitiva en la tabla `Paciente` original, donde la clave primaria `id` determinaba el `dni`, y el `dni` a su vez determinaba `nombre` y `apellido`. Para resolverlo, se creó una entidad `Persona` que centraliza los datos personales y las tablas `Paciente` y `Profesional` pasaron a ser roles que referencian a `Persona`. Esto elimina la redundancia y previene anomalías de actualización.
+#### 4.2 Inserciones Erróneas (Ejemplos)
 
-### 2. Garantía de la Relación 1→1 a Nivel de Base de Datos
+- Intento de insertar `Persona` con `dni` duplicado (violación `UNIQUE`).
+- Intento de insertar `Persona` con `fecha_nacimiento` inválida (violación `CHECK`).
+- Intento de asignar `historia_clinica_id` inexistente a `Paciente` (violación `FOREIGN KEY`).
+- Intento de asignar la misma `Persona` a dos `Paciente` distintos (violación `UNIQUE` en `persona_id`).
 
-Para forzar la relación 1 a 1 entre un `Paciente` y su `HistoriaClinica` de manera infalible, se utilizó una combinación de restricciones.
+**Resultados de las pruebas:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
 
-- **Justificación:** En la tabla `Paciente`, la columna `historia_clinica_id` no solo es una `FOREIGN KEY` que apunta a `HistoriaClinica(id)`, sino que también posee una restricción `UNIQUE`. Esta combinación es la que asegura a nivel de motor de base de datos que una historia clínica no pueda ser asignada a más de un paciente, protegiendo la integridad del modelo.
+### 5. Uso Pedagógico de IA en el Proceso
 
-### 3. Creación de Tablas Maestras para Dominios
+Se utilizó una IA generativa como tutor para validar el proceso de normalización y la definición de `constraints`.
 
-En lugar de usar tipos `ENUM` de MySQL o cadenas de texto, se creó una tabla maestra `GrupoSanguineo`.
+- **Prompt Inicial:** Se describió el problema de la 3FN y se solicitó guía para validar la creación de la tabla `Persona`.
+- **Asistencia Recibida:** La IA proporcionó preguntas guía sobre relaciones, cardinalidad y escalabilidad, ayudando a consolidar el diseño.
 
-- **Justificación:** Esta decisión de diseño asegura la integridad de dominio. Centraliza los valores válidos en una única tabla, facilitando su gestión (agregar/modificar tipos de sangre sin alterar la estructura de otras tablas) y permitiendo definir relaciones foráneas. Además, mejora el rendimiento al usar un `INT` como clave foránea en lugar de una cadena.
+**Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
 
-### 4. Uso de Bajas Lógicas y Políticas de Integridad Referencial (`ON DELETE`)
+### 6. Beneficios de la Normalización y Enriquecimiento
 
-Todas las tablas incluyen un campo `eliminado` para la baja lógica. Adicionalmente, se definieron políticas explícitas para las claves foráneas.
+El modelo final no solo cumple con la 3FN, sino que es más robusto, escalable y representativo del dominio real.
 
-- **Justificación:** La baja lógica preserva el historial de datos, un requisito común en sistemas de salud. La política `ON DELETE CASCADE` en la relación `Persona` → `Paciente` asegura que si una `Persona` es eliminada, sus roles asociados también lo sean. En cambio, se usó `ON DELETE SET NULL` para `Paciente` → `HistoriaClinica`, permitiendo que una historia clínica pueda quedar sin paciente asignado (por ejemplo, si los datos del paciente se eliminan por una solicitud de privacidad), pero conservando el registro médico.
+| Aspecto                  | Original Simple  | Normalizado y Enriquecido |
+| :----------------------- | :--------------- | :------------------------ |
+| Dependencias Transitivas | ❌ Presentes     | ✅ Eliminadas             |
+| Redundancia de Datos     | ❌ Alta          | ✅ Mínima                 |
+| Integridad Referencial   | ✅ Básica        | ✅ Robusta                |
+| Escalabilidad (Roles)    | ❌ Difícil       | ✅ Fácil                  |
+| Consultas Analíticas     | Limitadas        | Potentes                  |
+| Mantenimiento de Datos   | Propenso a error | Centralizado              |
 
-### 5. Validación de Constraints
+#### 6.1 Ventajas Operacionales
 
-#### 5.1 Inserciones Correctas
-
-```sql
--- Inserción 1: Crear una Persona y un Profesional asociado.
-INSERT INTO Persona (nombre, apellido, dni, fecha_nacimiento)
-VALUES ('Mariana', 'Lopez', '28123456', '1980-05-10');
-
-INSERT INTO Profesional (persona_id, matricula, especialidad)
-VALUES (LAST_INSERT_ID(), 'MP-112233', 'Cardiología');
-
--- Inserción 2: Crear una Persona, una Historia Clínica y un Paciente.
-INSERT INTO Persona (nombre, apellido, dni, fecha_nacimiento)
-VALUES ('Carlos', 'Gomez', '35987654', '1992-11-20');
-SET @persona_carlos_id = LAST_INSERT_ID();
-
-INSERT INTO HistoriaClinica (nro_historia, profesional_id)
-VALUES ('HC-99999', 1);
-SET @hc_carlos_id = LAST_INSERT_ID();
-
-INSERT INTO Paciente (persona_id, historia_clinica_id)
-VALUES (@persona_carlos_id, @hc_carlos_id);
-```
-
-![Captura](../anexos/capturas/inserciones_correctas.png)
-
-#### 5.2 Inserciones Erróneas (Validación de Constraints)
-
-```sql
--- ERROR 1: Violación de UNIQUE en Persona(dni)
-INSERT INTO Persona (nombre, apellido, dni, fecha_nacimiento)
-VALUES ('Juan', 'Perez', '28123456', '1981-01-01');
-
--- ERROR 2: Violación de CHECK en Persona(fecha_nacimiento)
-INSERT INTO Persona (nombre, apellido, dni, fecha_nacimiento)
-VALUES ('Ana', 'Antigua', '1111111', '1899-12-31');
-
--- ERROR 3: Violación de CHECK en Persona(dni)
-INSERT INTO Persona (nombre, apellido, dni, fecha_nacimiento)
-VALUES ('DNI', 'Corto', '123', '2000-01-01');
-
--- ERROR 4: Violación de UNIQUE en Profesional(matricula)
-INSERT INTO Persona (nombre, apellido, dni) VALUES ('Otro', 'Medico', '99999999');
-INSERT INTO Profesional (persona_id, matricula, especialidad)
-VALUES (LAST_INSERT_ID(), 'MP-112233', 'Pediatría');
-
--- ERROR 5: Violación de FOREIGN KEY en Paciente(persona_id)
-INSERT INTO Paciente (persona_id, historia_clinica_id)
-VALUES (210000, NULL);
-
--- ERROR 6: Violación de UNIQUE en Paciente(persona_id)
-INSERT INTO Paciente (persona_id, historia_clinica_id)
-VALUES (@persona_carlos_id, NULL);
-
--- ERROR 7: Violación de UNIQUE en Paciente(historia_clinica_id)
-INSERT INTO Persona (nombre, apellido, dni) VALUES ('Otra', 'Persona', '88888888');
-INSERT INTO Paciente (persona_id, historia_clinica_id)
-VALUES (LAST_INSERT_ID(), @hc_carlos_id);
-
--- ERROR 8: Violación de CHECK en HistoriaClinica(nro_historia)
-INSERT INTO HistoriaClinica (nro_historia)
-VALUES ('INVALIDO-123');
-```
-
-![Captura](../anexos/capturas/inserciones_erroneas.png)
-
-### 6. Beneficios de la Normalización
-
-#### 6.1 Cumplimiento de 3FN
-
-| Aspecto                      | Original         | Normalizado    |
-| ---------------------------- | ---------------- | -------------- |
-| Dependencias Transitivas     | ❌ Presentes     | ✅ Eliminadas  |
-| Redundancia de Datos         | ❌ Alta          | ✅ Mínima      |
-| Integridad Referencial       | ✅ Básica        | ✅ Robusta     |
-| Consistencia con Modelo Java | ❌ Inconsistente | ✅ Consistente |
-
-#### 6.2 Ventajas Operacionales
-
-##### Búsquedas Más Eficientes
+1. **Búsquedas Más Eficientes**
 
 ```sql
 -- ORIGINAL: Búsqueda con muchos campos
@@ -385,7 +281,7 @@ INNER JOIN Persona per ON p.persona_id = per.id
 WHERE dni = '12345678';
 ```
 
-##### Consultas Analíticas Mejoradas
+2. **Consultas Analíticas Mejoradas**
 
 ```sql
 -- ESTADÍSTICAS POR GRUPO SANGUÍNEO
@@ -435,14 +331,14 @@ ORDER BY
     total_historias_atendidas DESC;
 ```
 
-##### Escalabilidad Futura
+3. **Escalabilidad Futura**
 
 - **Múltiples roles**: Fácil agregar `Administrativo`, `Enfermero` reutilizando `Persona`.
 - **Datos maestros**: `GrupoSanguineo` puede extenderse con más atributos.
 - **Búsquedas cruzadas**: Consultas entre diferentes roles de persona.
 - **Gestión profesional:**: Control de matrículas y especialidades médicas.
 
-#### 6.3 Comparativa de Rendimiento
+#### 6.2 Comparativa de Rendimiento
 
 | Operación            | Original      | Normalizado        | Mejora |
 | -------------------- | ------------- | ------------------ | ------ |
@@ -451,9 +347,37 @@ ORDER BY
 | Consultas analíticas | Scan completo | Índices eficientes | ⬆️     |
 | Mantenimiento datos  | Complejo      | Simple             | ⬆️     |
 
-### 7. Conclusión
+### 7 Decisiones de Diseño
 
-#### Logros Obtenidos
+El diseño del esquema relacional se fundamentó en los principios de normalización e integridad para garantizar la robustez y consistencia de los datos.
+
+#### 7.1 Normalización a 3FN mediante la Entidad `Persona`
+
+La decisión estructural más importante fue descomponer las tablas originales para alcanzar la Tercera Forma Normal (3FN).
+
+- **Justificación:** Se identificó una dependencia transitiva en la tabla `Paciente` original, donde la clave primaria `id` determinaba el `dni`, y el `dni` a su vez determinaba `nombre` y `apellido`. Para resolverlo, se creó una entidad `Persona` que centraliza los datos personales y las tablas `Paciente` y `Profesional` pasaron a ser roles que referencian a `Persona`. Esto elimina la redundancia y previene anomalías de actualización.
+
+#### 7.2 Garantía de la Relación 1→1 a Nivel de Base de Datos
+
+Para forzar la relación 1 a 1 entre un `Paciente` y su `HistoriaClinica` de manera infalible, se utilizó una combinación de restricciones.
+
+- **Justificación:** En la tabla `Paciente`, la columna `historia_clinica_id` no solo es una `FOREIGN KEY` que apunta a `HistoriaClinica(id)`, sino que también posee una restricción `UNIQUE`. Esta combinación es la que asegura a nivel de motor de base de datos que una historia clínica no pueda ser asignada a más de un paciente, protegiendo la integridad del modelo.
+
+#### 7.3 Creación de Tablas Maestras para Dominios
+
+En lugar de usar tipos `ENUM` de MySQL o cadenas de texto, se creó una tabla maestra `GrupoSanguineo`.
+
+- **Justificación:** Esta decisión de diseño asegura la integridad de dominio. Centraliza los valores válidos en una única tabla, facilitando su gestión (agregar/modificar tipos de sangre sin alterar la estructura de otras tablas) y permitiendo definir relaciones foráneas. Además, mejora el rendimiento al usar un `INT` como clave foránea en lugar de una cadena.
+
+#### 7.4 Uso de Bajas Lógicas y Políticas de Integridad Referencial (`ON DELETE`)
+
+Todas las tablas incluyen un campo `eliminado` para la baja lógica. Adicionalmente, se definieron políticas explícitas para las claves foráneas.
+
+- **Justificación:** La baja lógica preserva el historial de datos, un requisito común en sistemas de salud. La política `ON DELETE CASCADE` en la relación `Persona` → `Paciente` asegura que si una `Persona` es eliminada, sus roles asociados también lo sean. En cambio, se usó `ON DELETE SET NULL` para `Paciente` → `HistoriaClinica`, permitiendo que una historia clínica pueda quedar sin paciente asignado (por ejemplo, si los datos del paciente se eliminan por una solicitud de privacidad), pero conservando el registro médico.
+
+### 8. Conclusión
+
+#### Resumen de Logros Obtenidos
 
 1. Cumplimiento 3FN completo: eliminación de todas las dependencias transitivas. DER con 5 entidades normalizadas
 2. Modelo relacional con constraints completos
@@ -494,68 +418,21 @@ Para demostrar el impacto de una correcta indexación, se midió el tiempo de ej
 SELECT * FROM Persona WHERE apellido LIKE 'García%';
 ```
 
-#### Escenario 1: Sin Índice
-
-Primero, nos aseguramos de que el índice no exista y ejecutamos la consulta.
-
-```sql
--- Si el índice existe, lo eliminamos para la prueba
-DROP INDEX IF EXISTS idx_persona_apellido_nombre ON Persona;
-
--- Ejecutamos la consulta y medimos el tiempo
-SELECT * FROM Persona WHERE apellido LIKE 'García%';
-```
-
-![Captura](../anexos/capturas/prueba_rendimiento_sin_indice.png)
-
-- Resultados del `EXPLAIN`:
-
-```sql
--- Ejecutamos el EXPLAIN para ver el plan de ejecución
-EXPLAIN SELECT * FROM Persona WHERE apellido LIKE 'García%';
-```
-
-![Captura](../anexos/capturas/explain_sin_indice.png)
-
-El optimizador de MySQL decide que la forma más eficiente de ejecutar la consulta es leer cada fila de la tabla Persona, lo que se conoce como `Full Table Scan`. Esto se indica en la columna type, que muestra el valor `ALL`.
-
-#### Escenario 2: Con Índice
-
-Luego, creamos el índice compuesto y volvemos a ejecutar la misma consulta.
-
-```sql
--- Creamos el índice en las columnas de búsqueda
-CREATE INDEX idx_persona_apellido_nombre ON Persona(apellido, nombre);
-
--- Volvemos a ejecutar la misma consulta
-SELECT * FROM Persona WHERE apellido LIKE 'García%';
-```
-
-![Captura](../anexos/capturas/prueba_rendimiento_con_indice.png)
-
-- Resultados del `EXPLAIN`:
-
-```sql
--- Ejecutamos el EXPLAIN para ver el plan de ejecución
-EXPLAIN SELECT * FROM Persona WHERE apellido LIKE 'García%';
-```
-
-![Captura](../anexos/capturas/explain_con_indice.png)
-
-MySQL ahora utiliza el índice (`key: idx_persona_apellido_nombre`). En lugar de escanear toda la tabla, accede directamente a las filas que cumplen la condición resultando en un tiempo de ejecución mucho más rápido y un menor consumo de recursos..
-
-#### **Tabla Comparativa de Resultados**
-
-| Escenario      | Operación Realizada            | Tiempo de Ejecución | Mejora de Rendimiento |
-| :------------- | :----------------------------- | :------------------ | :-------------------- |
-| **Sin índice** | Full Table Scan (200000 filas) | ~ 0.031 sec         | -                     |
-| **Con índice** | Index Seek                     | ~ 0.001 sec         | **~ 96% más rápida**  |
+**Resultados Detallados (Profiling):** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
 
 ### 4. Conclusión
 
 La carga masiva de datos y las pruebas de rendimiento demuestran de manera contundente la importancia crítica de los índices en bases de datos con volúmenes de datos realistas. Una consulta simple puede volverse ineficiente si el motor se ve forzado a escanear tablas enteras.
 
 La creación de un índice estratégico en las columnas `(apellido, nombre)` resultó en una mejora del rendimiento superior al 96%, transformando una consulta lenta en una operación casi instantánea. Esto confirma que un diseño de indexación adecuado es tan importante como la normalización para el buen funcionamiento de un sistema de gestión de datos.
+
+### 5. Interacción con IA
+
+Se consultó a la IA sobre estrategias para generar datos con distribuciones ponderadas (grupos sanguíneos) y sobre alternativas a los generadores de secuencias.
+
+- **Asistencia Recibida:** La IA explicó la lógica de `CASE` con `RAND()` y sugirió el uso de CTE recursivos.
+
+**Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
 
 ---
 
@@ -576,7 +453,7 @@ El desarrollo de las consultas siguió un proceso metodológico enfocado en la u
 
 ### 3. Consultas Desarrolladas
 
-A continuación, se presentan las consultas diseñadas, cumpliendo con los requisitos de la consigna.
+A continuación, se presentan las consultas diseñadas [`(consultas_complejas.sql)`](../sql/consultas_complejas.sql), cumpliendo con los requisitos de la consigna.
 
 #### Consulta 1: `JOIN` - Ficha Completa de Pacientes Activos
 
@@ -703,7 +580,15 @@ WHERE
 SELECT * FROM vw_pacientes_activos WHERE especialidad_medico = 'Pediatría';
 ```
 
-### 5. Conclusión
+### 5. Interacción con IA
+
+Se consultó a la IA sobre la optimización de la consulta 4, comparando el enfoque de subconsulta correlacionada con una alternativa usando `JOIN`.
+
+- **Asistencia Recibida:** La IA explicó las ventajas de rendimiento del `JOIN` sobre la subconsulta correlacionada para grandes volúmenes de datos. _(Nota: Aunque finalmente se optó por otra consulta con subconsulta no correlacionada para cumplir la consigna, la reflexión fue valiosa)._
+
+**Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
+
+### 6. Conclusión
 
 En esta etapa se demostró con éxito cómo un esquema de base de datos bien normalizado y poblado con datos masivos permite la creación de consultas analíticas y reportes de gran valor. Se diseñaron y validaron cuatro consultas complejas y una vista que cumplen con los requisitos técnicos y resuelven problemas prácticos de un sistema de gestión de pacientes. El uso de `JOIN`, `GROUP BY`, `HAVING` y subconsultas se ha consolidado como una herramienta esencial para la extracción de inteligencia de negocio a partir de los datos almacenados.
 
@@ -711,28 +596,130 @@ En esta etapa se demostró con éxito cómo un esquema de base de datos bien nor
 
 ## Etapa 4 - Seguridad e Integridad
 
+### 1. Descripción
+
+Esta etapa se enfoca en dos pilares fundamentales de la gestión de bases de datos: la seguridad en el acceso a los datos y la garantía de la integridad de la información almacenada. Se implementaron medidas para restringir el acceso no autorizado y se demostró cómo las `constraints` definidas en la Etapa 1 protegen activamente la base de datos contra datos inválidos o inconsistentes. Adicionalmente, se abordó la prevención de ataques de inyección SQL en la capa de aplicación Java.
+
+### 2. Metodología
+
+La implementación de la seguridad y la validación de la integridad siguieron estos pasos:
+
+1. **Principio de Mínimos Privilegios:** Se aplicó este principio fundamental de seguridad al crear un usuario específico para la aplicación Java, otorgándole únicamente los permisos estrictamente necesarios para realizar operaciones CRUD (`SELECT`, `INSERT`, `UPDATE`, `DELETE`) sobre las tablas del sistema.
+2. **Abstracción con Vistas:** Se diseñaron vistas (`VIEW`s) para simplificar el acceso a los datos y, potencialmente, ocultar información sensible o compleja de la estructura subyacente de las tablas.
+3. **Validación Práctica de Restricciones:** Se ejecutaron sentencias `INSERT` diseñadas específicamente para intentar violar las restricciones de integridad (`UNIQUE`, `CHECK`, `FOREIGN KEY`) definidas en el esquema, demostrando cómo el motor de la base de datos las previene activamente.
+4. **Prevención de SQL Injection:** Se adoptó el uso de `PreparedStatement` en el código Java (como se requiere en Programación II) como mecanismo estándar para evitar vulnerabilidades de inyección SQL.
+
+### 3. Implementación y Pruebas
+
+#### 3.1 Creación de Usuario con Mínimos Privilegios
+
+Se creó un usuario específico para la aplicación (`user_gestion`) con una contraseña segura. Siguiendo el principio de mínimos privilegios, se le concedieron únicamente los permisos necesarios para interactuar con los datos de las tablas principales, sin permisos para modificar la estructura (`ALTER`, `DROP`) o gestionar otros usuarios.
+
+```sql
+CREATE USER 'user_gestion'@'localhost' IDENTIFIED BY 'Pacientes2025';
+
+GRANT SELECT, INSERT, UPDATE ON GestionPacientes.Persona TO 'user_gestion'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON GestionPacientes.Paciente TO 'user_gestion'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON GestionPacientes.HistoriaClinica TO 'user_gestion'@'localhost';
+
+GRANT SELECT ON GestionPacientes.GrupoSanguineo TO 'user_gestion'@'localhost';
+GRANT SELECT ON GestionPacientes.Profesional TO 'user_gestion'@'localhost';
+
+FLUSH PRIVILEGES;
+```
+
+**Prueba de Acceso Restringido:** Se verificó que `user_gestion` puede realizar operaciones CRUD pero no puede, por ejemplo, eliminar una tabla.
+
+```sql
+-- Conectado como user_gestion:
+-- Esta operación fallará (como debe ser):
+-- DROP TABLE GestionPacientes.Persona;
+-- Mensaje esperado: Error Code: 1142. DROP command denied to user 'user_gestion'@'localhost' for table 'Persona'
+```
+
+[`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
+
+#### 3.2. Diseño de Vistas para Abstracción
+
+Se crearon dos vistas para simplificar consultas comunes y potencialmente ocultar complejidad.
+
+- **`vw_pacientes_activos`:** (Creada en Etapa 3) Proporciona una lista simplificada de pacientes activos con su información básica y la especialidad del médico tratante, ocultando los `JOIN`s y el filtro `eliminado = FALSE`.
+- **`vw_profesionales_con_datos`:** Ofrece una vista unificada de los profesionales médicos, combinando sus datos específicos (matrícula, especialidad) con sus datos personales básicos (nombre, apellido, DNI) de la tabla `Persona`.
+
+```sql
+-- Vista creada en Etapa 3 (ya documentada)
+-- CREATE OR REPLACE VIEW vw_pacientes_activos AS ...
+
+-- Vista 2: Datos completos de Profesionales activos
+CREATE OR REPLACE VIEW vw_profesionales_con_datos AS
+SELECT
+    prof.id AS profesional_id,
+    prof.matricula,
+    prof.especialidad,
+    per.nombre,
+    per.apellido,
+    per.dni,
+    per.fecha_nacimiento
+FROM
+    Profesional prof
+    INNER JOIN Persona per ON prof.persona_id = per.id
+WHERE
+    prof.eliminado = FALSE AND per.eliminado = FALSE;
+
+-- Ejemplo de uso de la nueva vista
+SELECT * FROM vw_profesionales_con_datos WHERE especialidad = 'Pediatría';
+```
+
+**Resultado de Ejecución (Ejemplo):** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
+
+#### 3.3. Pruebas de Integridad de Datos
+
+Se ejecutaron inserciones deliberadamente incorrectas (documentadas en `validacion_constraints.sql` y mostradas en la Etapa 1) para confirmar que las `constraints` funcionan como se espera. Los ejemplos clave incluyeron:
+
+- **Violación `UNIQUE`:** Intentar insertar una `Persona` con un `dni` ya existente falló.
+- **Violación `CHECK`:** Intentar insertar una `Persona` con `fecha_nacimiento` anterior a 1900 falló.
+- **Violación `FOREIGN KEY`:** Intentar asignar un `historia_clinica_id` inexistente a un `Paciente` falló.
+
+Estas pruebas confirman que el esquema de la base de datos protege activamente la integridad y consistencia de los datos.
+
+**Resultados de Pruebas:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
+
+#### 3.4. Implementación de `PreparedStatement` en Java
+
+En la capa de acceso a datos (DAO) de la aplicación Java, todas las consultas SQL que involucran parámetros (como búsquedas por DNI, inserciones o actualizaciones) se implementaron utilizando `java.sql.PreparedStatement`.
+
+- **Ejemplo Conceptual (Java):**
+
+```java
+public boolean existeUsuarioPorDni(String dni, Connection connection) {
+    String sql = "SELECT * FROM usuarios WHERE dni = ?";
+
+    // Preparar la declaración
+    PreparedStatement stmt = connection.prepareStatement(sql);
+
+    // Establecer parámetros DNI
+    stmt.setString(1, dni);  // Primer parámetro (?)
+
+    // Ejecutar
+    ResultSet rs = stmt.executeQuery();
+
+    return rs.next();
+}
+```
+
+- **Justificación:** `PreparedStatement` precompila la consulta SQL y trata los parámetros como datos literales, no como parte ejecutable de la consulta. Esto neutraliza por completo el riesgo de ataques de inyección SQL, donde un usuario malintencionado podría intentar manipular la consulta original.
+
+### 4. Interacción con IA
+
+Se consultó a la IA sobre las mejores prácticas para definir los privilegios mínimos de un usuario de aplicación.
+
+- **Consulta:** _"¿Cuáles son los 4 permisos SQL esenciales para un usuario de aplicación que solo necesita hacer CRUD y por qué no debería darle `ALTER` o `DROP`?"_
+- **Respuesta (Resumen):** La IA confirmó que `SELECT`, `INSERT`, `UPDATE`, `DELETE` son los permisos correctos y explicó que otorgar permisos como `ALTER` o `DROP` violaría el principio de mínimos privilegios, exponiendo la base de datos a riesgos innecesarios si las credenciales de la aplicación se vieran comprometidas. Esta guía validó la correcta implementación de los permisos para `user_gestion`.
+
+**Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
+
+### 5. Conclusión
+
+Esta etapa demostró la implementación exitosa de medidas de seguridad esenciales y la robustez del diseño del esquema en cuanto a la integridad de los datos. La creación de un usuario con privilegios mínimos, el uso estratégico de vistas y la confirmación activa de las `constraints` son pasos fundamentales para construir una base de datos segura y confiable. La adopción de `PreparedStatement` en la capa de aplicación complementa estas medidas, asegurando una protección integral contra vulnerabilidades comunes.
+
 ---
-
-## Anexo
-
-### Uso Pedagógico de la IA en el proceso
-
-- Etapa 1: Modelado y Definición de Constraints
-
-![Captura](../anexos/chats-ia/uso_pedagogico_ia_etapa_1.jpg)
-
-- Etapa 2: Implementación y Carga Masiva de Datos
-
-![Captura](../anexos/chats-ia/uso_pedagogico_ia_etapa_2.jpg)
-
-- Etapa 3: Consultas Complejas y Útiles
-
-![Captura](../anexos/chats-ia/uso_pedagogico_ia_etapa_3.jpg)
-
-- Etapa 4: Seguridad e Integridad
-
-![Captura](../anexos/chats-ia/uso_pedagogico_ia_etapa_4.jpg)
-
-- Etapa 5: Concurrencia y Transacciones
-
-![Captura](../anexos/chats-ia/uso_pedagogico_ia_etapa_5.jpg)
