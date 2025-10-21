@@ -613,27 +613,28 @@ La implementación de la seguridad y la validación de la integridad siguieron e
 
 #### 3.1 Creación de Usuario con Mínimos Privilegios
 
-Se creó un usuario específico para la aplicación (`app_user`) con una contraseña segura. Siguiendo el principio de mínimos privilegios, se le concedieron únicamente los permisos necesarios para interactuar con los datos de las tablas principales, sin permisos para modificar la estructura (`ALTER`, `DROP`) o gestionar otros usuarios.
+Se creó un usuario específico para la aplicación (`user_gestion`) con una contraseña segura. Siguiendo el principio de mínimos privilegios, se le concedieron únicamente los permisos necesarios para interactuar con los datos de las tablas principales, sin permisos para modificar la estructura (`ALTER`, `DROP`) o gestionar otros usuarios.
 
 ```sql
-CREATE USER 'app_user'@'localhost' IDENTIFIED BY 'PasswordSeguro123!';
+CREATE USER 'user_gestion'@'localhost' IDENTIFIED BY 'Pacientes2025';
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON GestionPacientes.Persona TO 'app_user'@'localhost';
-GRANT SELECT, INSERT, UPDATE, DELETE ON GestionPacientes.Paciente TO 'app_user'@'localhost';
-GRANT SELECT, INSERT, UPDATE, DELETE ON GestionPacientes.Profesional TO 'app_user'@'localhost';
-GRANT SELECT, INSERT, UPDATE, DELETE ON GestionPacientes.HistoriaClinica TO 'app_user'@'localhost';
-GRANT SELECT ON GestionPacientes.GrupoSanguineo TO 'app_user'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON GestionPacientes.Persona TO 'user_gestion'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON GestionPacientes.Paciente TO 'user_gestion'@'localhost';
+GRANT SELECT, INSERT, UPDATE ON GestionPacientes.HistoriaClinica TO 'user_gestion'@'localhost';
+
+GRANT SELECT ON GestionPacientes.GrupoSanguineo TO 'user_gestion'@'localhost';
+GRANT SELECT ON GestionPacientes.Profesional TO 'user_gestion'@'localhost';
 
 FLUSH PRIVILEGES;
 ```
 
-**Prueba de Acceso Restringido:** Se verificó que `app_user` puede realizar operaciones CRUD pero no puede, por ejemplo, eliminar una tabla.
+**Prueba de Acceso Restringido:** Se verificó que `user_gestion` puede realizar operaciones CRUD pero no puede, por ejemplo, eliminar una tabla.
 
 ```sql
--- Conectado como app_user:
+-- Conectado como user_gestion:
 -- Esta operación fallará (como debe ser):
 -- DROP TABLE GestionPacientes.Persona;
--- Mensaje esperado: Error Code: 1142. DROP command denied to user 'app_user'@'localhost' for table 'Persona'
+-- Mensaje esperado: Error Code: 1142. DROP command denied to user 'user_gestion'@'localhost' for table 'Persona'
 ```
 
 [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
@@ -690,25 +691,30 @@ En la capa de acceso a datos (DAO) de la aplicación Java, todas las consultas S
 - **Ejemplo Conceptual (Java):**
 
 ```java
-String sql = "SELECT * FROM Persona WHERE dni = ?";
-try (Connection conn = DatabaseConnection.getConnection();
-    PreparedStatement pstmt = conn.prepareStatement(sql)) {
-    pstmt.setString(1, dniABuscar); // El valor se inserta de forma segura
-    ResultSet rs = pstmt.executeQuery();
-    // Procesar resultados...
-} catch (SQLException e) {
-    // Manejar error...
+public boolean existeUsuarioPorDni(String dni, Connection connection) {
+    String sql = "SELECT * FROM usuarios WHERE dni = ?";
+
+    // Preparar la declaración
+    PreparedStatement stmt = connection.prepareStatement(sql);
+
+    // Establecer parámetros DNI
+    stmt.setString(1, dni);  // Primer parámetro (?)
+
+    // Ejecutar
+    ResultSet rs = stmt.executeQuery();
+
+    return rs.next();
 }
 ```
 
-- **Justificación:** `PreparedStatement` precompila la consulta SQL y trata los parámetros como datos literales, no como parte ejecutable de la consulta. Esto **neutraliza por completo el riesgo de ataques de inyección SQL**, donde un usuario malintencionado podría intentar manipular la consulta original.
+- **Justificación:** `PreparedStatement` precompila la consulta SQL y trata los parámetros como datos literales, no como parte ejecutable de la consulta. Esto neutraliza por completo el riesgo de ataques de inyección SQL, donde un usuario malintencionado podría intentar manipular la consulta original.
 
 ### 4. Interacción con IA
 
 Se consultó a la IA sobre las mejores prácticas para definir los privilegios mínimos de un usuario de aplicación.
 
 - **Consulta:** _"¿Cuáles son los 4 permisos SQL esenciales para un usuario de aplicación que solo necesita hacer CRUD y por qué no debería darle `ALTER` o `DROP`?"_
-- **Respuesta (Resumen):** La IA confirmó que `SELECT`, `INSERT`, `UPDATE`, `DELETE` son los permisos correctos y explicó que otorgar permisos como `ALTER` o `DROP` violaría el principio de mínimos privilegios, exponiendo la base de datos a riesgos innecesarios si las credenciales de la aplicación se vieran comprometidas. Esta guía validó la correcta implementación de los permisos para `app_user`.
+- **Respuesta (Resumen):** La IA confirmó que `SELECT`, `INSERT`, `UPDATE`, `DELETE` son los permisos correctos y explicó que otorgar permisos como `ALTER` o `DROP` violaría el principio de mínimos privilegios, exponiendo la base de datos a riesgos innecesarios si las credenciales de la aplicación se vieran comprometidas. Esta guía validó la correcta implementación de los permisos para `user_gestion`.
 
 **Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
 
