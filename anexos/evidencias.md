@@ -1,6 +1,6 @@
 # Anexo - Evidencias de Ejecución e Interacción con IA
 
-Este documento recopila las evidencias visuales (capturas de pantalla) y los registros de interacción con herramientas de Inteligencia Artificial (IA) correspondientes a cada etapa del Trabajo Final Integrador de Bases de Datos I, como se referencia en el informe principal (`informe_db_i.md`).
+Este documento recopila las evidencias visuales (capturas de pantalla) y los registros de interacción con herramientas de Inteligencia Artificial (IA) correspondientes a cada etapa del Trabajo Final Integrador de Bases de Datos I, como se referencia en el informe principal [`informe_db_i.md`](../informes/informe_db_i.md).
 
 ---
 
@@ -182,22 +182,26 @@ Evidencias de las pruebas de deadlock y niveles de aislamiento.
 ![Captura](../anexos/capturas/deadlock.png)
 
 - **Comparación de Niveles de Aislamiento:**
-  - **READ COMMITTED:** `[Captura(s) de pantalla mostrando la lectura no repetible]`
-  - 
-Parte 1
-![Captura](../anexos/capturas/Commited.png) 
 
-Parte 2
-![Captura](../anexos/capturas/Commited2.png) 
+  - **READ COMMITTED:**
 
-- **REPEATABLE READ:** `[Captura(s) de pantalla mostrando la lectura consistente (sin lectura no repetible)]`
+    - **Parte 1**
 
-Parte 1
-![Captura](../anexos/capturas/repeatable.png) 
+    ![Captura](../anexos/capturas/Commited.png)
 
-Parte 2
-![Captura](../anexos/capturas/repeatable2.png) 
+    - **Parte 2**
 
+    ![Captura](../anexos/capturas/Commited2.png)
+
+  - **REPEATABLE READ:**
+
+    - **Parte 1**
+
+    ![Captura](../anexos/capturas/repeatable.png)
+
+    - **Parte 2**
+
+    ![Captura](../anexos/capturas/repeatable2.png)
 
 ### 5.2 Interacción con IA (Concurrencia)
 
