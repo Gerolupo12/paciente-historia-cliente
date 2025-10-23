@@ -19,18 +19,17 @@ USE GestionPacientes;
 -- Al estar optimizada con INNER y LEFT JOINs, permite visualizar correctamente cada paciente
 -- sin omitir registros activos ni depender de múltiples consultas.
 -- =====================================================================
-
 SELECT
     p.id AS paciente_id,
     per.dni,
     -- Se utiliza CONCAT para presentar el nombre completo en un formato legible.
-    CONCAT(per.apellido, ', ', per.nombre) AS nombre_completo,
+    CONCAT (per.apellido, ', ', per.nombre) AS nombre_completo,
     -- Se utiliza TIMESTAMPDIFF para calcular la edad actual del paciente dinámicamente.
-    TIMESTAMPDIFF(YEAR, per.fecha_nacimiento, CURDATE()) AS edad,
+    TIMESTAMPDIFF (YEAR, per.fecha_nacimiento, CURDATE()) AS edad,
     hc.nro_historia,
     gs.simbolo AS grupo_sanguineo,
     -- Se vuelve a usar CONCAT para el nombre del profesional.
-    CONCAT(per_prof.apellido, ', ', per_prof.nombre) AS profesional_asignado,
+    CONCAT (per_prof.apellido, ', ', per_prof.nombre) AS profesional_asignado,
     prof.especialidad
 FROM
     -- Se parte de la tabla Paciente, que es el centro de nuestro dominio.
@@ -65,14 +64,13 @@ ORDER BY
 -- Es útil para auditorías, organización de turnos o revisiones internas de pacientes por área de atención,
 -- y garantiza que todos los registros reflejen relaciones completas entre pacientes, historias clínicas y profesionales.
 -- =====================================================================
-
 SELECT
     prof.especialidad,
     -- Se obtienen y formatean los nombres del profesional y del paciente.
-    CONCAT(per_pro.apellido, ', ', per_pro.nombre) AS profesional,
+    CONCAT (per_pro.apellido, ', ', per_pro.nombre) AS profesional,
     hc.nro_historia,
     per_pac.dni AS dni_paciente,
-    CONCAT(per_pac.apellido, ', ', per_pac.nombre) AS nombre_paciente
+    CONCAT (per_pac.apellido, ', ', per_pac.nombre) AS nombre_paciente
 FROM
     HistoriaClinica hc
     -- Se usan INNER JOIN en toda la cadena porque se buscan pacientes que SÍ O SÍ
@@ -104,7 +102,6 @@ ORDER BY
 -- de donación de sangre, estudios epidemiológicos o análisis de disponibilidad de recursos,
 -- permitiendo identificar rápidamente los grupos minoritarios que requieren atención prioritaria.
 -- =====================================================================
-
 SELECT
     gs.simbolo AS grupo_sanguineo,
     -- Se usa COUNT(p.id) para contar cuántos pacientes hay en cada grupo.
@@ -138,85 +135,45 @@ ORDER BY
 -- Es útil para la gestión de recursos humanos y planificación de turnos,
 -- ayudando a equilibrar la carga de trabajo en el área médica.
 -- =====================================================================
-
-SELECT 
+SELECT
     -- Se muestra el nombre completo del profesional en formato “Apellido, Nombre”.
-    CONCAT(per.apellido, ', ', per.nombre) AS profesional,
+    CONCAT (per.apellido, ', ', per.nombre) AS profesional,
     -- Se muestra la especialidad médica del profesional.
     prof.especialidad,
     -- Se cuenta la cantidad total de pacientes atendidos por cada profesional.
     COUNT(pac.id) AS total_pacientes
-FROM Profesional prof
+FROM
+    Profesional prof
     -- Se relaciona cada profesional con su persona correspondiente (datos personales).
     JOIN Persona per ON prof.persona_id = per.id
     -- Se une con la historia clínica para conocer qué historias están a cargo del profesional.
     JOIN HistoriaClinica hc ON hc.profesional_id = prof.id
     -- Se une con los pacientes asociados a esas historias clínicas.
     JOIN Paciente pac ON pac.historia_clinica_id = hc.id
--- Se agrupa los resultados por profesional y especialidad para consolidar los conteos.
-GROUP BY prof.id, profesional, prof.especialidad
--- Se aplica una subconsulta que calcula el promedio de pacientes por profesional,
--- y filtra solo a quienes superan ese promedio general.
-HAVING COUNT(pac.id) > (
-    SELECT AVG(pacientes_por_prof)
-    FROM (
-        -- Subconsulta interna: calcula cuántos pacientes tiene cada profesional.
-        SELECT COUNT(p2.id) AS pacientes_por_prof
-        FROM Profesional prof2
-        JOIN HistoriaClinica hc2 ON hc2.profesional_id = prof2.id
-        JOIN Paciente p2 ON p2.historia_clinica_id = hc2.id
-        GROUP BY prof2.id
-    ) AS sub
-)
--- Se ordena los resultados mostrando primero a los profesionales con más pacientes.
-ORDER BY total_pacientes DESC;
-
--- =====================================================================
--- VISTA (VIEW) - Lista Simplificada de Pacientes Activos
--- =====================================================================
--- DESCRIPCIÓN / UTILIDAD:
--- Esta vista proporciona un acceso simplificado a la información esencial de pacientes activos,
--- incluyendo ID, DNI, nombre y apellido, número de historia clínica y la especialidad del médico asignado.
--- Permite que desarrolladores o el equipo administrativo generen listados y filtros fácilmente
--- (por ejemplo, todos los pacientes de 'Pediatría') sin tener que repetir los JOINs complejos ni
--- preocuparse por el filtro de pacientes eliminados. Actúa como una “tabla virtual” que abstrae
--- la lógica de la consulta original, facilitando mantenimiento y consistencia de la información.
--- =====================================================================
-
--- Se crea o reemplaza la vista vw_pacientes_activos para simplificar consultas sobre pacientes activos.
-CREATE OR REPLACE VIEW vw_pacientes_activos AS
-SELECT
-    -- Se obtiene el ID del paciente.
-    p.id AS paciente_id,
-    -- Se muestra el DNI de la persona asociada al paciente.
-    per.dni,
-    -- Se muestra el nombre de la persona.
-    per.nombre,
-    -- Se muestra el apellido de la persona.
-    per.apellido,
-    -- Se muestra el número de historia clínica del paciente.
-    hc.nro_historia,
-    -- Se muestra la especialidad del médico que atiende al paciente.
-    prof.especialidad AS especialidad_medico
-FROM
-    Paciente p
-    -- Se relaciona cada paciente con sus datos personales.
-    INNER JOIN Persona per ON p.persona_id = per.id
-    -- Se une con la historia clínica si el paciente tiene una asignada.
-    LEFT JOIN HistoriaClinica hc ON p.historia_clinica_id = hc.id
-    -- Se une con el profesional que atiende la historia clínica, si existe.
-    LEFT JOIN Profesional prof ON hc.profesional_id = prof.id
--- Se filtran los pacientes que no han sido eliminados y cuyas personas asociadas tampoco lo están.
-WHERE
-    p.eliminado = FALSE
-    AND per.eliminado = FALSE;
-
--- Se muestra un ejemplo de uso de la vista, donde la sintaxis es más simple que la consulta original.
-SELECT *
-FROM
-    vw_pacientes_activos
--- Se filtran los pacientes cuyo médico tiene especialidad en Pediatría.
-WHERE
-    especialidad_medico = 'Pediatría';
-    
-    
+    -- Se agrupa los resultados por profesional y especialidad para consolidar los conteos.
+GROUP BY
+    prof.id,
+    profesional,
+    prof.especialidad
+    -- Se aplica una subconsulta que calcula el promedio de pacientes por profesional,
+    -- y filtra solo a quienes superan ese promedio general.
+HAVING
+    COUNT(pac.id) > (
+        SELECT
+            AVG(pacientes_por_prof)
+        FROM
+            (
+                -- Subconsulta interna: calcula cuántos pacientes tiene cada profesional.
+                SELECT
+                    COUNT(p2.id) AS pacientes_por_prof
+                FROM
+                    Profesional prof2
+                    JOIN HistoriaClinica hc2 ON hc2.profesional_id = prof2.id
+                    JOIN Paciente p2 ON p2.historia_clinica_id = hc2.id
+                GROUP BY
+                    prof2.id
+            ) AS sub
+    )
+    -- Se ordena los resultados mostrando primero a los profesionales con más pacientes.
+ORDER BY
+    total_pacientes DESC;

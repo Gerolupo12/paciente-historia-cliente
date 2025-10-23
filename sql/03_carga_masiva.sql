@@ -3,7 +3,6 @@
 -- Objetivo: Poblar la base de datos con un gran volumen de datos
 -- realistas y consistentes para realizar pruebas de rendimiento y consultas.
 -- =====================================================================
-
 USE GestionPacientes;
 
 -- =====================================================================
@@ -18,23 +17,13 @@ TRUNCATE TABLE Paciente;
 TRUNCATE TABLE HistoriaClinica;
 TRUNCATE TABLE Profesional;
 TRUNCATE TABLE Persona;
-TRUNCATE TABLE GrupoSanguineo;
 
 -- Se reactivan las revisiones de claves foráneas para mantener la
 -- integridad de los datos durante las inserciones.
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- =====================================================================
--- PASO 1: INSERTAR DATOS EN LA TABLA MAESTRA 'GrupoSanguineo'
--- =====================================================================
--- Se insertan los 8 registros únicos que representan todos los posibles
--- grupos sanguíneos. Esta tabla actúa como un catálogo.
-INSERT INTO GrupoSanguineo (tipo_grupo, factor_rh) VALUES
-('A', '+'), ('A', '-'), ('B', '+'), ('B', '-'),
-('AB', '+'), ('AB', '-'), ('O', '+'), ('O', '-');
-
--- =====================================================================
--- PASO 2: GENERAR 200000 REGISTROS EN 'Persona'
+-- PASO 1: GENERAR 200000 REGISTROS EN 'Persona'
 -- =====================================================================
 -- Se establece una variable para el DNI inicial. Esto permite generar
 -- DNIs en un rango numérico más realista, comenzando en 10 millones.
@@ -85,7 +74,7 @@ SELECT
 FROM number_sequence;
 
 -- =====================================================================
--- PASO 3: CREAR 2000 REGISTROS EN 'Profesional'
+-- PASO 2: CREAR 2000 REGISTROS EN 'Profesional'
 -- =====================================================================
 -- Se seleccionan las primeras 2000 personas de la tabla 'Persona' y se les
 -- asigna el rol de profesional.
@@ -105,7 +94,7 @@ ORDER BY id
 LIMIT 2000;
 
 -- =====================================================================
--- PASO 4: CREAR 150000 REGISTROS EN 'HistoriaClinica'
+-- PASO 3: CREAR 150000 REGISTROS EN 'HistoriaClinica'
 -- =====================================================================
 INSERT INTO HistoriaClinica (nro_historia, grupo_sanguineo_id, profesional_id, antecedentes, medicacion_actual, observaciones)
 -- Se genera una secuencia de 1 a 150000 y un número aleatorio para cada fila.
@@ -153,7 +142,7 @@ SELECT
 FROM number_sequence;
 
 -- =====================================================================
--- PASO 5: CREAR 150000 REGISTROS EN 'Paciente'
+-- PASO 4: CREAR 150000 REGISTROS EN 'Paciente'
 -- =====================================================================
 -- Este es el paso final que vincula las Personas restantes con las Historias Clínicas.
 INSERT INTO Paciente (persona_id, historia_clinica_id)
@@ -170,7 +159,7 @@ WHERE p.id > 2000
 LIMIT 150000;
 
 -- =====================================================================
--- PASO 6: VERIFICACIÓN FINAL
+-- PASO 5: VERIFICACIÓN FINAL DE INSERCIONES
 -- =====================================================================
 -- Se muestra un mensaje de éxito.
 SELECT '=== CARGA COMPLETADA - REQUISITOS CUMPLIDOS ===' AS Estado;

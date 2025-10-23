@@ -1,10 +1,30 @@
 -- =====================================================================
+-- SCRIPT DE DEFINICIÓN DE BASE DE DATOS
+-- =====================================================================
+USE GestionPacientes;
+
+-- =====================================================================
+-- PASO 0: LIMPIEZA INICIAL DE LA BASE DE DATOS
+-- =====================================================================
+-- Se utiliza DROP TABLE para eliminar la tabla  de forma segura.
+DROP TABLE IF EXISTS Paciente CASCADE;
+
+DROP TABLE IF EXISTS HistoriaClinica CASCADE;
+
+DROP TABLE IF EXISTS Profesional CASCADE;
+
+DROP TABLE IF EXISTS GrupoSanguineo CASCADE;
+
+DROP TABLE IF EXISTS Persona CASCADE;
+
+-- Se utiliza DROP DATABASE para eliminar la base de datos de forma segura.
+DROP DATABASE GestionPacientes IF EXISTS
+-- =====================================================================
 -- ESQUEMA DE LA BASE DE DATOS: GestionPacientes
 -- =====================================================================
 -- Crea la base de datos solo si no existe previamente, evitando errores en ejecuciones repetidas.
-CREATE DATABASE IF NOT EXISTS GestionPacientes;
+CREATE DATABASE GestionPacientes;
 
--- Establece la base de datos 'GestionPacientes' como la activa para las siguientes instrucciones.
 USE GestionPacientes;
 
 -- =====================================================================
@@ -111,17 +131,3 @@ CREATE TABLE
         -- Si se borra la HistoriaClinica, el campo aquí se pone en NULL, conservando el registro del paciente.
         CONSTRAINT fk_paciente_historia_clinica_id FOREIGN KEY (historia_clinica_id) REFERENCES HistoriaClinica (id) ON DELETE SET NULL
     );
-
--- =====================================================================
--- ÍNDICES ADICIONALES PARA OPTIMIZACIÓN
--- Se crean después de las tablas para mantener el script organizado.
--- =====================================================================
--- Índice compuesto para buscar y ordenar personas por apellido y nombre.
-CREATE INDEX idx_persona_apellido_nombre ON Persona (apellido, nombre);
-
--- Índice para filtrar profesionales rápidamente por su especialidad.
-CREATE INDEX idx_profesional_especialidad ON Profesional (especialidad);
-
--- Índices en claves foráneas para acelerar JOINs y búsquedas inversas.
-CREATE INDEX idx_historia_clinica_profesional ON HistoriaClinica (profesional_id);
-CREATE INDEX idx_paciente_historia_clinica ON Paciente (historia_clinica_id);

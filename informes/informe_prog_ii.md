@@ -11,7 +11,6 @@
 
 Este proyecto fue desarrollado de manera colaborativa por el siguiente equipo:
 
-- **Lagos, Alejandro** - [GitHub](https://github.com/Alejandrovans)
 - **Lahoz, Cristian** - [GitHub](https://github.com/m415x)
 - **Maldonado, Ariana** - [GitHub](https://github.com/AriMaldo19)
 - **Ramallo, Gerónimo** - [GitHub](https://github.com/Gerolupo12)

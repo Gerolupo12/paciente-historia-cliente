@@ -11,7 +11,6 @@
 
 Este proyecto fue desarrollado de manera colaborativa por el siguiente equipo:
 
-- **Lagos, Alejandro** - [GitHub](https://github.com/Alejandrovans)
 - **Lahoz, Cristian** - [GitHub](https://github.com/m415x)
 - **Maldonado, Ariana** - [GitHub](https://github.com/AriMaldo19)
 - **Ramallo, Gerónimo** - [GitHub](https://github.com/Gerolupo12)
@@ -20,12 +19,17 @@ Este proyecto fue desarrollado de manera colaborativa por el siguiente equipo:
 
 ## Scripts Completos
 
-- [`sentencias_creacion.sql`](../sql/sentencias_creacion.sql) - Creación de tablas, constraints e índices
-- [`carga_masiva_datos.sql`](../sql/carga_masiva_datos.sql) - Generación de datos masivos con SQL puro
-- [`validacion_constraints.sql`](../sql/validacion_constraints.sql) - Inserciones para validación de restricciones
-- [`consultas_complejas.sql`](../sql/consultas_complejas.sql) - Consultas complejas con JOINs
-- [`seguridad_integridad.sql`](../sql/seguridad_integridad.sql) - Medidas de seguridad y pruebas de restricciones de integridad del sistema
-- [`concurrencia_transacciones.sql`](../sql/concurrencia_transacciones.sql) - Pruebas de comportamiento ante accesos simultaneos, implementando transacciones y realizando bloqueos, deadlocks y niveles de aislamiento
+- [`01_esquemas.sql`](../sql/01_esquemas.sql) - Creación de tablas y constraints
+- [`02_catalogo.sql`](../sql/02_catalogo.sql) - Inserción de datos de dominio
+- [`03_carga_masiva.sql`](../sql/03_carga_masiva.sql) - Generación de datos masivos con SQL puro
+- [`04_indices.sql`](../sql/04_indices.sql) - Creación de índices para mejorar rendimiento
+- [`05_consultas.sql`](../sql/05_consultas.sql) - Consultas complejas con JOINs
+- [`05_explain.sql`](../sql/05_explain.sql) - Análisis de consultas con EXPLAIN
+- [`06_vistas.sql`](../sql/06_vistas.sql) - Creación de vistas simples
+- [`07_seguridad.sql`](../sql/07_seguridad.sql) - Creación de usuarios y privilegios
+- [`07_pruebas_integridad.sql`](../sql/07_pruebas_integridad.sql) - Pruebas de integridad controladas para comprobar que las restricciones definidas en el modelo
+- [`08_transacciones.sql`](../sql/08_transacciones.sql) - Implementación de transacciones
+- [`09_concurrencia_guiada.sql`](../sql/09_concurrencia_guiada.sql) - Implementación de concurrencia
 
 ---
 
@@ -228,7 +232,7 @@ CREATE TABLE Paciente (
 
 ### 4. Validación de Constraints
 
-Se ejecutaron scripts [`[validacion_constraints.sql]`](../sql/validacion_constraints.sql) con inserciones diseñadas para probar la efectividad de las restricciones `UNIQUE`, `CHECK`, `FOREIGN KEY` y `NOT NULL`.
+Se ejecutaron scripts [`[07_pruebas_integridad.sql]`](../sql/07_pruebas_integridad.sql) con inserciones diseñadas para probar la efectividad de las restricciones `UNIQUE`, `CHECK`, `FOREIGN KEY` y `NOT NULL`.
 
 #### 4.1 Inserciones Correctas (Ejemplos)
 
@@ -241,18 +245,9 @@ Se ejecutaron scripts [`[validacion_constraints.sql]`](../sql/validacion_constra
 - Intento de asignar `historia_clinica_id` inexistente a `Paciente` (violación `FOREIGN KEY`).
 - Intento de asignar la misma `Persona` a dos `Paciente` distintos (violación `UNIQUE` en `persona_id`).
 
-**Resultados de las pruebas:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
+**Resultados de las pruebas:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias.md)
 
-### 5. Uso Pedagógico de IA en el Proceso
-
-Se utilizó una IA generativa como tutor para validar el proceso de normalización y la definición de `constraints`.
-
-- **Prompt Inicial:** Se describió el problema de la 3FN y se solicitó guía para validar la creación de la tabla `Persona`.
-- **Asistencia Recibida:** La IA proporcionó preguntas guía sobre relaciones, cardinalidad y escalabilidad, ayudando a consolidar el diseño.
-
-**Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
-
-### 6. Beneficios de la Normalización y Enriquecimiento
+### 5. Beneficios de la Normalización y Enriquecimiento
 
 El modelo final no solo cumple con la 3FN, sino que es más robusto, escalable y representativo del dominio real.
 
@@ -265,7 +260,7 @@ El modelo final no solo cumple con la 3FN, sino que es más robusto, escalable y
 | Consultas Analíticas     | Limitadas        | Potentes                  |
 | Mantenimiento de Datos   | Propenso a error | Centralizado              |
 
-#### 6.1 Ventajas Operacionales
+#### 5.1 Ventajas Operacionales
 
 1. **Búsquedas Más Eficientes**
 
@@ -339,7 +334,7 @@ ORDER BY
 - **Búsquedas cruzadas**: Consultas entre diferentes roles de persona.
 - **Gestión profesional:**: Control de matrículas y especialidades médicas.
 
-#### 6.2 Comparativa de Rendimiento
+#### 5.2 Comparativa de Rendimiento
 
 | Operación            | Original      | Normalizado        | Mejora |
 | -------------------- | ------------- | ------------------ | ------ |
@@ -348,35 +343,35 @@ ORDER BY
 | Consultas analíticas | Scan completo | Índices eficientes | ⬆️     |
 | Mantenimiento datos  | Complejo      | Simple             | ⬆️     |
 
-### 7 Decisiones de Diseño
+### 6 Decisiones de Diseño
 
 El diseño del esquema relacional se fundamentó en los principios de normalización e integridad para garantizar la robustez y consistencia de los datos.
 
-#### 7.1 Normalización a 3FN mediante la Entidad `Persona`
+#### 6.1 Normalización a 3FN mediante la Entidad `Persona`
 
 La decisión estructural más importante fue descomponer las tablas originales para alcanzar la Tercera Forma Normal (3FN).
 
 - **Justificación:** Se identificó una dependencia transitiva en la tabla `Paciente` original, donde la clave primaria `id` determinaba el `dni`, y el `dni` a su vez determinaba `nombre` y `apellido`. Para resolverlo, se creó una entidad `Persona` que centraliza los datos personales y las tablas `Paciente` y `Profesional` pasaron a ser roles que referencian a `Persona`. Esto elimina la redundancia y previene anomalías de actualización.
 
-#### 7.2 Garantía de la Relación 1→1 a Nivel de Base de Datos
+#### 6.2 Garantía de la Relación 1→1 a Nivel de Base de Datos
 
 Para forzar la relación 1 a 1 entre un `Paciente` y su `HistoriaClinica` de manera infalible, se utilizó una combinación de restricciones.
 
 - **Justificación:** En la tabla `Paciente`, la columna `historia_clinica_id` no solo es una `FOREIGN KEY` que apunta a `HistoriaClinica(id)`, sino que también posee una restricción `UNIQUE`. Esta combinación es la que asegura a nivel de motor de base de datos que una historia clínica no pueda ser asignada a más de un paciente, protegiendo la integridad del modelo.
 
-#### 7.3 Creación de Tablas Maestras para Dominios
+#### 6.3 Creación de Tablas Maestras para Dominios
 
 En lugar de usar tipos `ENUM` de MySQL o cadenas de texto, se creó una tabla maestra `GrupoSanguineo`.
 
 - **Justificación:** Esta decisión de diseño asegura la integridad de dominio. Centraliza los valores válidos en una única tabla, facilitando su gestión (agregar/modificar tipos de sangre sin alterar la estructura de otras tablas) y permitiendo definir relaciones foráneas. Además, mejora el rendimiento al usar un `INT` como clave foránea en lugar de una cadena.
 
-#### 7.4 Uso de Bajas Lógicas y Políticas de Integridad Referencial (`ON DELETE`)
+#### 6.4 Uso de Bajas Lógicas y Políticas de Integridad Referencial (`ON DELETE`)
 
 Todas las tablas incluyen un campo `eliminado` para la baja lógica. Adicionalmente, se definieron políticas explícitas para las claves foráneas.
 
 - **Justificación:** La baja lógica preserva el historial de datos, un requisito común en sistemas de salud. La política `ON DELETE CASCADE` en la relación `Persona` → `Paciente` asegura que si una `Persona` es eliminada, sus roles asociados también lo sean. En cambio, se usó `ON DELETE SET NULL` para `Paciente` → `HistoriaClinica`, permitiendo que una historia clínica pueda quedar sin paciente asignado (por ejemplo, si los datos del paciente se eliminan por una solicitud de privacidad), pero conservando el registro médico.
 
-### 8. Conclusión
+### 7. Conclusión
 
 #### Resumen de Logros Obtenidos
 
@@ -388,9 +383,9 @@ Todas las tablas incluyen un campo `eliminado` para la baja lógica. Adicionalme
 
 La normalización a 3FN es altamente recomendable para este sistema, ya que los beneficios en mantenibilidad, escalabilidad e integridad de datos superan ampliamente la complejidad adicional inicial.
 
-### 9. Interacción con IA
+### 8. Interacción con IA
 
-**Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
+**Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias.md)
 
 ---
 
@@ -423,7 +418,7 @@ Para demostrar el impacto de una correcta indexación, se midió el tiempo de ej
 SELECT * FROM Persona WHERE apellido LIKE 'García%';
 ```
 
-**Resultados Detallados (Profiling):** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
+**Resultados Detallados (Profiling):** [`[Ver Anexo - Evidencias]`](../anexos/evidencias.md)
 
 ### 4. Conclusión
 
@@ -433,7 +428,7 @@ La creación de un índice estratégico en las columnas `(apellido, nombre)` res
 
 ### 5. Interacción con IA
 
-**Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
+**Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias.md)
 
 ---
 
@@ -454,7 +449,7 @@ El desarrollo de las consultas siguió un proceso metodológico enfocado en la u
 
 ### 3. Consultas Desarrolladas
 
-A continuación, se presentan las consultas diseñadas [`(consultas_complejas.sql)`](../sql/consultas_complejas.sql), cumpliendo con los requisitos de la consigna.
+A continuación, se presentan las consultas diseñadas [`(05_consultas.sql)`](../sql/05_consultas.sql), cumpliendo con los requisitos de la consigna.
 
 #### Consulta 1: `JOIN` - Ficha Completa de Pacientes Activos
 
@@ -554,7 +549,7 @@ HAVING COUNT(pac.id) > (
 ORDER BY total_pacientes DESC;
 ```
 
-### 4. Creación de Vista (VIEW)
+### 4. Creación de Vista (VIEW) [`(06_vistas.sql)`](../sql/06_vistas.sql)
 
 #### Vista 1: `vw_pacientes_activos`
 
@@ -587,7 +582,7 @@ En esta etapa se demostró con éxito cómo un esquema de base de datos bien nor
 
 ### 6. Interacción con IA
 
-**Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
+**Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias.md)
 
 ---
 
@@ -634,7 +629,7 @@ FLUSH PRIVILEGES;
 -- Mensaje esperado: Error Code: 1142. DROP command denied to user 'user_gestion'@'localhost' for table 'Persona'
 ```
 
-[`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
+[`[Ver Anexo - Evidencias]`](../anexos/evidencias.md)
 
 #### 3.2. Diseño de Vistas para Abstracción
 
@@ -667,7 +662,7 @@ WHERE
 SELECT * FROM vw_profesionales_con_datos WHERE especialidad = 'Pediatría';
 ```
 
-**Resultado de Ejecución (Ejemplo):** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
+**Resultado de Ejecución (Ejemplo):** [`[Ver Anexo - Evidencias]`](../anexos/evidencias.md)
 
 #### 3.3. Pruebas de Integridad de Datos
 
@@ -679,7 +674,7 @@ Se ejecutaron inserciones deliberadamente incorrectas (documentadas en `validaci
 
 Estas pruebas confirman que el esquema de la base de datos protege activamente la integridad y consistencia de los datos.
 
-**Resultados de Pruebas:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
+**Resultados de Pruebas:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias.md)
 
 #### 3.4. Implementación de `PreparedStatement` en Java
 
@@ -712,7 +707,7 @@ Esta etapa demostró la implementación exitosa de medidas de seguridad esencial
 
 ### 5. Interacción con IA
 
-**Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
+**Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias.md)
 
 ---
 
@@ -744,7 +739,7 @@ Se ejecutó el guion documentado en el script, donde:
 
 **Resultado:** MySQL detectó el interbloqueo y automáticamente canceló una de las transacciones (generalmente la que realizó menos cambios o la más reciente), emitiendo un error específico.
 
-- **Error de Deadlock:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
+- **Error de Deadlock:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias.md)
 
 #### 3.2. Comparación Práctica de Niveles de Aislamiento
 
@@ -760,7 +755,7 @@ Se realizaron pruebas siguiendo el script:
   - La Sesión 2 **no pudo ver** la modificación de la Sesión 1 antes del `COMMIT`.
   - La Sesión 2 **tampoco pudo ver** la modificación después del `COMMIT` de la Sesión 1. Mantuvo una "vista" consistente (snapshot) del dato desde el inicio de su transacción, demostrando la prevención de lecturas no repetibles.
 
-- **Resultados Comparativos:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
+- **Resultados Comparativos:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias.md)
 
 #### 3.3. Implementación de Transacciones en Java
 
@@ -817,4 +812,4 @@ Esta etapa final consolidó la comprensión de los mecanismos que utilizan los S
 
 ### 6. Interacción con IA
 
-**Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias_db_i.md)
+**Evidencia de Interacción:** [`[Ver Anexo - Evidencias]`](../anexos/evidencias.md)

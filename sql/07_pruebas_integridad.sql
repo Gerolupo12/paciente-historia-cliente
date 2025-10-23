@@ -1,10 +1,35 @@
--- SCRIPT DE VALIDACIÓN DE CONSTRAINTS PARA EL ESQUEMA NORMALIZADO
+-- =====================================================================
+-- PRUEBAS DE INTEGRIDAD
+-- =====================================================================
+-- A continuación, se realizan pruebas controladas para comprobar que las
+-- restricciones definidas en el modelo (UNIQUE y CHECK) funcionan correctamente.
+-- Cada prueba intenta generar un error a propósito para confirmar que
+-- la base impide operaciones inválidas.
+-- =====================================================================
+
 USE GestionPacientes;
 
-/*	=====================================================================
-	SECCIÓN 1: INSERCIONES CORRECTAS
-	Demuestran el flujo de trabajo válido para crear entidades relacionadas.
-	===================================================================== */
+-- =====================================================================
+-- PASO 0: LIMPIEZA INICIAL DE LA BASE DE DATOS
+-- =====================================================================
+-- Se desactivan temporalmente las revisiones de claves foráneas para
+-- permitir el vaciado de tablas en cualquier orden sin errores.
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Se utiliza TRUNCATE TABLE para vaciar todas las tablas de forma eficiente.
+TRUNCATE TABLE Paciente;
+TRUNCATE TABLE HistoriaClinica;
+TRUNCATE TABLE Profesional;
+TRUNCATE TABLE Persona;
+
+-- Se reactivan las revisiones de claves foráneas para mantener la
+-- integridad de los datos durante las inserciones.
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- =====================================================================
+-- SECCIÓN 1: INSERCIONES CORRECTAS
+-- Demuestran el flujo de trabajo válido para crear entidades relacionadas.
+-- =====================================================================
 
 -- Inserción CORRECTA 1: Crear una Persona y un Profesional asociado.
 -- 1. Crear la Persona.
@@ -29,10 +54,10 @@ VALUES (@persona_carlos_id, @hc_carlos_id);
 
 SELECT '==> Inserciones correctas realizadas con éxito.' AS 'Estado';
 
-/*	=====================================================================
-	SECCIÓN 2: INSERCIONES ERRÓNEAS
-	Cada una de estas inserciones debe fallar y devolver un error específico.
-	===================================================================== */
+-- =====================================================================
+-- SECCIÓN 2: INSERCIONES ERRÓNEAS
+-- Cada una de estas inserciones debe fallar y devolver un error específico.
+-- =====================================================================
 
 -- ERROR 1: Violación de UNIQUE en Persona(dni)
 -- Razón: El DNI '28123456' ya fue insertado para la profesional Mariana Lopez.
