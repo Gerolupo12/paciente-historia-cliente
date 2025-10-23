@@ -1,6 +1,6 @@
 ![Header UTN](../anexos/capturas/header_utn.png)
 
-[![Ver en GitHub](https://img.shields.io/badge/Repositorio-GitHub-black?logo=github)](https://github.com/Gerolupo12/paciente-historia-cliente) [![Ver en YouTube](https://img.shields.io/badge/Presentacion_en_video-YouTube-red?logo=youtube)]()
+[![Ver en GitHub](https://img.shields.io/badge/Repositorio-GitHub-black?logo=github)](https://github.com/Gerolupo12/paciente-historia-cliente) [![Ver en YouTube](https://img.shields.io/badge/Presentacion_en_video-YouTube-red?logo=youtube)](https://youtu.be/8V_LVcoTC8A)
 
 # **Trabajo Final Integrador - Bases de Datos I**
 
@@ -875,4 +875,4 @@ Esta etapa final consolidó la comprensión de los mecanismos que utilizan los S
 
 - [Link al Repositorio](https://github.com/Gerolupo12/paciente-historia-cliente)
 
-- [Link a la Presentación en Video](https://github.com/Gerolupo12/paciente-historia-cliente)
+- [Link a la Presentación en Video](https://youtu.be/8V_LVcoTC8A)

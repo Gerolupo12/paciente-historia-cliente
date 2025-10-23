@@ -25,10 +25,11 @@
 
 Este proyecto fue desarrollado de manera colaborativa por el siguiente equipo:
 
+- **Lagos, Alejandro** - [GitHub](https://github.com/Alejandrovans)
 - **Lahoz, Cristian** - [GitHub](https://github.com/m415x)
 - **Maldonado, Ariana** - [GitHub](https://github.com/AriMaldo19)
 - **Ramallo, Gerónimo** - [GitHub](https://github.com/Gerolupo12)
 
 ---
 
-[![Ver en GitHub](https://img.shields.io/badge/Repositorio-GitHub-black?logo=github)](https://github.com/Gerolupo12/paciente-historia-cliente) [![Ver en YouTube](https://img.shields.io/badge/Presentacion_en_video-YouTube-red?logo=youtube)]()
+[![Ver en GitHub](https://img.shields.io/badge/Repositorio-GitHub-black?logo=github)](https://github.com/Gerolupo12/paciente-historia-cliente) [![Ver en YouTube](https://img.shields.io/badge/Presentacion_en_video-YouTube-red?logo=youtube)](https://youtu.be/8V_LVcoTC8A)

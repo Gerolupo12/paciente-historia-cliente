@@ -1062,4 +1062,4 @@ Registro del diálogo sobre la simulación de deadlocks.
 
 - [Link al Repositorio](https://github.com/Gerolupo12/paciente-historia-cliente)
 
-- [Link a la Presentación en Video](https://github.com/Gerolupo12/paciente-historia-cliente)
+- [Link a la Presentación en Video](https://youtu.be/8V_LVcoTC8A)
