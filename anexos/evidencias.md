@@ -183,12 +183,21 @@ Evidencias de las pruebas de deadlock y niveles de aislamiento.
 
 - **Comparación de Niveles de Aislamiento:**
   - **READ COMMITTED:** `[Captura(s) de pantalla mostrando la lectura no repetible]`
+  - 
+Parte 1
+![Captura](../anexos/capturas/Commited.png) 
 
-![Captura](../anexos/capturas/)
+Parte 2
+![Captura](../anexos/capturas/Commited2.png) 
 
 - **REPEATABLE READ:** `[Captura(s) de pantalla mostrando la lectura consistente (sin lectura no repetible)]`
 
-![Captura](../anexos/capturas/)
+Parte 1
+![Captura](../anexos/capturas/repeatable.png) 
+
+Parte 2
+![Captura](../anexos/capturas/repeatable2.png) 
+
 
 ### 5.2 Interacción con IA (Concurrencia)
 
