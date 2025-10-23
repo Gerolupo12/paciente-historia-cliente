@@ -1,19 +1,39 @@
-# Trabajo Final Integrador - Sistema de Gestión de Pacientes e Historias Clínicas
 
 ![MySQL](https://img.shields.io/badge/MySQL-8.0.43-blue?logo=mysql) ![MySQL Workbench](https://img.shields.io/badge/MySQL%20Workbench-4479A1.svg?logo=mysql&logoColor=white) ![phpMyAdmin](https://img.shields.io/badge/phpMyAdmin-6C78B3.svg?logo=phpmyadmin&logoColor=white) ![DBeaver](https://img.shields.io/badge/DBeaver-38698C?logo=dbeaver&logoColor=white) ![Git](https://img.shields.io/badge/Git-F05032?logo=git&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green.svg) [![Ver en GitHub](https://img.shields.io/badge/Repositorio-GitHub-black?logo=github)](https://github.com/Gerolupo12/paciente-historia-cliente)
 
-## Datos del Proyecto
+--- 
 
-- **Asignatura**: Bases de Datos I
-- **Dominio**: Paciente → HistoriaClínica (Relación 1→1 unidireccional)
+![Logo UTN](Logo%20UTN.PNG)
+
+---
+
+# **Trabajo Final Integrador - Bases de Datos I**
+
+## **Sistema de Gestión de Pacientes – Clínica Gedar, Mendoza**
+
+## Comisión: Nº 8
+
+## Fecha de entrega: 23/10/2025
+
+## Profesora asignada: 
+- **Cinthia, Rigoni**
+
+## Tutor asignado: 
+- **García, Pablo**
 
 ## Integrantes
-
 Este proyecto fue desarrollado de manera colaborativa por el siguiente equipo:
 
 - **Lahoz, Cristian** - [GitHub](https://github.com/m415x)
 - **Maldonado, Ariana** - [GitHub](https://github.com/AriMaldo19)
 - **Ramallo, Gerónimo** - [GitHub](https://github.com/Gerolupo12)
+
+---
+
+## Datos del Proyecto
+
+- **Asignatura**: Bases de Datos I
+- **Dominio**: Paciente → HistoriaClínica (Relación 1→1 unidireccional)
 
 ---
 
