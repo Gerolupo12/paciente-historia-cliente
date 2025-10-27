@@ -16,7 +16,6 @@ import java.util.Properties;
 public class DatabaseConnection {
 
     private static final Properties PROPS = new Properties();
-
     // *** Bloque estático para cargar el controlador ***
     // Este bloque se ejecuta solo UNA VEZ cuando la clase se carga en la memoria.
     static {
@@ -46,7 +45,6 @@ public class DatabaseConnection {
      * @throws SQLException Si se produce un error de acceso a la base de datos.
      */
     public static Connection getConnection() throws SQLException {
-
         // Se leen las propiedades directamente del objeto PROPS
         String URL = PROPS.getProperty("db.url");
         String USER = PROPS.getProperty("db.user");
@@ -64,23 +62,6 @@ public class DatabaseConnection {
         Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
         System.out.println("✅ Conexión a la base de datos establecida correctamente!");
         return connection;
-    }
-
-    // *** Opcional: Método para cerrar la conexión ***
-    /**
-     * Cierra la conexión a la base de datos dada de forma segura.
-     *
-     * @param connection La conexión a cerrar.
-     */
-    public static void closeConnection(Connection connection) {
-        if (connection != null) {
-            try {
-                connection.close();
-                System.out.println("✅ Conexión a la base de datos cerrada.");
-            } catch (SQLException e) {
-                System.err.println("❌ Error al cerrar la conexión a la base de datos: " + e.getMessage());
-            }
-        }
     }
 
 }

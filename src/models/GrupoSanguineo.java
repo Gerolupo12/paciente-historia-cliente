@@ -11,38 +11,50 @@ package models;
 public enum GrupoSanguineo {
 
     /** Grupo A con factor Rh positivo */
-    A_PLUS(FactorRh.POSITIVO),
+    A_PLUS(FactorRh.POSITIVO, 1),
 
     /** Grupo A con factor Rh negativo */
-    A_MINUS(FactorRh.NEGATIVO),
+    A_MINUS(FactorRh.NEGATIVO, 2),
 
     /** Grupo B con factor Rh positivo */
-    B_PLUS(FactorRh.POSITIVO),
+    B_PLUS(FactorRh.POSITIVO, 3),
 
     /** Grupo B con factor Rh negativo */
-    B_MINUS(FactorRh.NEGATIVO),
+    B_MINUS(FactorRh.NEGATIVO, 4),
 
     /** Grupo AB con factor Rh positivo */
-    AB_PLUS(FactorRh.POSITIVO),
+    AB_PLUS(FactorRh.POSITIVO, 5),
 
     /** Grupo AB con factor Rh negativo */
-    AB_MINUS(FactorRh.NEGATIVO),
+    AB_MINUS(FactorRh.NEGATIVO, 6),
 
     /** Grupo O con factor Rh positivo */
-    O_PLUS(FactorRh.POSITIVO),
+    O_PLUS(FactorRh.POSITIVO, 7),
 
     /** Grupo O con factor Rh negativo */
-    O_MINUS(FactorRh.NEGATIVO);
+    O_MINUS(FactorRh.NEGATIVO, 8);
 
     private final FactorRh factorRh;
+    private final int dbId;
 
     /**
      * Constructor que asocia un GrupoSanguineo con factor Rh específico.
      * 
      * @param factorRh El factor Rh del grupo sanguíneo
+     * @param dbId     El ID correspondiente en la tabla GrupoSanguineo
      */
-    GrupoSanguineo(FactorRh factorRh) {
+    GrupoSanguineo(FactorRh factorRh, int dbId) {
         this.factorRh = factorRh;
+        this.dbId = dbId;
+    }
+
+    /**
+     * Obtiene el ID de base de datos para este grupo sanguíneo.
+     *
+     * @return El ID entero para usar como clave foránea.
+     */
+    public int getDbId() {
+        return dbId;
     }
 
     /**
@@ -98,7 +110,7 @@ public enum GrupoSanguineo {
     public String toString() {
         String tipo = getTipoGrupo();
         String simbolo = factorRh.toSymbol();
-        return "GrupoSanguineo=" + tipo + simbolo;
+        return tipo + simbolo;
     }
 
 }
