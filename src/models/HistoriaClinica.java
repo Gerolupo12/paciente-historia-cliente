@@ -44,6 +44,28 @@ public class HistoriaClinica extends Base {
     }
 
     /**
+     * Constructor sin id para crear una historia clínica.
+     *
+     * @param numeroHistoria   Número único de la historia
+     * @param grupoSanguineo   Grupo sanguíneo del paciente
+     * @param antecedentes     Antecedentes médicos
+     * @param medicacionActual Medicación actual
+     * @param observaciones    Observaciones adicionales
+     * @param profesional      Profesional asignado a la historia
+     */
+    public HistoriaClinica(String numeroHistoria, GrupoSanguineo grupoSanguineo,
+            String antecedentes, String medicacionActual, String observaciones,
+            Profesional profesional) {
+        super();
+        this.numeroHistoria = numeroHistoria;
+        this.grupoSanguineo = grupoSanguineo;
+        this.antecedentes = antecedentes;
+        this.medicacionActual = medicacionActual;
+        this.observaciones = observaciones;
+        this.profesional = profesional;
+    }
+
+    /**
      * Constructor simplificado.
      * 
      * @param id             Identificador único de la historia clínica
@@ -51,6 +73,16 @@ public class HistoriaClinica extends Base {
      */
     public HistoriaClinica(int id, String numeroHistoria) {
         super(id);
+        this.numeroHistoria = numeroHistoria;
+    }
+
+    /**
+     * Constructor simplificado sin id.
+     * 
+     * @param numeroHistoria Número único de identificación de la historia
+     */
+    public HistoriaClinica(String numeroHistoria) {
+        super();
         this.numeroHistoria = numeroHistoria;
     }
 
@@ -67,7 +99,10 @@ public class HistoriaClinica extends Base {
     }
 
     public void setNumeroHistoria(String numeroHistoria) {
-        this.numeroHistoria = numeroHistoria;
+        if (numeroHistoria != null && !numeroHistoria.isEmpty()
+                && validarNumeroHistoria(numeroHistoria)) {
+            this.numeroHistoria = numeroHistoria;
+        }
     }
 
     public GrupoSanguineo getGrupoSanguineo() {
@@ -112,6 +147,18 @@ public class HistoriaClinica extends Base {
         this.profesional = profesional;
     }
 
+    // ============ OTROS MÉTODOS ============
+    /**
+     * Valida que el número de la historia cumpla con la expresión regular.
+     * 
+     * @param numeroHistoria
+     * @return boolean
+     */
+    private boolean validarNumeroHistoria(String numeroHistoria) {
+        String regex = "^HC-[0-9]{4,17}$";
+        return (numeroHistoria.matches(regex));
+    }
+
     /**
      * Representación en String del objeto HistoriaClinica.
      *
@@ -119,7 +166,9 @@ public class HistoriaClinica extends Base {
      */
     @Override
     public String toString() {
-        String profStr = (profesional != null) ? profesional.getApellido() + ", " + profesional.getNombre() : "Sin profesional asignado";
+        String profStr = (profesional != null)
+                ? profesional.getApellido() + ", " + profesional.getNombre()
+                : "Sin profesional asignado";
         return "HistoriaClinica{"
                 + "id=" + getId()
                 + ", numeroHistoria=" + numeroHistoria

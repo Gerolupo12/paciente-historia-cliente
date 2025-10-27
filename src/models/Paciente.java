@@ -18,10 +18,10 @@ public class Paciente extends Persona {
     /**
      * Constructor completo para crear un paciente con todos sus datos.
      *
-     * @param id Identificador único del paciente
-     * @param nombre Nombre del paciente
-     * @param apellido Apellido del paciente
-     * @param dni Documento Nacional de Identidad (único)
+     * @param id              Identificador único del paciente
+     * @param nombre          Nombre del paciente
+     * @param apellido        Apellido del paciente
+     * @param dni             Documento Nacional de Identidad (único)
      * @param fechaNacimiento Fecha de nacimiento del paciente
      * @param historiaClinica Historia clínica asociada
      */
@@ -32,17 +32,45 @@ public class Paciente extends Persona {
     }
 
     /**
+     * Constructor sin id para crear un paciente con todos sus datos.
+     *
+     * @param nombre          Nombre del paciente
+     * @param apellido        Apellido del paciente
+     * @param dni             Documento Nacional de Identidad (único)
+     * @param fechaNacimiento Fecha de nacimiento del paciente
+     * @param historiaClinica Historia clínica asociada
+     */
+    public Paciente(String nombre, String apellido, String dni,
+            LocalDate fechaNacimiento, HistoriaClinica historiaClinica) {
+        super(nombre, apellido, dni, fechaNacimiento);
+        this.historiaClinica = historiaClinica;
+    }
+
+    /**
      * Constructor para crear un paciente sin una historia clínica asignada.
      *
-     * @param id Identificador único del paciente
-     * @param nombre Nombre del paciente
-     * @param apellido Apellido del paciente
-     * @param dni Documento Nacional de Identidad (único)
+     * @param id              Identificador único del paciente
+     * @param nombre          Nombre del paciente
+     * @param apellido        Apellido del paciente
+     * @param dni             Documento Nacional de Identidad (único)
      * @param fechaNacimiento Fecha de nacimiento del paciente
      */
     public Paciente(int id, String nombre, String apellido, String dni,
             LocalDate fechaNacimiento) {
         super(id, nombre, apellido, dni, fechaNacimiento);
+    }
+
+    /**
+     * Constructor sin id para crear un paciente sin una historia clínica asignada.
+     *
+     * @param nombre          Nombre del paciente
+     * @param apellido        Apellido del paciente
+     * @param dni             Documento Nacional de Identidad (único)
+     * @param fechaNacimiento Fecha de nacimiento del paciente
+     */
+    public Paciente(String nombre, String apellido, String dni,
+            LocalDate fechaNacimiento) {
+        super(nombre, apellido, dni, fechaNacimiento);
     }
 
     /**
@@ -53,7 +81,7 @@ public class Paciente extends Persona {
     }
 
     // ============ GETTERS Y SETTERS ESPECÍFICOS DE PACIENTE ============
-     public HistoriaClinica getHistoriaClinica() {
+    public HistoriaClinica getHistoriaClinica() {
         return historiaClinica;
     }
 
@@ -61,6 +89,7 @@ public class Paciente extends Persona {
         this.historiaClinica = historiaClinica;
     }
 
+    // ============ OTROS MÉTODOS ============
     /**
      * Representación en String del objeto Paciente.
      *

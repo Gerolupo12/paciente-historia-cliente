@@ -19,17 +19,34 @@ public class Profesional extends Persona {
     /**
      * Constructor completo para crear un Profesional.
      *
-     * @param id Identificador único del profesional
-     * @param nombre Nombre del profesional
-     * @param apellido Apellido del profesional
-     * @param dni Documento Nacional de Identidad (único)
+     * @param id              Identificador único del profesional
+     * @param nombre          Nombre del profesional
+     * @param apellido        Apellido del profesional
+     * @param dni             Documento Nacional de Identidad (único)
      * @param fechaNacimiento Fecha de nacimiento
-     * @param matricula Matrícula profesional (única)
-     * @param especialidad Especialidad médica
+     * @param matricula       Matrícula profesional (única)
+     * @param especialidad    Especialidad médica
      */
     public Profesional(int id, String nombre, String apellido, String dni,
             LocalDate fechaNacimiento, String matricula, String especialidad) {
         super(id, nombre, apellido, dni, fechaNacimiento);
+        this.matricula = matricula;
+        this.especialidad = especialidad;
+    }
+
+    /**
+     * Constructor sin id para crear un Profesional.
+     *
+     * @param nombre          Nombre del profesional
+     * @param apellido        Apellido del profesional
+     * @param dni             Documento Nacional de Identidad (único)
+     * @param fechaNacimiento Fecha de nacimiento
+     * @param matricula       Matrícula profesional (única)
+     * @param especialidad    Especialidad médica
+     */
+    public Profesional(String nombre, String apellido, String dni,
+            LocalDate fechaNacimiento, String matricula, String especialidad) {
+        super(nombre, apellido, dni, fechaNacimiento);
         this.matricula = matricula;
         this.especialidad = especialidad;
     }
@@ -47,7 +64,9 @@ public class Profesional extends Persona {
     }
 
     public void setMatricula(String matricula) {
-        this.matricula = matricula;
+        if (matricula != null && !matricula.isEmpty() && validarMatricula(matricula)) {
+            this.matricula = matricula;
+        }
     }
 
     public String getEspecialidad() {
@@ -55,7 +74,21 @@ public class Profesional extends Persona {
     }
 
     public void setEspecialidad(String especialidad) {
-        this.especialidad = especialidad;
+        if (especialidad != null && !especialidad.isEmpty()) {
+            this.especialidad = especialidad;
+        }
+    }
+
+    // ============ OTROS MÉTODOS ============
+    /**
+     * Valida que la matrícula cumpla con la expresión regular.
+     * 
+     * @param matricula
+     * @return boolean
+     */
+    private boolean validarMatricula(String matricula) {
+        String regex = "^(MP|MN|MI)-[0-9]{5,17}$";
+        return (matricula.matches(regex));
     }
 
     /**

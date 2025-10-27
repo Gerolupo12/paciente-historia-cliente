@@ -2,14 +2,6 @@
 
 ![NetBeans](https://img.shields.io/badge/NetBeans-1B6AC6?logo=apache-netbeans-ide&logoColor=white) ![Java](https://img.shields.io/badge/Java-21.0.8.LTS-red.svg) ![JDBC](https://img.shields.io/badge/JDBC-API-orange) ![MySQL](https://img.shields.io/badge/MySQL-8.4.7_LTS-blue?logo=mysql) ![MySQL Workbench](https://img.shields.io/badge/MySQL%20Workbench-4479A1.svg?logo=mysql&logoColor=white) ![DBeaver](https://img.shields.io/badge/DBeaver-38698C?logo=dbeaver&logoColor=white) ![XAMPP](https://img.shields.io/badge/XAMPP-MySQL-green.svg?logo=xampp&logoColor=orange) ![Git](https://img.shields.io/badge/Git-F05032?logo=git&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green.svg) [![Ver en GitHub](https://img.shields.io/badge/Repositorio-GitHub-black?logo=github)](https://github.com/Gerolupo12/paciente-historia-cliente)
 
-## Integrantes
-
-Este proyecto fue desarrollado de manera colaborativa por el siguiente equipo:
-
-- **Lahoz, Cristian** - [GitHub](https://github.com/m415x)
-- **Maldonado, Ariana** - [GitHub](https://github.com/AriMaldo19)
-- **Ramallo, Gerónimo** - [GitHub](https://github.com/Gerolupo12)
-
 ## Descripción del Proyecto
 
 Sistema desarrollado en Java que gestiona la relación unidireccional 1→1 entre **Pacientes** y sus **Historias Clínicas**. Implementa el patrón DAO, transacciones con commit/rollback, y un menú de consola para operaciones CRUD completas.
