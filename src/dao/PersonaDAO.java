@@ -18,8 +18,10 @@ public class PersonaDAO implements GenericDAO<Persona> {
     @Override
     public void insert(Persona persona) throws SQLException {
 
-        String sql = "INSERT INTO Persona (nombre, apellido, dni, fecha_nacimiento)"
-                + " VALUES (?, ?, ?, ?);";
+        String sql = """
+                    INSERT INTO Persona (nombre, apellido, dni, fecha_nacimiento)
+                    VALUES (?, ?, ?, ?)
+                """;
 
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(
@@ -58,9 +60,11 @@ public class PersonaDAO implements GenericDAO<Persona> {
 
     @Override
     public void update(Persona persona) throws SQLException {
-        String sql = "UPDATE Persona"
-                + " SET nombre = ?, apellido = ?, dni = ?, fecha_nacimiento = ?"
-                + " WHERE id = ?";
+        String sql = """
+                    UPDATE Persona
+                    SET nombre = ?, apellido = ?, dni = ?, fecha_nacimiento = ?
+                    WHERE id = ?
+                """;
 
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -179,17 +183,22 @@ public class PersonaDAO implements GenericDAO<Persona> {
         }
     }
 
-    public List<Persona> buscarPorNombreApellido(String filtro) throws SQLException {
+    @Override
+    public List<Persona> buscarPorFiltro(String filtro) throws SQLException {
 
-        String sql = "SELECT id, nombre, apellido, dni, fecha_nacimiento"
-                + " FROM Persona"
-                + " WHERE eliminado = FALSE AND (nombre LIKE ? OR apellido LIKE ?)";
+        String sql = """
+                    SELECT id, nombre, apellido, dni, fecha_nacimiento
+                    FROM Persona
+                    WHERE eliminado = FALSE
+                    AND (nombre LIKE ? OR apellido LIKE ? OR dni LIKE ?)
+                """;
         List<Persona> personas = new ArrayList<>();
 
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, "%" + filtro + "%");
             stmt.setString(2, "%" + filtro + "%");
+            stmt.setString(3, "%" + filtro + "%");
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Persona persona = new Persona();
@@ -201,7 +210,7 @@ public class PersonaDAO implements GenericDAO<Persona> {
                 personas.add(persona);
             }
         } catch (SQLException e) {
-            throw new SQLException("Error al buscar personas por nombre o apellido: " + e.getMessage(), e);
+            throw new SQLException("Error al buscar personas por nombre, apellido o DNI: " + e.getMessage(), e);
         }
         return personas;
     }

@@ -60,4 +60,13 @@ public interface GenericDAO<T> {
      */
     void recover(int id) throws Exception;
 
+    /**
+     * Busca entidades que coincidan con un filtro en sus atributos.
+     * 
+     * @param filter
+     * @return iterable de entidades que coinciden con el filtro.
+     * @throws Exception
+     */
+    Iterable<T> buscarPorFiltro(String filter) throws Exception;
+
 }

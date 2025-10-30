@@ -1,6 +1,5 @@
 package dao;
 
-import java.sql.Connection;
 import models.Profesional;
 
 /**
@@ -12,12 +11,12 @@ import models.Profesional;
 public class ProfesionalDAO implements GenericDAO<Profesional> {
 
     @Override
-    public void insert(Profesional entity) throws Exception {
+    public void insert(Profesional profesional) throws Exception {
 
     }
 
     @Override
-    public void update(Profesional entity) throws Exception {
+    public void update(Profesional profesional) throws Exception {
 
     }
 
@@ -38,11 +37,6 @@ public class ProfesionalDAO implements GenericDAO<Profesional> {
 
     @Override
     public void recover(int id) throws Exception {
-
-    }
-
-    @Override
-    public void saveTx(Profesional entity, Connection conn) throws Exception {
 
     }
 

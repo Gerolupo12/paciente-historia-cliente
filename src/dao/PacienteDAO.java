@@ -1,6 +1,6 @@
 package dao;
 
-import java.sql.Connection;
+import java.sql.*;
 import models.Paciente;
 
 /**
@@ -12,37 +12,32 @@ import models.Paciente;
 public class PacienteDAO implements GenericDAO<Paciente> {
 
     @Override
-    public void insert(Paciente entity) throws Exception {
+    public void insert(Paciente paciente) throws SQLException {
 
     }
 
     @Override
-    public void update(Paciente entity) throws Exception {
+    public void update(Paciente paciente) throws SQLException {
 
     }
 
     @Override
-    public void delete(int id) throws Exception {
+    public void delete(int id) throws SQLException {
 
     }
 
     @Override
-    public Paciente selectById(int id) throws Exception {
+    public Paciente selectById(int id) throws SQLException {
         return null;
     }
 
     @Override
-    public Iterable<Paciente> selectAll() throws Exception {
+    public Iterable<Paciente> selectAll() throws SQLException {
         return null;
     }
 
     @Override
-    public void recover(int id) throws Exception {
-
-    }
-
-    @Override
-    public void saveTx(Paciente entity, Connection conn) throws Exception {
+    public void recover(int id) throws SQLException {
 
     }
 

@@ -19,10 +19,12 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
     @Override
     public void insert(HistoriaClinica historia) throws Exception {
 
-        String sql = "INSERT INTO HistoriaClinica"
-                + " (numero_historia, grupo_sanguineo, antecedentes,"
-                + " medicacion_actual, observaciones, profesional_id)"
-                + " VALUES (?, ?, ?, ?, ?, ?);";
+        String sql = """
+                    INSERT INTO HistoriaClinica (numero_historia,
+                        grupo_sanguineo, antecedentes, medicacion_actual,
+                        observaciones, profesional_id)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """;
 
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(
@@ -69,10 +71,12 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
     @Override
     public void update(HistoriaClinica historia) throws Exception {
 
-        String sql = "UPDATE HistoriaClinica"
-                + " SET numero_historia = ?, grupo_sanguineo = ?,"
-                + " antecedentes = ?, medicacion_actual = ?, observaciones = ?,"
-                + " profesional_id = ? WHERE id = ?";
+        String sql = """
+                    UPDATE HistoriaClinica
+                    SET numero_historia = ?, grupo_sanguineo = ?, antecedentes = ?,
+                    medicacion_actual = ?, observaciones = ?, profesional_id = ?
+                    WHERE id = ?
+                """;
 
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -127,7 +131,28 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
     @Override
     public HistoriaClinica selectById(int id) throws Exception {
 
-        String sql = "SELECT * FROM HistoriaClinica WHERE id = ? AND eliminado = FALSE";
+        // String sql = "SELECT * FROM HistoriaClinica WHERE id = ? AND eliminado =
+        // FALSE";
+        String sql = """
+                    SELECT
+                        hc.id AS id_historia,
+                        hc.nro_historia,
+                        hc.antecedentes,
+                        hc.medicacion_actual,
+                        hc.observaciones,
+                        gs.simbolo AS grupo_sanguineo,
+                        CONCAT (p.apellido, ', ', p.nombre) AS profesional_asignado,
+                        pr.matricula,
+                        pr.especialidad
+                    FROM HistoriaClinica hc
+                    LEFT JOIN GrupoSanguineo gs
+                        ON hc.grupo_sanguineo_id = gs.id
+                    LEFT JOIN Profesional pr
+                        ON hc.profesional_id = pr.id
+                    LEFT JOIN Persona p
+                        ON pr.persona_id = p.id
+                    WHERE hc.id = ? AND hc.eliminado = FALSE;
+                """;
 
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -174,7 +199,27 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
     @Override
     public Iterable<HistoriaClinica> selectAll() throws Exception {
 
-        String sql = "SELECT * FROM HistoriaClinica WHERE eliminado = FALSE";
+        // String sql = "SELECT * FROM HistoriaClinica WHERE eliminado = FALSE";
+        String sql = """
+                    SELECT
+                        hc.id AS id_historia,
+                        hc.nro_historia,
+                        hc.antecedentes,
+                        hc.medicacion_actual,
+                        hc.observaciones,
+                        gs.simbolo AS grupo_sanguineo,
+                        CONCAT (p.apellido, ', ', p.nombre) AS profesional_asignado,
+                        pr.matricula,
+                        pr.especialidad
+                    FROM HistoriaClinica hc
+                    LEFT JOIN GrupoSanguineo gs
+                        ON hc.grupo_sanguineo_id = gs.id
+                    LEFT JOIN Profesional pr
+                        ON hc.profesional_id = pr.id
+                    LEFT JOIN Persona p
+                        ON pr.persona_id = p.id
+                    WHERE hc.eliminado = FALSE;
+                """;
         List<HistoriaClinica> historias = new ArrayList<>();
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -228,6 +273,63 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
         } catch (SQLException e) {
             throw new SQLException("No se pudo recuperar la historia clínica con ID " + id);
         }
+    }
+
+    public List<HistoriaClinica> buscarPorAntecedenteMedicacionObservacion(String filtro) throws SQLException {
+
+        String sql = """
+                    SELECT
+                        id, numero_historia, grupo_sanguineo, antecedentes,
+                        medicacion_actual, observaciones, profesional_id
+                    FROM HistoriaClinica
+                    WHERE eliminado = FALSE
+                    AND (antecedentes LIKE ? OR medicacion_actual LIKE ? OR observaciones LIKE ?)
+                """;
+        List<HistoriaClinica> historias = new ArrayList<>();
+
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, "%" + filtro + "%");
+            stmt.setString(2, "%" + filtro + "%");
+            stmt.setString(3, "%" + filtro + "%");
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                HistoriaClinica historia = new HistoriaClinica();
+                historia.setId(rs.getInt("id"));
+                historia.setNumeroHistoria(rs.getString("numero_historia"));
+
+                // Obtener GrupoSanguineo
+                int grupoSanguineoId = rs.getInt("grupo_sanguineo");
+                if (!rs.wasNull()) {
+                    for (GrupoSanguineo gs : GrupoSanguineo.values()) {
+                        if (gs.getDbId() == grupoSanguineoId) {
+                            historia.setGrupoSanguineo(gs);
+                            break;
+                        }
+                    }
+                }
+
+                historia.setAntecedentes(rs.getString("antecedentes"));
+                historia.setMedicacionActual(rs.getString("medicacion_actual"));
+                historia.setObservaciones(rs.getString("observaciones"));
+
+                // Obtener Profesional
+                int profesionalId = rs.getInt("profesional_id");
+                if (!rs.wasNull()) {
+                    ProfesionalDAO profesionalDAO = new ProfesionalDAO();
+                    Profesional profesional = profesionalDAO.selectById(profesionalId);
+                    historia.setProfesional(profesional);
+                }
+                historias.add(historia);
+            }
+        } catch (SQLException e) {
+            throw new SQLException(
+                    "Error al buscar historias clínicas por antecedente, medicación u observación: " + e.getMessage(),
+                    e);
+        }
+        return historias;
     }
 
 }
