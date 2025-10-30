@@ -17,17 +17,20 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1→1 entr
 paciente-historia-cliente
 .
 ├── anexos
-│   ├── capturas
-│   └── chats-ia
 ├── informes
-│   ├── informe_db_i.md
-│   └── informe_prog_ii.md
+├── Libraries
 ├── sql
-│   ├── carga_masiva_datos.sql
-│   ├── consultas_complejas.sql
-│   ├── seguridad_integridad.sql
-│   ├── sentencias_creacion.sql
-│   └── validacion_constraints.sql
+│   ├── 01_esquema.sql
+│   ├── 02_catalogos.sql
+│   ├── 03_carga_masiva.sql
+│   ├── 04_indices.sql
+│   ├── 05_consultas.sql
+│   ├── 05_explain.sql
+│   ├── 06_vistas.sql
+│   ├── 07_pruebas_integridad.sql
+│   ├── 07_seguridad.sql
+│   ├── 08_transacciones.sql
+│   └── 09_concurrencia_guiada.sql
 ├── src
 │   ├── config
 │   │   ├── DatabaseConnection.java
@@ -35,13 +38,17 @@ paciente-historia-cliente
 │   ├── dao
 │   │   ├── GenericDAO.java
 │   │   ├── HistoriaClinicaDAO.java
-│   │   └── PacienteDAO.java
+│   │   ├── PacienteDAO.java
+│   │   ├── PersonaDAO.java
+│   │   └── ProfesionalDAO.java
 │   ├── main
+│   │   ├── resources
 │   │   ├── AppMenu.java
 │   │   ├── Main.java
 │   │   └── TestConnection.java
 │   ├── models
 │   │   ├── Base.java
+│   │   ├── ClasePrincipalParaPruebas.java
 │   │   ├── FactorRh.java
 │   │   ├── GrupoSanguineo.java
 │   │   ├── HistoriaClinica.java
