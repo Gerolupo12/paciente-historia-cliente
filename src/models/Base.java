@@ -35,15 +35,22 @@ public abstract class Base {
     }
 
     public void setId(int id) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("El ID debe ser mayor a cero.");
+        }
         this.id = id;
     }
 
-    public String getEliminado() {
-        return (eliminado ? "Si" : "No");
+    public boolean getEliminado() {
+        return eliminado;
     }
 
-    public void setEliminado(Boolean eliminado) {
+    public void setEliminado(boolean eliminado) {
         this.eliminado = eliminado;
+    }
+
+    public String isEliminado() {
+        return (eliminado ? "Si" : "No");
     }
 
 }

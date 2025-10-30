@@ -48,6 +48,7 @@ public enum GrupoSanguineo {
         this.dbId = dbId;
     }
 
+    // ============ GETTERS ============
     /**
      * Obtiene el ID de base de datos para este grupo sanguíneo.
      *
@@ -67,6 +68,7 @@ public enum GrupoSanguineo {
         return name.substring(0, name.indexOf('_'));
     }
 
+    // ============ OTROS MÉTODOS ============
     /**
      * Verifica si el grupo sanguíneo es compatible para donación con otro grupo.
      * Reglas básicas de compatibilidad sanguínea.

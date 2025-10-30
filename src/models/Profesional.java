@@ -64,9 +64,10 @@ public class Profesional extends Persona {
     }
 
     public void setMatricula(String matricula) {
-        if (matricula != null && !matricula.isEmpty() && validarMatricula(matricula)) {
-            this.matricula = matricula;
+        if (matricula == null || matricula.isBlank() || !validarMatricula(matricula)) {
+            throw new IllegalArgumentException("La matrícula no es válida.");
         }
+        this.matricula = matricula;
     }
 
     public String getEspecialidad() {
@@ -74,9 +75,10 @@ public class Profesional extends Persona {
     }
 
     public void setEspecialidad(String especialidad) {
-        if (especialidad != null && !especialidad.isEmpty()) {
-            this.especialidad = especialidad;
+        if (especialidad == null || especialidad.isBlank()) {
+            throw new IllegalArgumentException("La especialidad no puede estar vacía.");
         }
+        this.especialidad = especialidad;
     }
 
     // ============ OTROS MÉTODOS ============

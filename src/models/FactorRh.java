@@ -14,6 +14,7 @@ public enum FactorRh {
     /** Factor Rh negativo */
     NEGATIVO;
 
+    // ============ MÉTODOS ============
     /**
      * Convierte el factor Rh a símbolo para mostrar.
      * 

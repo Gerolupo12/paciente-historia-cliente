@@ -67,9 +67,10 @@ public class Persona extends Base {
     }
 
     public void setNombre(String nombre) {
-        if (nombre != null && !nombre.isEmpty()) {
-            this.nombre = nombre;
+        if (nombre == null || nombre.isBlank()) {
+            throw new IllegalArgumentException("El nombre no puede estar vacío");
         }
+        this.nombre = nombre;
     }
 
     public String getApellido() {
@@ -77,9 +78,10 @@ public class Persona extends Base {
     }
 
     public void setApellido(String apellido) {
-        if (apellido != null && !apellido.isEmpty()) {
-            this.apellido = apellido;
+        if (apellido == null || apellido.isBlank()) {
+            throw new IllegalArgumentException("El apellido no puede estar vacío");
         }
+        this.apellido = apellido;
     }
 
     public String getDni() {
@@ -87,9 +89,13 @@ public class Persona extends Base {
     }
 
     public void setDni(String dni) {
-        if (dni != null && !dni.isEmpty() && validarDni(dni)) {
-            this.dni = dni;
+        if (dni == null || dni.isBlank()) {
+            throw new IllegalArgumentException("El DNI no puede estar vacío");
         }
+        if (!validarDni(dni)) {
+            throw new IllegalArgumentException("El DNI no es válido.");
+        }
+        this.dni = dni;
     }
 
     public LocalDate getFechaNacimiento() {
@@ -97,9 +103,13 @@ public class Persona extends Base {
     }
 
     public void setFechaNacimiento(LocalDate fechaNacimiento) {
-        if (validarFechaNacimiento(fechaNacimiento)) {
-            this.fechaNacimiento = fechaNacimiento;
+        if (fechaNacimiento == null) {
+            throw new IllegalArgumentException("La fecha de nacimiento no puede ser nula");
         }
+        if (!validarFechaNacimiento(fechaNacimiento)) {
+            throw new IllegalArgumentException("La fecha de nacimiento no es válida.");
+        }
+        this.fechaNacimiento = fechaNacimiento;
     }
 
     // ============ OTROS MÉTODOS ============

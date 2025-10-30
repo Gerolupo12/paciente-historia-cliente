@@ -99,10 +99,11 @@ public class HistoriaClinica extends Base {
     }
 
     public void setNumeroHistoria(String numeroHistoria) {
-        if (numeroHistoria != null && !numeroHistoria.isEmpty()
-                && validarNumeroHistoria(numeroHistoria)) {
-            this.numeroHistoria = numeroHistoria;
+        if (numeroHistoria == null || numeroHistoria.isBlank()
+                || !validarNumeroHistoria(numeroHistoria)) {
+            throw new IllegalArgumentException("El número de historia no es válido.");
         }
+        this.numeroHistoria = numeroHistoria;
     }
 
     public GrupoSanguineo getGrupoSanguineo() {
@@ -110,9 +111,7 @@ public class HistoriaClinica extends Base {
     }
 
     public void setGrupoSanguineo(GrupoSanguineo grupoSanguineo) {
-        if (grupoSanguineo != null) {
-            this.grupoSanguineo = grupoSanguineo;
-        }
+        this.grupoSanguineo = grupoSanguineo;
     }
 
     public String getAntecedentes() {
