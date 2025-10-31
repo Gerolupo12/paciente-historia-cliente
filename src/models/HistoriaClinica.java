@@ -18,7 +18,6 @@ public class HistoriaClinica extends Base {
     private String antecedentes;
     private String medicacionActual;
     private String observaciones;
-    private Profesional profesional;
 
     /**
      * Constructor completo para crear una historia clínica.
@@ -29,18 +28,15 @@ public class HistoriaClinica extends Base {
      * @param antecedentes     Antecedentes médicos
      * @param medicacionActual Medicación actual
      * @param observaciones    Observaciones adicionales
-     * @param profesional      Profesional asignado a la historia
      */
     public HistoriaClinica(int id, String numeroHistoria, GrupoSanguineo grupoSanguineo,
-            String antecedentes, String medicacionActual, String observaciones,
-            Profesional profesional) {
+            String antecedentes, String medicacionActual, String observaciones) {
         super(id);
         this.numeroHistoria = numeroHistoria;
         this.grupoSanguineo = grupoSanguineo;
         this.antecedentes = antecedentes;
         this.medicacionActual = medicacionActual;
         this.observaciones = observaciones;
-        this.profesional = profesional;
     }
 
     /**
@@ -51,18 +47,15 @@ public class HistoriaClinica extends Base {
      * @param antecedentes     Antecedentes médicos
      * @param medicacionActual Medicación actual
      * @param observaciones    Observaciones adicionales
-     * @param profesional      Profesional asignado a la historia
      */
     public HistoriaClinica(String numeroHistoria, GrupoSanguineo grupoSanguineo,
-            String antecedentes, String medicacionActual, String observaciones,
-            Profesional profesional) {
+            String antecedentes, String medicacionActual, String observaciones) {
         super();
         this.numeroHistoria = numeroHistoria;
         this.grupoSanguineo = grupoSanguineo;
         this.antecedentes = antecedentes;
         this.medicacionActual = medicacionActual;
         this.observaciones = observaciones;
-        this.profesional = profesional;
     }
 
     /**
@@ -138,14 +131,6 @@ public class HistoriaClinica extends Base {
         this.observaciones = observaciones;
     }
 
-    public Profesional getProfesional() {
-        return profesional;
-    }
-
-    public void setProfesional(Profesional profesional) {
-        this.profesional = profesional;
-    }
-
     // ============ OTROS MÉTODOS ============
     /**
      * Valida que el número de la historia cumpla con la expresión regular.
@@ -165,14 +150,10 @@ public class HistoriaClinica extends Base {
      */
     @Override
     public String toString() {
-        String profStr = (profesional != null)
-                ? profesional.getApellido() + ", " + profesional.getNombre()
-                : "Sin profesional asignado";
         return "HistoriaClinica{"
                 + "id=" + getId()
                 + ", numeroHistoria=" + numeroHistoria
                 + ", grupoSanguineo=" + grupoSanguineo
-                + ", profesional=" + profStr
                 + '}';
     }
 

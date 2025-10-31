@@ -1,18 +1,23 @@
 package models;
 
 import java.time.LocalDate;
+import java.time.Month;
 
 /**
- * Representa un paciente en el sistema de gestión médica. Hereda los datos
- * personales de la clase Persona y añade la referencia a su historia clínica.
+ * Representa un paciente en el sistema de gestión médica. Hereda de la clase
+ * Base y añade la referencia a su historia clínica.
  * Implementa relación unidireccional 1→1 con HistoriaClinica.
  *
  * @author alpha team
- * @see Persona
+ * @see Base
  * @see HistoriaClinica
  */
-public class Paciente extends Persona {
+public class Paciente extends Base {
 
+    private String nombre;
+    private String apellido;
+    private String dni;
+    private LocalDate fechaNacimiento;
     private HistoriaClinica historiaClinica;
 
     /**
@@ -27,7 +32,11 @@ public class Paciente extends Persona {
      */
     public Paciente(int id, String nombre, String apellido, String dni,
             LocalDate fechaNacimiento, HistoriaClinica historiaClinica) {
-        super(id, nombre, apellido, dni, fechaNacimiento);
+        super(id);
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.dni = dni;
+        this.fechaNacimiento = fechaNacimiento;
         this.historiaClinica = historiaClinica;
     }
 
@@ -42,7 +51,10 @@ public class Paciente extends Persona {
      */
     public Paciente(String nombre, String apellido, String dni,
             LocalDate fechaNacimiento, HistoriaClinica historiaClinica) {
-        super(nombre, apellido, dni, fechaNacimiento);
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.dni = dni;
+        this.fechaNacimiento = fechaNacimiento;
         this.historiaClinica = historiaClinica;
     }
 
@@ -57,7 +69,11 @@ public class Paciente extends Persona {
      */
     public Paciente(int id, String nombre, String apellido, String dni,
             LocalDate fechaNacimiento) {
-        super(id, nombre, apellido, dni, fechaNacimiento);
+        super(id);
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.dni = dni;
+        this.fechaNacimiento = fechaNacimiento;
     }
 
     /**
@@ -70,7 +86,10 @@ public class Paciente extends Persona {
      */
     public Paciente(String nombre, String apellido, String dni,
             LocalDate fechaNacimiento) {
-        super(nombre, apellido, dni, fechaNacimiento);
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.dni = dni;
+        this.fechaNacimiento = fechaNacimiento;
     }
 
     /**
@@ -81,6 +100,56 @@ public class Paciente extends Persona {
     }
 
     // ============ GETTERS Y SETTERS ESPECÍFICOS DE PACIENTE ============
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        if (nombre == null || nombre.isBlank()) {
+            throw new IllegalArgumentException("El nombre no puede estar vacío");
+        }
+        this.nombre = nombre;
+    }
+
+    public String getApellido() {
+        return apellido;
+    }
+
+    public void setApellido(String apellido) {
+        if (apellido == null || apellido.isBlank()) {
+            throw new IllegalArgumentException("El apellido no puede estar vacío");
+        }
+        this.apellido = apellido;
+    }
+
+    public String getDni() {
+        return dni;
+    }
+
+    public void setDni(String dni) {
+        if (dni == null || dni.isBlank()) {
+            throw new IllegalArgumentException("El DNI no puede estar vacío");
+        }
+        if (!validarDni(dni)) {
+            throw new IllegalArgumentException("El DNI no es válido.");
+        }
+        this.dni = dni;
+    }
+
+    public LocalDate getFechaNacimiento() {
+        return fechaNacimiento;
+    }
+
+    public void setFechaNacimiento(LocalDate fechaNacimiento) {
+        if (fechaNacimiento == null) {
+            throw new IllegalArgumentException("La fecha de nacimiento no puede ser nula");
+        }
+        if (!validarFechaNacimiento(fechaNacimiento)) {
+            throw new IllegalArgumentException("La fecha de nacimiento no es válida.");
+        }
+        this.fechaNacimiento = fechaNacimiento;
+    }
+
     public HistoriaClinica getHistoriaClinica() {
         return historiaClinica;
     }
@@ -90,6 +159,30 @@ public class Paciente extends Persona {
     }
 
     // ============ OTROS MÉTODOS ============
+    /**
+     * Valida que el DNI sea un número con longitud entre 7 y 15 caracteres.
+     * 
+     * @param dni
+     * @return boolean
+     */
+    private boolean validarDni(String dni) {
+        String regex = "^[0-9]{7,15}$";
+        return dni.matches(regex);
+    }
+
+    /**
+     * Valida que la fecha de nacimiento sea posterior a 1900 y que no supere
+     * la fecha actual.
+     * 
+     * @param fechaNacimiento
+     * @return boolean
+     */
+    private boolean validarFechaNacimiento(LocalDate fechaNacimiento) {
+        return (fechaNacimiento.isBefore(LocalDate.now())
+                || fechaNacimiento.isEqual(LocalDate.now()))
+                && !fechaNacimiento.isAfter(LocalDate.of(1900, Month.JANUARY, 1));
+    }
+
     /**
      * Representación en String del objeto Paciente.
      *
@@ -102,7 +195,9 @@ public class Paciente extends Persona {
                 + ", nombre=" + getApellido() + ", " + getNombre()
                 + ", dni=" + getDni()
                 + ", fechaNacimiento=" + getFechaNacimiento()
-                + ", " + (historiaClinica != null ? historiaClinica.toString() : "Sin Historia Clínica")
+                + ", " + (historiaClinica != null
+                        ? historiaClinica.toString()
+                        : "Sin Historia Clínica")
                 + '}';
     }
 
