@@ -1,5 +1,8 @@
 package dao;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
 /**
  * Interfaz genérica para operaciones CRUD en la base de datos.
  * Proporciona métodos para guardar, buscar, actualizar y eliminar entidades.
@@ -67,6 +70,12 @@ public interface GenericDAO<T> {
      * @return iterable de entidades que coinciden con el filtro.
      * @throws Exception
      */
-    Iterable<T> buscarPorFiltro(String filter) throws Exception;
+    Iterable<T> searchByFilter(String filter) throws Exception;
+
+    T mapEntity(ResultSet rs) throws Exception;
+
+    void setEntityParameters(PreparedStatement stmt, T entity) throws Exception;
+
+    void setGeneratedId(PreparedStatement stmt, T entity) throws Exception;
 
 }

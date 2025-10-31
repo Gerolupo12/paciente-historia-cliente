@@ -15,27 +15,67 @@ import models.HistoriaClinica;
  */
 public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
 
+    private static final String INSERT_SQL = """
+                INSERT INTO HistoriaClinica
+                    (nro_historia, grupo_sanguineo_id, antecedentes,
+                    medicacion_actual, observaciones)
+                VALUES (?, ?, ?, ?, ?)
+            """;
+
+    private static final String UPDATE_SQL = """
+                UPDATE HistoriaClinica
+                SET nro_historia = ?, grupo_sanguineo_id = ?, antecedentes = ?,
+                    medicacion_actual = ?, observaciones = ?
+                WHERE id = ?
+            """;
+
+    private static final String DELETE_SQL = "UPDATE HistoriaClinica SET eliminado = TRUE WHERE id = ?";
+
+    private static final String SELECT_BY_ID_SQL = """
+                SELECT
+                    hc.*,
+                    gs.nombre_enum
+                FROM HistoriaClinica hc
+                LEFT JOIN GrupoSanguineo gs ON hc.grupo_sanguineo_id = gs.id
+                WHERE hc.id = ? AND hc.eliminado = FALSE
+            """;
+
+    private static final String SELECT_ALL_SQL = """
+                SELECT
+                    hc.*,
+                    gs.nombre_enum
+                FROM HistoriaClinica hc
+                LEFT JOIN GrupoSanguineo gs ON hc.grupo_sanguineo_id = gs.id
+                WHERE hc.eliminado = FALSE
+                ORDER BY hc.id
+            """;
+
+    private static final String RECOVER_SQL = "UPDATE HistoriaClinica SET eliminado = FALSE WHERE id = ?";
+
+    private static final String SEARCH_BY_FILTER_SQL = """
+                SELECT hc.*, gs.nombre_enum
+                FROM HistoriaClinica hc
+                LEFT JOIN GrupoSanguineo gs ON hc.grupo_sanguineo_id = gs.id
+                WHERE hc.eliminado = FALSE
+                    AND (
+                        LOWER(hc.nro_historia) LIKE LOWER(?)
+                        OR LOWER(hc.antecedentes) LIKE LOWER(?)
+                        OR LOWER(hc.medicacion_actual) LIKE LOWER(?)
+                        OR LOWER(hc.observaciones) LIKE LOWER(?)
+                    )
+                ORDER BY hc.nro_historia
+            """;
+
     @Override
     public void insert(HistoriaClinica hc) throws SQLException {
 
-        String sql = """
-                    INSERT INTO HistoriaClinica
-                        (nro_historia, grupo_sanguineo_id, antecedentes,
-                        medicacion_actual, observaciones)
-                    VALUES (?, ?, ?, ?, ?)
-                """;
-
         try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(
+                        INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
 
-            stmt.setString(1, hc.getNumeroHistoria());
-            stmt.setObject(2, hc.getGrupoSanguineo() != null
-                    ? getGrupoSanguineoId(hc.getGrupoSanguineo())
-                    : null, Types.INTEGER);
-            stmt.setString(3, hc.getAntecedentes());
-            stmt.setString(4, hc.getMedicacionActual());
-            stmt.setString(5, hc.getObservaciones());
+            setEntityParameters(stmt, hc);
             stmt.executeUpdate();
+            setGeneratedId(stmt, hc);
 
         } catch (SQLException e) {
             throw new SQLException("Error al insertar historia clínica: " + e.getMessage(), e);
@@ -45,25 +85,12 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
     @Override
     public void update(HistoriaClinica hc) throws SQLException {
 
-        String sql = """
-                    UPDATE HistoriaClinica
-                    SET nro_historia = ?, grupo_sanguineo_id = ?, antecedentes = ?,
-                        medicacion_actual = ?, observaciones = ?
-                    WHERE id = ?
-                """;
-
         try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(UPDATE_SQL)) {
 
-            stmt.setString(1, hc.getNumeroHistoria());
-            stmt.setObject(2, hc.getGrupoSanguineo() != null
-                    ? getGrupoSanguineoId(hc.getGrupoSanguineo())
-                    : null, Types.INTEGER);
-            stmt.setString(3, hc.getAntecedentes());
-            stmt.setString(4, hc.getMedicacionActual());
-            stmt.setString(5, hc.getObservaciones());
-            stmt.setInt(6, hc.getId());
+            setEntityParameters(stmt, hc);
             stmt.executeUpdate();
+            setGeneratedId(stmt, hc);
 
         } catch (SQLException e) {
             throw new SQLException("Error al actualizar historia clínica: " + e.getMessage(), e);
@@ -73,10 +100,8 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
     @Override
     public void delete(int id) throws SQLException {
 
-        String sql = "UPDATE HistoriaClinica SET eliminado = TRUE WHERE id = ?";
-
         try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(DELETE_SQL)) {
 
             stmt.setInt(1, id);
             stmt.executeUpdate();
@@ -87,40 +112,15 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
     }
 
     @Override
-    public void recover(int id) throws SQLException {
-
-        String sql = "UPDATE HistoriaClinica SET eliminado = FALSE WHERE id = ?";
-
-        try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new SQLException("Error al recuperar historia clínica: " + e.getMessage(), e);
-        }
-    }
-
-    @Override
     public HistoriaClinica selectById(int id) throws SQLException {
 
-        String sql = """
-                    SELECT
-                        hc.*,
-                        gs.nombre_enum
-                    FROM HistoriaClinica hc
-                    LEFT JOIN GrupoSanguineo gs ON hc.grupo_sanguineo_id = gs.id
-                    WHERE hc.id = ? AND hc.eliminado = FALSE
-                """;
-
         try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID_SQL)) {
 
             stmt.setInt(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return mapHistoriaClinica(rs);
+                    return mapEntity(rs);
                 }
             }
 
@@ -133,24 +133,14 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
     @Override
     public Iterable<HistoriaClinica> selectAll() throws SQLException {
 
-        String sql = """
-                    SELECT
-                        hc.*,
-                        gs.nombre_enum
-                    FROM HistoriaClinica hc
-                    LEFT JOIN GrupoSanguineo gs ON hc.grupo_sanguineo_id = gs.id
-                    WHERE hc.eliminado = FALSE
-                    ORDER BY hc.id
-                """;
-
         List<HistoriaClinica> historias = new ArrayList<>();
 
         try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql);
+                PreparedStatement stmt = conn.prepareStatement(SELECT_ALL_SQL);
                 ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                historias.add(mapHistoriaClinica(rs));
+                historias.add(mapEntity(rs));
             }
 
         } catch (SQLException e) {
@@ -160,26 +150,26 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
     }
 
     @Override
-    public Iterable<HistoriaClinica> buscarPorFiltro(String filter) throws SQLException {
+    public void recover(int id) throws SQLException {
 
-        String sql = """
-                    SELECT hc.*, gs.nombre_enum
-                    FROM HistoriaClinica hc
-                    LEFT JOIN GrupoSanguineo gs ON hc.grupo_sanguineo_id = gs.id
-                    WHERE hc.eliminado = FALSE
-                        AND (
-                            LOWER(hc.nro_historia) LIKE LOWER(?)
-                            OR LOWER(hc.antecedentes) LIKE LOWER(?)
-                            OR LOWER(hc.medicacion_actual) LIKE LOWER(?)
-                            OR LOWER(hc.observaciones) LIKE LOWER(?)
-                        )
-                    ORDER BY hc.nro_historia
-                """;
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(RECOVER_SQL)) {
+
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new SQLException("Error al recuperar historia clínica: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public Iterable<HistoriaClinica> searchByFilter(String filter) throws SQLException {
 
         List<HistoriaClinica> historias = new ArrayList<>();
 
         try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(SEARCH_BY_FILTER_SQL)) {
 
             String wildcard = "%" + filter.trim() + "%";
             for (int i = 1; i <= 4; i++) {
@@ -188,7 +178,7 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    historias.add(mapHistoriaClinica(rs));
+                    historias.add(mapEntity(rs));
                 }
             }
 
@@ -205,7 +195,8 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
      * @return Objeto HistoriaClinica mapeado.
      * @throws SQLException Si ocurre un error al acceder a los datos del ResultSet.
      */
-    private HistoriaClinica mapHistoriaClinica(ResultSet rs) throws SQLException {
+    @Override
+    public HistoriaClinica mapEntity(ResultSet rs) throws SQLException {
 
         GrupoSanguineo grupo = null;
         String nombreEnum = rs.getString("nombre_enum");
@@ -213,7 +204,7 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
             try {
                 grupo = GrupoSanguineo.valueOf(nombreEnum);
             } catch (IllegalArgumentException e) {
-                System.err.println("⚠️ Grupo sanguíneo inválido: " + nombreEnum);
+                System.err.println("Grupo sanguíneo inválido: " + nombreEnum);
             }
         }
 
@@ -246,6 +237,34 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
             }
         }
         return null;
+    }
+
+    @Override
+    public void setEntityParameters(PreparedStatement stmt, HistoriaClinica historia) throws SQLException {
+
+        HistoriaClinica hc = (HistoriaClinica) historia;
+        stmt.setString(1, hc.getNumeroHistoria());
+        stmt.setObject(2, hc.getGrupoSanguineo() != null
+                ? getGrupoSanguineoId(hc.getGrupoSanguineo())
+                : null, Types.INTEGER);
+        stmt.setString(3, hc.getAntecedentes());
+        stmt.setString(4, hc.getMedicacionActual());
+        stmt.setString(5, hc.getObservaciones());
+    }
+
+    @Override
+    public void setGeneratedId(PreparedStatement stmt, HistoriaClinica historia) throws SQLException {
+
+        try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+            if (generatedKeys.next()) {
+                historia.setId(generatedKeys.getInt(1));
+                System.out.println("Historia insertada con ID: " + historia.getId());
+            } else {
+                throw new SQLException("La inserción de la historia falló! No se pudo obtener el ID generado");
+            }
+        } catch (SQLException e) {
+            throw e;
+        }
     }
 
 }
