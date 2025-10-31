@@ -6,220 +6,143 @@ import java.util.ArrayList;
 import java.util.List;
 import models.GrupoSanguineo;
 import models.HistoriaClinica;
-import models.Profesional;
 
 /**
- * DAO específico para la entidad HistoriaClinica.
- * Implementa las operaciones CRUD utilizando la interfaz GenericDAO.
+ * Implementación DAO para la entidad HistoriaClinica.
+ * Gestiona operaciones CRUD sobre la tabla HistoriaClinica.
  * 
  * @author alpha team
  */
 public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
 
     @Override
-    public void insert(HistoriaClinica historia) throws Exception {
+    public void insert(HistoriaClinica hc) throws SQLException {
 
         String sql = """
-                    INSERT INTO HistoriaClinica (numero_historia,
-                        grupo_sanguineo, antecedentes, medicacion_actual,
-                        observaciones, profesional_id)
-                    VALUES (?, ?, ?, ?, ?, ?)
+                    INSERT INTO HistoriaClinica
+                        (nro_historia, grupo_sanguineo_id, antecedentes,
+                        medicacion_actual, observaciones)
+                    VALUES (?, ?, ?, ?, ?)
                 """;
 
         try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(
-                        sql, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, historia.getNumeroHistoria());
-
-            GrupoSanguineo gs = historia.getGrupoSanguineo();
-            if (gs != null && gs.getDbId() > 0) {
-                // Guarda el ID numérico asociado al enum
-                stmt.setInt(2, gs.getDbId());
-            } else {
-                stmt.setNull(2, Types.INTEGER);
-            }
-
-            stmt.setString(3, historia.getAntecedentes());
-            stmt.setString(4, historia.getMedicacionActual());
-            stmt.setString(5, historia.getObservaciones());
-
-            Profesional prof = historia.getProfesional();
-            if (prof != null && prof.getId() > 0) {
-                // Guarda el ID numérico asociado al profesional
-                stmt.setInt(6, prof.getId());
-            } else {
-                stmt.setNull(6, Types.INTEGER);
-            }
-
+            stmt.setString(1, hc.getNumeroHistoria());
+            stmt.setObject(2, hc.getGrupoSanguineo() != null
+                    ? getGrupoSanguineoId(hc.getGrupoSanguineo())
+                    : null, Types.INTEGER);
+            stmt.setString(3, hc.getAntecedentes());
+            stmt.setString(4, hc.getMedicacionActual());
+            stmt.setString(5, hc.getObservaciones());
             stmt.executeUpdate();
 
-            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    historia.setId(generatedKeys.getInt(1));
-                    System.out.println("Historia Clínica insertada con ID: " + historia.getId());
-                } else {
-                    throw new SQLException(
-                            "La inserción de la Historia Clínica falló! No se pudo obtener el ID generado");
-                }
-            }
         } catch (SQLException e) {
-            throw e;
+            throw new SQLException("Error al insertar historia clínica: " + e.getMessage(), e);
         }
     }
 
     @Override
-    public void update(HistoriaClinica historia) throws Exception {
+    public void update(HistoriaClinica hc) throws SQLException {
 
         String sql = """
                     UPDATE HistoriaClinica
-                    SET numero_historia = ?, grupo_sanguineo = ?, antecedentes = ?,
-                    medicacion_actual = ?, observaciones = ?, profesional_id = ?
+                    SET nro_historia = ?, grupo_sanguineo_id = ?, antecedentes = ?,
+                        medicacion_actual = ?, observaciones = ?
                     WHERE id = ?
                 """;
 
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, historia.getNumeroHistoria());
-
-            GrupoSanguineo gs = historia.getGrupoSanguineo();
-            if (gs != null && gs.getDbId() > 0) {
-                stmt.setInt(2, gs.getDbId());
-            } else {
-                stmt.setNull(2, Types.INTEGER);
-            }
-
-            stmt.setString(3, historia.getAntecedentes());
-            stmt.setString(4, historia.getMedicacionActual());
-            stmt.setString(5, historia.getObservaciones());
-
-            Profesional prof = historia.getProfesional();
-            if (prof != null && prof.getId() > 0) {
-                stmt.setInt(6, prof.getId());
-            } else {
-                stmt.setNull(6, Types.INTEGER);
-            }
-
-            stmt.setInt(7, historia.getId());
-
+            stmt.setString(1, hc.getNumeroHistoria());
+            stmt.setObject(2, hc.getGrupoSanguineo() != null
+                    ? getGrupoSanguineoId(hc.getGrupoSanguineo())
+                    : null, Types.INTEGER);
+            stmt.setString(3, hc.getAntecedentes());
+            stmt.setString(4, hc.getMedicacionActual());
+            stmt.setString(5, hc.getObservaciones());
+            stmt.setInt(6, hc.getId());
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            System.err.println("Error al actualizar la Historia Clínica: " + e.getMessage());
-            throw new SQLException("Error al actualizar la historia clínica en la base de datos.", e);
-        } catch (Exception e) {
-            System.err.println("Error inesperado al actualizar la Historia Clínica: " + e.getMessage());
-            throw e;
+            throw new SQLException("Error al actualizar historia clínica: " + e.getMessage(), e);
         }
     }
 
     @Override
-    public void delete(int id) throws Exception {
+    public void delete(int id) throws SQLException {
 
         String sql = "UPDATE HistoriaClinica SET eliminado = TRUE WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, id);
             stmt.executeUpdate();
+
         } catch (SQLException e) {
-            throw new SQLException("No se pudo marcar como eliminada la historia clínica con ID " + id);
+            throw new SQLException("Error al eliminar historia clínica: " + e.getMessage(), e);
         }
     }
 
     @Override
-    public HistoriaClinica selectById(int id) throws Exception {
+    public void recover(int id) throws SQLException {
 
-        // String sql = "SELECT * FROM HistoriaClinica WHERE id = ? AND eliminado =
-        // FALSE";
+        String sql = "UPDATE HistoriaClinica SET eliminado = FALSE WHERE id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new SQLException("Error al recuperar historia clínica: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public HistoriaClinica selectById(int id) throws SQLException {
+
         String sql = """
                     SELECT
-                        hc.id AS id_historia,
-                        hc.nro_historia,
-                        hc.antecedentes,
-                        hc.medicacion_actual,
-                        hc.observaciones,
-                        gs.simbolo AS grupo_sanguineo,
-                        CONCAT (p.apellido, ', ', p.nombre) AS profesional_asignado,
-                        pr.matricula,
-                        pr.especialidad
+                        hc.*,
+                        gs.nombre_enum
                     FROM HistoriaClinica hc
-                    LEFT JOIN GrupoSanguineo gs
-                        ON hc.grupo_sanguineo_id = gs.id
-                    LEFT JOIN Profesional pr
-                        ON hc.profesional_id = pr.id
-                    LEFT JOIN Persona p
-                        ON pr.persona_id = p.id
-                    WHERE hc.id = ? AND hc.eliminado = FALSE;
+                    LEFT JOIN GrupoSanguineo gs ON hc.grupo_sanguineo_id = gs.id
+                    WHERE hc.id = ? AND hc.eliminado = FALSE
                 """;
 
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
-
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    HistoriaClinica historia = new HistoriaClinica();
-                    historia.setId(rs.getInt("id"));
-                    historia.setNumeroHistoria(rs.getString("numero_historia"));
-
-                    // Obtener GrupoSanguineo
-                    int grupoSanguineoId = rs.getInt("grupo_sanguineo");
-                    if (!rs.wasNull()) {
-                        for (GrupoSanguineo gs : GrupoSanguineo.values()) {
-                            if (gs.getDbId() == grupoSanguineoId) {
-                                historia.setGrupoSanguineo(gs);
-                                break;
-                            }
-                        }
-                    }
-
-                    historia.setAntecedentes(rs.getString("antecedentes"));
-                    historia.setMedicacionActual(rs.getString("medicacion_actual"));
-                    historia.setObservaciones(rs.getString("observaciones"));
-
-                    // Obtener Profesional
-                    int profesionalId = rs.getInt("profesional_id");
-                    if (!rs.wasNull()) {
-                        ProfesionalDAO profesionalDAO = new ProfesionalDAO();
-                        Profesional profesional = profesionalDAO.selectById(profesionalId);
-                        historia.setProfesional(profesional);
-                    }
-                    return historia;
+                    return mapHistoriaClinica(rs);
                 }
             }
+
         } catch (SQLException e) {
-            throw new SQLException("Error al seleccionar historia clínica por ID: " + e.getMessage(), e);
+            throw new SQLException("Error al obtener historia clínica por ID: " + e.getMessage(), e);
         }
         return null;
     }
 
     @Override
-    public Iterable<HistoriaClinica> selectAll() throws Exception {
+    public Iterable<HistoriaClinica> selectAll() throws SQLException {
 
-        // String sql = "SELECT * FROM HistoriaClinica WHERE eliminado = FALSE";
         String sql = """
                     SELECT
-                        hc.id AS id_historia,
-                        hc.nro_historia,
-                        hc.antecedentes,
-                        hc.medicacion_actual,
-                        hc.observaciones,
-                        gs.simbolo AS grupo_sanguineo,
-                        CONCAT (p.apellido, ', ', p.nombre) AS profesional_asignado,
-                        pr.matricula,
-                        pr.especialidad
+                        hc.*,
+                        gs.nombre_enum
                     FROM HistoriaClinica hc
-                    LEFT JOIN GrupoSanguineo gs
-                        ON hc.grupo_sanguineo_id = gs.id
-                    LEFT JOIN Profesional pr
-                        ON hc.profesional_id = pr.id
-                    LEFT JOIN Persona p
-                        ON pr.persona_id = p.id
-                    WHERE hc.eliminado = FALSE;
+                    LEFT JOIN GrupoSanguineo gs ON hc.grupo_sanguineo_id = gs.id
+                    WHERE hc.eliminado = FALSE
+                    ORDER BY hc.id
                 """;
+
         List<HistoriaClinica> historias = new ArrayList<>();
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -227,109 +150,102 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
                 ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                HistoriaClinica historia = new HistoriaClinica();
-                historia.setId(rs.getInt("id"));
-                historia.setNumeroHistoria(rs.getString("numero_historia"));
-
-                // Obtener GrupoSanguineo
-                int grupoSanguineoId = rs.getInt("grupo_sanguineo");
-                if (!rs.wasNull()) {
-                    for (GrupoSanguineo gs : GrupoSanguineo.values()) {
-                        if (gs.getDbId() == grupoSanguineoId) {
-                            historia.setGrupoSanguineo(gs);
-                            break;
-                        }
-                    }
-                }
-
-                historia.setAntecedentes(rs.getString("antecedentes"));
-                historia.setMedicacionActual(rs.getString("medicacion_actual"));
-                historia.setObservaciones(rs.getString("observaciones"));
-
-                // Obtener Profesional
-                int profesionalId = rs.getInt("profesional_id");
-                if (!rs.wasNull()) {
-                    ProfesionalDAO profesionalDAO = new ProfesionalDAO();
-                    Profesional profesional = profesionalDAO.selectById(profesionalId);
-                    historia.setProfesional(profesional);
-                }
-                historias.add(historia);
+                historias.add(mapHistoriaClinica(rs));
             }
+
         } catch (SQLException e) {
-            throw new SQLException("Error al seleccionar todas las historias clínicas: " + e.getMessage(), e);
+            throw new SQLException("Error al obtener todas las historias clínicas: " + e.getMessage(), e);
         }
         return historias;
     }
 
     @Override
-    public void recover(int id) throws Exception {
-
-        String sql = "UPDATE HistoriaClinica SET eliminado = FALSE WHERE id = ?";
-
-        try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new SQLException("No se pudo recuperar la historia clínica con ID " + id);
-        }
-    }
-
-    public List<HistoriaClinica> buscarPorAntecedenteMedicacionObservacion(String filtro) throws SQLException {
+    public Iterable<HistoriaClinica> buscarPorFiltro(String filter) throws SQLException {
 
         String sql = """
-                    SELECT
-                        id, numero_historia, grupo_sanguineo, antecedentes,
-                        medicacion_actual, observaciones, profesional_id
-                    FROM HistoriaClinica
-                    WHERE eliminado = FALSE
-                    AND (antecedentes LIKE ? OR medicacion_actual LIKE ? OR observaciones LIKE ?)
+                    SELECT hc.*, gs.nombre_enum
+                    FROM HistoriaClinica hc
+                    LEFT JOIN GrupoSanguineo gs ON hc.grupo_sanguineo_id = gs.id
+                    WHERE hc.eliminado = FALSE
+                        AND (
+                            LOWER(hc.nro_historia) LIKE LOWER(?)
+                            OR LOWER(hc.antecedentes) LIKE LOWER(?)
+                            OR LOWER(hc.medicacion_actual) LIKE LOWER(?)
+                            OR LOWER(hc.observaciones) LIKE LOWER(?)
+                        )
+                    ORDER BY hc.nro_historia
                 """;
+
         List<HistoriaClinica> historias = new ArrayList<>();
 
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, "%" + filtro + "%");
-            stmt.setString(2, "%" + filtro + "%");
-            stmt.setString(3, "%" + filtro + "%");
-
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                HistoriaClinica historia = new HistoriaClinica();
-                historia.setId(rs.getInt("id"));
-                historia.setNumeroHistoria(rs.getString("numero_historia"));
-
-                // Obtener GrupoSanguineo
-                int grupoSanguineoId = rs.getInt("grupo_sanguineo");
-                if (!rs.wasNull()) {
-                    for (GrupoSanguineo gs : GrupoSanguineo.values()) {
-                        if (gs.getDbId() == grupoSanguineoId) {
-                            historia.setGrupoSanguineo(gs);
-                            break;
-                        }
-                    }
-                }
-
-                historia.setAntecedentes(rs.getString("antecedentes"));
-                historia.setMedicacionActual(rs.getString("medicacion_actual"));
-                historia.setObservaciones(rs.getString("observaciones"));
-
-                // Obtener Profesional
-                int profesionalId = rs.getInt("profesional_id");
-                if (!rs.wasNull()) {
-                    ProfesionalDAO profesionalDAO = new ProfesionalDAO();
-                    Profesional profesional = profesionalDAO.selectById(profesionalId);
-                    historia.setProfesional(profesional);
-                }
-                historias.add(historia);
+            String wildcard = "%" + filter.trim() + "%";
+            for (int i = 1; i <= 4; i++) {
+                stmt.setString(i, wildcard);
             }
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    historias.add(mapHistoriaClinica(rs));
+                }
+            }
+
         } catch (SQLException e) {
-            throw new SQLException(
-                    "Error al buscar historias clínicas por antecedente, medicación u observación: " + e.getMessage(),
-                    e);
+            throw new SQLException("Error al buscar historias clínicas: " + e.getMessage(), e);
         }
         return historias;
+    }
+
+    /**
+     * Convierte un ResultSet en un objeto HistoriaClinica.
+     * 
+     * @param rs ResultSet con los datos de la historia clínica.
+     * @return Objeto HistoriaClinica mapeado.
+     * @throws SQLException Si ocurre un error al acceder a los datos del ResultSet.
+     */
+    private HistoriaClinica mapHistoriaClinica(ResultSet rs) throws SQLException {
+
+        GrupoSanguineo grupo = null;
+        String nombreEnum = rs.getString("nombre_enum");
+        if (nombreEnum != null) {
+            try {
+                grupo = GrupoSanguineo.valueOf(nombreEnum);
+            } catch (IllegalArgumentException e) {
+                System.err.println("⚠️ Grupo sanguíneo inválido: " + nombreEnum);
+            }
+        }
+
+        return new HistoriaClinica(
+                rs.getInt("id"),
+                rs.getString("nro_historia"),
+                grupo,
+                rs.getString("antecedentes"),
+                rs.getString("medicacion_actual"),
+                rs.getString("observaciones"));
+    }
+
+    /**
+     * Obtiene el ID del grupo sanguíneo en base a su nombre_enum.
+     * 
+     * @param grupo Grupo sanguíneo
+     * @return ID del grupo sanguíneo o null si no se encuentra
+     */
+    private Integer getGrupoSanguineoId(GrupoSanguineo grupo) throws SQLException {
+
+        String sql = "SELECT id FROM GrupoSanguineo WHERE nombre_enum = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, grupo.name());
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id");
+                }
+            }
+        }
+        return null;
     }
 
 }
