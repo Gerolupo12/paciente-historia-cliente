@@ -1,5 +1,7 @@
 package service;
 
+import java.util.List;
+
 /**
  * Interfaz genérica para servicios de negocio.
  * Define las operaciones CRUD básicas que las implementaciones concretas deben
@@ -49,7 +51,7 @@ public interface GenericService<T> {
      * @return iterable de entidades.
      * @throws Exception
      */
-    Iterable<T> selectAll() throws Exception;
+    List<T> selectAll(boolean deleted) throws Exception;
 
     /**
      * Recupera una entidad eliminada lógicamente por su ID.
@@ -66,7 +68,7 @@ public interface GenericService<T> {
      * @return iterable de entidades que coinciden con el filtro.
      * @throws Exception
      */
-    Iterable<T> searchByFilter(String filter) throws Exception;
+    List<T> searchByFilter(String filter) throws Exception;
 
     /**
      * Valida una entidad antes de operaciones CRUD.

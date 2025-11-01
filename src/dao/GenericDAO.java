@@ -2,6 +2,7 @@ package dao;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.List;
 
 /**
  * Interfaz genérica para operaciones CRUD en la base de datos.
@@ -53,7 +54,7 @@ public interface GenericDAO<T> {
      * @return iterable de entidades.
      * @throws Exception
      */
-    Iterable<T> selectAll() throws Exception;
+    List<T> selectAll(boolean deleted) throws Exception;
 
     /**
      * Recupera una entidad eliminada lógicamente por su ID.
@@ -70,7 +71,7 @@ public interface GenericDAO<T> {
      * @return iterable de entidades que coinciden con el filtro.
      * @throws Exception
      */
-    Iterable<T> searchByFilter(String filter) throws Exception;
+    List<T> searchByFilter(String filter) throws Exception;
 
     /**
      * Mapea un `ResultSet` a un objeto de entidad.

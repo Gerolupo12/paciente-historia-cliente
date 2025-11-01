@@ -51,7 +51,7 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
                     gs.nombre_enum
                 FROM HistoriaClinica hc
                 LEFT JOIN GrupoSanguineo gs ON hc.grupo_sanguineo_id = gs.id
-                WHERE hc.eliminado = FALSE
+                WHERE hc.eliminado = ?
                 ORDER BY hc.id
             """;
 
@@ -71,6 +71,7 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
                         OR LOWER(hc.antecedentes) LIKE LOWER(?)
                         OR LOWER(hc.medicacion_actual) LIKE LOWER(?)
                         OR LOWER(hc.observaciones) LIKE LOWER(?)
+                        OR LOWER(gs.nombre_enum) LIKE LOWER(?)
                     )
                 ORDER BY hc.nro_historia
             """;
@@ -119,8 +120,9 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
                 PreparedStatement stmt = conn.prepareStatement(UPDATE_SQL)) {
 
             setEntityParameters(stmt, hc);
+            stmt.setInt(6, hc.getId());
+
             stmt.executeUpdate();
-            setGeneratedId(stmt, hc);
 
         } catch (SQLException e) {
             throw new SQLException("Error al actualizar historia clínica: " + e.getMessage(), e);
@@ -176,20 +178,25 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
     /**
      * Selecciona todas las historias clínicas de la base de datos.
      * 
-     * @return Iterable de todas las historias clínicas.
+     * @return Lista de todas las historias clínicas.
      * @throws SQLException Si ocurre un error durante la operación.
      */
     @Override
-    public Iterable<HistoriaClinica> selectAll() throws SQLException {
+    public List<HistoriaClinica> selectAll(boolean deleted) throws SQLException {
 
         List<HistoriaClinica> historias = new ArrayList<>();
 
         try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(SELECT_ALL_SQL);
-                ResultSet rs = stmt.executeQuery()) {
+                PreparedStatement stmt = conn.prepareStatement(SELECT_ALL_SQL)) {
 
-            while (rs.next()) {
-                historias.add(mapEntity(rs));
+            stmt.setBoolean(1, deleted);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    historias.add(mapEntity(rs));
+                }
+            } catch (SQLException e) {
+                throw new SQLException("Error al mapear historias clínicas: " + e.getMessage(), e);
             }
 
         } catch (SQLException e) {
@@ -222,19 +229,30 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
      * Busca historias clínicas que coincidan con un filtro en sus atributos.
      * 
      * @param filter Filtro de búsqueda.
-     * @return Iterable de historias clínicas que coinciden con el filtro.
+     * @return Lista de historias clínicas que coinciden con el filtro.
      * @throws SQLException Si ocurre un error durante la operación.
      */
     @Override
-    public Iterable<HistoriaClinica> searchByFilter(String filter) throws SQLException {
+    public List<HistoriaClinica> searchByFilter(String filter) throws SQLException {
 
         List<HistoriaClinica> historias = new ArrayList<>();
 
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(SEARCH_BY_FILTER_SQL)) {
 
-            String wildcard = "%" + filter.trim() + "%";
-            for (int i = 1; i <= 4; i++) {
+            String cleanFilter = filter.trim().toUpperCase();
+
+            if (cleanFilter.endsWith("+")) {
+
+                cleanFilter = cleanFilter.substring(0, cleanFilter.length() - 1) + "_PLUS";
+
+            } else if (cleanFilter.endsWith("-")) {
+
+                cleanFilter = cleanFilter.substring(0, cleanFilter.length() - 1) + "_MINUS";
+            }
+
+            String wildcard = "%" + cleanFilter + "%";
+            for (int i = 1; i <= 5; i++) {
                 stmt.setString(i, wildcard);
             }
 

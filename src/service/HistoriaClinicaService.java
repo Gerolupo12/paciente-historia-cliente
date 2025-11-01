@@ -1,6 +1,7 @@
 package service;
 
 import dao.GenericDAO;
+import java.util.List;
 import models.HistoriaClinica;
 
 public class HistoriaClinicaService implements GenericService<HistoriaClinica> {
@@ -68,7 +69,7 @@ public class HistoriaClinicaService implements GenericService<HistoriaClinica> {
         }
 
         try {
-            System.out.println("Obteniendo historia clinica con ID: " + id);
+            System.out.println("\nObteniendo historia clinica con ID: " + id);
             return historiaClinicaDAO.selectById(id);
         } catch (Exception e) {
             throw new RuntimeException("Error al obtener la historia clínica por ID: " + e.getMessage(), e);
@@ -76,11 +77,18 @@ public class HistoriaClinicaService implements GenericService<HistoriaClinica> {
     }
 
     @Override
-    public Iterable<HistoriaClinica> selectAll() throws Exception {
+    public List<HistoriaClinica> selectAll(boolean deleted) throws Exception {
 
         try {
-            System.out.println("Obteniendo todas las historias clínicas...");
-            return historiaClinicaDAO.selectAll();
+            List<HistoriaClinica> historiasClinicas = historiaClinicaDAO.selectAll(deleted);
+
+            String tipo = deleted ? "eliminadas" : "activas";
+
+            System.out.println("\n=========================================");
+            System.out.println(historiasClinicas.size() + " Historia Clínicas " + tipo + " encontradas.");
+            System.out.println("=========================================");
+
+            return historiasClinicas;
         } catch (Exception e) {
             throw new RuntimeException("Error al obtener todas las historias clínicas: " + e.getMessage(), e);
         }
@@ -102,18 +110,23 @@ public class HistoriaClinicaService implements GenericService<HistoriaClinica> {
     }
 
     @Override
-    public Iterable<HistoriaClinica> searchByFilter(String filter) throws Exception {
+    public List<HistoriaClinica> searchByFilter(String filter) throws Exception {
 
         if (filter == null || filter.trim().isEmpty()) {
             throw new IllegalArgumentException("El filtro de búsqueda no puede estar vacío");
         }
 
         try {
-            System.out.println("Buscando historias clínicas por filtro: " + filter);
-            return historiaClinicaDAO.searchByFilter(filter);
+            List<HistoriaClinica> historiasClinicas = historiaClinicaDAO.searchByFilter(filter);
+
+            System.out.println("\n=========================================");
+            System.out.println(historiasClinicas.size() + " Historia Clínicas encontrados.");
+            System.out.println("=========================================");
+
+            return historiasClinicas;
         } catch (Exception e) {
             throw new RuntimeException(
-                    "Error al buscar historias clínicas por Grupo Sanguíneo, Antecedentes Medicación Actual u Observaciones: "
+                    "Error al buscar historias clínicas por Grupo Sanguíneo, Antecedentes, Medicación Actual u Observaciones: "
                             + e.getMessage(),
                     e);
         }

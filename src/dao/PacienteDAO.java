@@ -73,7 +73,7 @@ public class PacienteDAO implements GenericDAO<Paciente> {
                 FROM Paciente p
                 LEFT JOIN HistoriaClinica hc ON p.historia_clinica_id = hc.id
                 LEFT JOIN GrupoSanguineo gs ON hc.grupo_sanguineo_id = gs.id
-                WHERE p.eliminado = FALSE
+                WHERE p.eliminado = ?
                 ORDER BY p.apellido, p.nombre
             """;
 
@@ -103,7 +103,6 @@ public class PacienteDAO implements GenericDAO<Paciente> {
                 AND (
                     LOWER(p.nombre) LIKE LOWER(?)
                     OR LOWER(p.apellido) LIKE LOWER(?)
-                    OR p.dni LIKE ?
                 )
                 ORDER BY p.apellido, p.nombre
             """;
@@ -175,8 +174,9 @@ public class PacienteDAO implements GenericDAO<Paciente> {
                 PreparedStatement stmt = conn.prepareStatement(UPDATE_SQL)) {
 
             setEntityParameters(stmt, paciente);
+            stmt.setInt(6, paciente.getId());
+
             stmt.executeUpdate();
-            setGeneratedId(stmt, paciente);
 
         } catch (SQLException e) {
             System.err.println("Error al actualizar el paciente: " + e.getMessage());
@@ -235,24 +235,76 @@ public class PacienteDAO implements GenericDAO<Paciente> {
     /**
      * Selecciona todos los pacientes de la base de datos.
      * 
-     * @return Iterable de todos los pacientes.
+     * @return Lista de todos los pacientes.
      * @throws SQLException Si ocurre un error durante la operación.
      */
     @Override
-    public Iterable<Paciente> selectAll() throws SQLException {
+    public List<Paciente> selectAll(boolean deleted) throws SQLException {
 
         List<Paciente> pacientes = new ArrayList<>();
 
         try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(SELECT_ALL_SQL);
-                ResultSet rs = stmt.executeQuery(SELECT_ALL_SQL)) {
+                PreparedStatement stmt = conn.prepareStatement(SELECT_ALL_SQL)) {
 
-            while (rs.next()) {
-                pacientes.add(mapEntity(rs));
+            stmt.setBoolean(1, deleted);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    pacientes.add(mapEntity(rs));
+                }
+            } catch (SQLException e) {
+                throw new SQLException("Error al mapear pacientes: " + e.getMessage(), e);
             }
 
         } catch (SQLException e) {
             throw new SQLException("Error al seleccionar todos los pacientes: " + e.getMessage(), e);
+        }
+        return pacientes;
+    }
+
+    /**
+     * Recupera (deshace el eliminado lógico) un paciente de la base de datos.
+     * 
+     * @param id ID del paciente a recuperar.
+     * @throws SQLException Si ocurre un error durante la operación.
+     */
+    @Override
+    public void recover(int id) throws SQLException {
+
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(RECOVER_SQL)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new SQLException("No se pudo recuperar el paciente con ID " + id);
+        }
+    }
+
+    /**
+     * Busca pacientes que coincidan con un filtro en su nombre, apellido o DNI.
+     * 
+     * @param filter filtro de búsqueda.
+     * @return Lista de pacientes que coinciden con el filtro.
+     * @throws SQLException Si ocurre un error durante la operación.
+     */
+    @Override
+    public List<Paciente> searchByFilter(String filter) throws Exception {
+
+        List<Paciente> pacientes = new ArrayList<>();
+
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(SEARCH_BY_FILTER_SQL)) {
+            String wildcard = "%" + filter.trim() + "%";
+            stmt.setString(1, wildcard);
+            stmt.setString(2, wildcard);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    pacientes.add(mapEntity(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Error al buscar pacientes por nombre o apellido: " + e.getMessage(), e);
         }
         return pacientes;
     }
@@ -280,54 +332,6 @@ public class PacienteDAO implements GenericDAO<Paciente> {
             throw new SQLException("Error al seleccionar paciente por DNI: " + e.getMessage(), e);
         }
         return null;
-    }
-
-    /**
-     * Recupera (deshace el eliminado lógico) un paciente de la base de datos.
-     * 
-     * @param id ID del paciente a recuperar.
-     * @throws SQLException Si ocurre un error durante la operación.
-     */
-    @Override
-    public void recover(int id) throws SQLException {
-
-        try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(RECOVER_SQL)) {
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new SQLException("No se pudo recuperar el paciente con ID " + id);
-        }
-    }
-
-    /**
-     * Busca pacientes que coincidan con un filtro en su nombre, apellido o DNI.
-     * 
-     * @param filter filtro de búsqueda.
-     * @return iterable de pacientes que coinciden con el filtro.
-     * @throws SQLException Si ocurre un error durante la operación.
-     */
-    @Override
-    public Iterable<Paciente> searchByFilter(String filter) throws Exception {
-
-        List<Paciente> pacientes = new ArrayList<>();
-
-        try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(SEARCH_BY_FILTER_SQL)) {
-            String wildcard = "%" + filter.trim() + "%";
-            stmt.setString(1, wildcard);
-            stmt.setString(2, wildcard);
-            stmt.setString(3, wildcard);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    pacientes.add(mapEntity(rs));
-                }
-            }
-        } catch (SQLException e) {
-            throw new SQLException("Error al buscar pacientes por nombre, apellido o DNI: " + e.getMessage(), e);
-        }
-        return pacientes;
     }
 
     /**

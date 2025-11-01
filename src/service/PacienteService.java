@@ -1,6 +1,7 @@
 package service;
 
 import dao.PacienteDAO;
+import java.util.List;
 import models.Paciente;
 
 /**
@@ -115,8 +116,22 @@ public class PacienteService implements GenericService<Paciente> {
         }
 
         try {
+            Paciente paciente = pacienteDAO.selectById(id);
+
+            if (paciente == null) {
+                System.out.println("Paciente con ID " + id + " no encontrado (o ya estaba eliminado).");
+                return;
+            }
+
+            if (paciente.getHistoriaClinica() != null) {
+                int historiaId = paciente.getHistoriaClinica().getId();
+                System.out.println("Eliminando historia clínica asociada con ID: " + historiaId);
+                historiaClinicaService.delete(historiaId);
+            }
+
             System.out.println("Eliminando paciente con ID: " + id);
             pacienteDAO.delete(id);
+
         } catch (RuntimeException e) {
             throw new RuntimeException("Error al eliminar el paciente: " + e.getMessage(), e);
         }
@@ -137,7 +152,7 @@ public class PacienteService implements GenericService<Paciente> {
         }
 
         try {
-            System.out.println("Obteniendo paciente con ID: " + id);
+            System.out.println("\nObteniendo paciente con ID: " + id);
             return pacienteDAO.selectById(id);
         } catch (RuntimeException e) {
             throw new RuntimeException("Error al obtener el paciente por ID: " + e.getMessage(), e);
@@ -147,15 +162,22 @@ public class PacienteService implements GenericService<Paciente> {
     /**
      * Obtiene todos los pacientes de la base de datos.
      *
-     * @return Un iterable de objetos Paciente.
+     * @return Lista de todos los pacientes.
      * @throws Exception Si ocurre un error durante la obtención de los pacientes.
      */
     @Override
-    public Iterable<Paciente> selectAll() throws Exception {
+    public List<Paciente> selectAll(boolean deleted) throws Exception {
 
         try {
-            System.out.println("Obteniendo todos los pacientes...");
-            return pacienteDAO.selectAll();
+            List<Paciente> pacientes = pacienteDAO.selectAll(deleted);
+            String tipo = deleted ? "eliminados" : "activos";
+
+            System.out.println("\n=========================================");
+            System.out.println(pacientes.size() + " pacientes " + tipo + " encontrados.");
+            System.out.println("=========================================");
+
+            return pacientes;
+
         } catch (RuntimeException e) {
             throw new RuntimeException("Error al obtener todos los pacientes: " + e.getMessage(), e);
         }
@@ -187,21 +209,53 @@ public class PacienteService implements GenericService<Paciente> {
      * apellido o DNI).
      *
      * @param filter Cadena de texto para filtrar.
-     * @return Iterable de pacientes que coinciden con el filtro.
+     * @return Lista de pacientes que coinciden con el filtro.
      * @throws Exception Si ocurre un error durante la búsqueda.
      */
     @Override
-    public Iterable<Paciente> searchByFilter(String filter) throws Exception {
+    public List<Paciente> searchByFilter(String filter) throws Exception {
 
         if (filter == null || filter.trim().isEmpty()) {
             throw new IllegalArgumentException("El filtro de búsqueda no puede estar vacío");
         }
 
         try {
-            System.out.println("Buscando pacientes por filtro: " + filter);
-            return pacienteDAO.searchByFilter(filter);
+            List<Paciente> pacientes = pacienteDAO.searchByFilter(filter);
+
+            System.out.println("\n=========================================");
+            System.out.println(pacientes.size() + " pacientes encontrados por filtro: " + filter);
+            System.out.println("=========================================");
+
+            return pacientes;
+
         } catch (RuntimeException e) {
-            throw new RuntimeException("Error al buscar pacientes por nombre, apellido o DNI: " + e.getMessage(), e);
+            throw new RuntimeException("Error al buscar pacientes por nombre o apellido: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Busca un paciente por su DNI.
+     * 
+     * @param dni DNI del paciente.
+     * @return Paciente encontrado o null si no existe.
+     * @throws Exception
+     */
+    public Paciente selectByDni(String dni) throws Exception {
+
+        if (dni == null || dni.trim().isEmpty()) {
+            throw new IllegalArgumentException("El DNI no puede ser nulo o vacío.");
+        }
+
+        try {
+
+            System.out.println("\n=========================================");
+            System.out.println("Obteniendo paciente con DNI: " + dni);
+            System.out.println("=========================================");
+
+            return pacienteDAO.selectByDni(dni);
+
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Error al obtener el paciente por DNI: " + e.getMessage(), e);
         }
     }
 

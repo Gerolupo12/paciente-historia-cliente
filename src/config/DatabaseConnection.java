@@ -16,24 +16,28 @@ import java.util.Properties;
 public class DatabaseConnection {
 
     private static final Properties PROPS = new Properties();
-    // *** Bloque estático para cargar el controlador ***
-    // Este bloque se ejecuta solo UNA VEZ cuando la clase se carga en la memoria.
+    private static boolean debug = false;
+
     static {
         try (InputStream input = DatabaseConnection.class.getClassLoader()
                 .getResourceAsStream("db.properties")) {
+
             if (input == null) {
                 System.err.println("❌ ERROR: archivo db.properties no encontrado en la ruta de clase.");
                 // Forzar salida para evitar el uso de credenciales en blanco
                 throw new RuntimeException("¡Archivo de configuración de la BD no encontrado!");
             }
+
             // Cargar las propiedades
             PROPS.load(input);
+
             // Paso 1: Cargar la clase del Controlador JDBC de MySQL.
             Class.forName(PROPS.getProperty("db.driverClass"));
-            System.out.println("✅ El Controlador JDBC de MySQL fué registrado correctamente!");
+            log("✅ El Controlador JDBC de MySQL fué registrado correctamente!");
+
         } catch (IOException | ClassNotFoundException e) {
             // Este error significa que el archivo JAR no está en la carpeta Libraries.
-            System.err.println("❌ Error: No se encontró el controlador JDBC de MySQL.");
+            error("No se encontró el controlador JDBC de MySQL.", e);
             throw new RuntimeException("¡No se encuentra el controlador en la ruta de clases!", e);
         }
     }
@@ -45,6 +49,7 @@ public class DatabaseConnection {
      * @throws SQLException Si se produce un error de acceso a la base de datos.
      */
     public static Connection getConnection() throws SQLException {
+
         // Se leen las propiedades directamente del objeto PROPS
         String URL = PROPS.getProperty("db.url");
         String USER = PROPS.getProperty("db.user");
@@ -53,7 +58,7 @@ public class DatabaseConnection {
         // Paso 2: Establecer la conexión mediante DriverManager.
         // Dado que el controlador se carga en el bloque estático, DriverManager sabe
         // cómo gestionar la URL.
-        System.out.println("Intentando conectar con la base de datos...");
+        log("Intentando conectar con la base de datos...");
         // Validación adicional para asegurarse de que las credenciales no estén vacías
         if (URL == null || URL.trim().isEmpty()) {
             throw new SQLException("La URL de la base de datos no puede ser nula o vacía.");
@@ -65,8 +70,36 @@ public class DatabaseConnection {
             throw new SQLException("La contraseña de la base de datos no puede ser nula.");
         }
         Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        System.out.println("✅ Conexión a la base de datos establecida correctamente!");
+        log("✅ Conexión a la base de datos establecida correctamente!");
         return connection;
+    }
+
+    // ============ MÉTODOS AUXILIARES PARA DEPURACIÓN ============
+    /**
+     * Activa o desactiva los mensajes de depuración.
+     * 
+     * @param enable true para mostrar logs detallados, false para solo mostrar
+     *               errores.
+     */
+    public static void setDebug(boolean enable) {
+        debug = enable;
+    }
+
+    /**
+     * Muestra un mensaje solo si el modo debug está activo.
+     */
+    private static void log(String message) {
+        if (debug)
+            System.out.println(message);
+    }
+
+    /**
+     * Muestra un mensaje de error (siempre visible).
+     */
+    private static void error(String message, Exception e) {
+        System.err.println("❌ ERROR: " + message);
+        if (debug)
+            e.printStackTrace(System.err);
     }
 
 }
