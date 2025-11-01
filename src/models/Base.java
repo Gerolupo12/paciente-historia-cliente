@@ -9,9 +9,11 @@ package models;
  */
 public abstract class Base {
 
+    // ============ ATRIBUTOS ============
     private int id;
     private Boolean eliminado;
 
+    // ============ CONSTRUCTORES ============
     /**
      * Constructor parametrizado que inicializa una entidad con ID específico.
      * Por defecto, marca la entidad como no eliminada.

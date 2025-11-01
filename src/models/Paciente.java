@@ -2,6 +2,7 @@ package models;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.Objects;
 
 /**
  * Representa un paciente en el sistema de gestión médica. Hereda de la clase
@@ -14,12 +15,14 @@ import java.time.Month;
  */
 public class Paciente extends Base {
 
+    // ============ ATRIBUTOS ============
     private String nombre;
     private String apellido;
     private String dni;
     private LocalDate fechaNacimiento;
     private HistoriaClinica historiaClinica;
 
+    // ============ CONSTRUCTORES ============
     /**
      * Constructor completo para crear un paciente con todos sus datos.
      *
@@ -199,6 +202,35 @@ public class Paciente extends Base {
                         ? historiaClinica.toString()
                         : "Sin Historia Clínica")
                 + '}';
+    }
+
+    /**
+     * Compara si dos objetos Paciente son iguales basándose en su DNI.
+     * Dos pacientes son iguales si tienen el mismo DNI.
+     * 
+     * @param o Objeto a comparar
+     * @return boolean indicando si son iguales
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        Paciente paciente = (Paciente) o;
+        return Objects.equals(dni, paciente.dni);
+    }
+
+    /**
+     * Genera un código hash basado en el DNI del paciente.
+     * Este método es fundamental para el correcto funcionamiento de colecciones
+     * que utilizan hashing, como HashMap o HashSet.
+     * 
+     * @return int código hash del paciente
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(dni);
     }
 
 }

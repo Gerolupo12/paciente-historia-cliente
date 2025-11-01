@@ -13,12 +13,14 @@ package models;
  */
 public class HistoriaClinica extends Base {
 
+    // ============ ATRIBUTOS ============
     private String numeroHistoria;
     private GrupoSanguineo grupoSanguineo;
     private String antecedentes;
     private String medicacionActual;
     private String observaciones;
 
+    // ============ CONSTRUCTORES ============
     /**
      * Constructor completo para crear una historia clínica.
      *
@@ -155,6 +157,36 @@ public class HistoriaClinica extends Base {
                 + ", numeroHistoria=" + numeroHistoria
                 + ", grupoSanguineo=" + grupoSanguineo
                 + '}';
+    }
+
+    /**
+     * Compara si dos objetos HistoriaClinica son iguales basándose en su número de
+     * historia.
+     * Dos historias clínicas son iguales si tienen el mismo numeroHistoria.
+     * 
+     * @param o Objeto a comparar
+     * @return boolean indicando si son iguales
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        HistoriaClinica that = (HistoriaClinica) o;
+        return numeroHistoria.equals(that.numeroHistoria);
+    }
+
+    /**
+     * Genera un código hash basado en el numeroHistoria de la historia clínica.
+     * Este método es fundamental para el correcto funcionamiento de colecciones
+     * que utilizan hashing, como HashMap o HashSet.
+     * 
+     * @return int código hash de la historia clínica
+     */
+    @Override
+    public int hashCode() {
+        return numeroHistoria.hashCode();
     }
 
 }
