@@ -107,7 +107,7 @@ public class PacienteDAO implements GenericDAO<Paciente> {
                 )
                 ORDER BY p.apellido, p.nombre
             """;
-    String SELECT_BY_DNI_SQL = """
+    private static final String SELECT_BY_DNI_SQL = """
                 SELECT
                     p.id AS paciente_id,
                     p.nombre,
@@ -127,7 +127,20 @@ public class PacienteDAO implements GenericDAO<Paciente> {
                 WHERE p.dni = ? AND p.eliminado = FALSE
             """;
 
+    // Dependencia a HistoriaClinicaDAO para operaciones relacionadas
+    private final HistoriaClinicaDAO historiaClinicaDAO;
+
     /**
+     * Constructor que inyecta las dependencias necesarias.
+     * 
+     * @param historiaClinicaDAO
+     */
+    public PacienteDAO(HistoriaClinicaDAO historiaClinicaDAO) {
+        this.historiaClinicaDAO = historiaClinicaDAO;
+    }
+
+    /**
+     * /**
      * Guarda un nuevo paciente en la base de datos.
      * 
      * @param paciente Paciente a guardar.

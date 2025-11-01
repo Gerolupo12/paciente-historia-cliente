@@ -55,9 +55,14 @@ public class DatabaseConnection {
         // cómo gestionar la URL.
         System.out.println("Intentando conectar con la base de datos...");
         // Validación adicional para asegurarse de que las credenciales no estén vacías
-        if (URL == null || URL.isEmpty() || USER == null || USER.isEmpty()
-                || PASSWORD == null || PASSWORD.isEmpty()) {
-            throw new SQLException("Configuración de la base de datos incompleta o inválida.");
+        if (URL == null || URL.trim().isEmpty()) {
+            throw new SQLException("La URL de la base de datos no puede ser nula o vacía.");
+        }
+        if (USER == null || USER.trim().isEmpty()) {
+            throw new SQLException("El usuario de la base de datos no puede ser nulo o vacío.");
+        }
+        if (PASSWORD == null) {
+            throw new SQLException("La contraseña de la base de datos no puede ser nula.");
         }
         Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
         System.out.println("✅ Conexión a la base de datos establecida correctamente!");

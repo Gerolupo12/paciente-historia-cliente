@@ -1,5 +1,13 @@
 package service;
 
+/**
+ * Interfaz genérica para servicios de negocio.
+ * Define las operaciones CRUD básicas que las implementaciones concretas deben
+ * ofrecer, delegando la persistencia al DAO correspondiente.
+ *
+ * @param <T> Tipo de entidad gestionada por el servicio.
+ * @author alpha team
+ */
 public interface GenericService<T> {
 
     /**
@@ -54,18 +62,18 @@ public interface GenericService<T> {
     /**
      * Busca entidades que coincidan con un filtro en sus atributos.
      * 
-     * @param filter
+     * @param filter cadena de texto para filtrar.
      * @return iterable de entidades que coinciden con el filtro.
      * @throws Exception
      */
-    Iterable<T> buscarPorFiltro(String filter) throws Exception;
+    Iterable<T> searchByFilter(String filter) throws Exception;
 
     /**
      * Valida una entidad antes de operaciones CRUD.
      * 
-     * @param entity
-     * @return true si la entidad es válida, false en caso contrario.
+     * @param entity entidad a validar.
+     * @throws Exception
      */
-    boolean validarEntidad(T entity) throws Exception;
+    void validateEntity(T entity) throws Exception;
 
 }
