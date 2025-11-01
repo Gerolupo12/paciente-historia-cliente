@@ -10,13 +10,14 @@ import models.HistoriaClinica;
 import models.Paciente;
 
 /**
- * DAO específico para la entidad Paciente.
+ * Data Access Object específico para la entidad Paciente.
  * Implementa las operaciones CRUD utilizando la interfaz GenericDAO.
  * 
  * @author alpha team
  */
 public class PacienteDAO implements GenericDAO<Paciente> {
 
+    // Sentencias SQL
     private static final String INSERT_SQL = """
                 INSERT INTO Paciente
                 (nombre, apellido, dni, fecha_nacimiento, historia_clinica_id)
@@ -30,7 +31,11 @@ public class PacienteDAO implements GenericDAO<Paciente> {
                 WHERE id = ?
             """;
 
-    private static final String DELETE_SQL = "UPDATE Paciente SET eliminado = TRUE WHERE id = ?";
+    private static final String DELETE_SQL = """
+                UPDATE Paciente
+                SET eliminado = TRUE
+                WHERE id = ?
+            """;
 
     private static final String SELECT_BY_ID_SQL = """
                 SELECT
@@ -72,7 +77,11 @@ public class PacienteDAO implements GenericDAO<Paciente> {
                 ORDER BY p.apellido, p.nombre
             """;
 
-    private static final String RECOVER_SQL = "UPDATE Paciente SET eliminado = FALSE WHERE id = ?";
+    private static final String RECOVER_SQL = """
+                UPDATE Paciente
+                SET eliminado = FALSE
+                WHERE id = ?
+            """;
 
     private static final String SEARCH_BY_FILTER_SQL = """
                 SELECT
@@ -98,7 +107,32 @@ public class PacienteDAO implements GenericDAO<Paciente> {
                 )
                 ORDER BY p.apellido, p.nombre
             """;
+    String SELECT_BY_DNI_SQL = """
+                SELECT
+                    p.id AS paciente_id,
+                    p.nombre,
+                    p.apellido,
+                    p.dni,
+                    p.fecha_nacimiento,
+                    p.historia_clinica_id,
+                    hc.id AS hc_id,
+                    hc.nro_historia,
+                    gs.nombre_enum,
+                    hc.antecedentes,
+                    hc.medicacion_actual,
+                    hc.observaciones
+                FROM Paciente p
+                LEFT JOIN HistoriaClinica hc ON p.historia_clinica_id = hc.id
+                LEFT JOIN GrupoSanguineo gs ON hc.grupo_sanguineo_id = gs.id
+                WHERE p.dni = ? AND p.eliminado = FALSE
+            """;
 
+    /**
+     * Guarda un nuevo paciente en la base de datos.
+     * 
+     * @param paciente Paciente a guardar.
+     * @throws SQLException Si ocurre un error durante la operación.
+     */
     @Override
     public void insert(Paciente paciente) throws SQLException {
 
@@ -115,6 +149,12 @@ public class PacienteDAO implements GenericDAO<Paciente> {
         }
     }
 
+    /**
+     * Actualiza un paciente existente en la base de datos.
+     * 
+     * @param paciente Paciente a actualizar.
+     * @throws SQLException Si ocurre un error durante la operación.
+     */
     @Override
     public void update(Paciente paciente) throws SQLException {
 
@@ -135,6 +175,12 @@ public class PacienteDAO implements GenericDAO<Paciente> {
         }
     }
 
+    /**
+     * Elimina (marca como eliminado) un paciente de la base de datos.
+     * 
+     * @param id ID del paciente a eliminar.
+     * @throws SQLException Si ocurre un error durante la operación.
+     */
     @Override
     public void delete(int id) throws SQLException {
 
@@ -147,6 +193,13 @@ public class PacienteDAO implements GenericDAO<Paciente> {
         }
     }
 
+    /**
+     * Selecciona un paciente por su ID.
+     * 
+     * @param id ID del paciente a seleccionar.
+     * @return El paciente encontrado o null si no existe.
+     * @throws SQLException Si ocurre un error durante la operación.
+     */
     @Override
     public Paciente selectById(int id) throws SQLException {
 
@@ -166,6 +219,12 @@ public class PacienteDAO implements GenericDAO<Paciente> {
         return null;
     }
 
+    /**
+     * Selecciona todos los pacientes de la base de datos.
+     * 
+     * @return Iterable de todos los pacientes.
+     * @throws SQLException Si ocurre un error durante la operación.
+     */
     @Override
     public Iterable<Paciente> selectAll() throws SQLException {
 
@@ -185,6 +244,37 @@ public class PacienteDAO implements GenericDAO<Paciente> {
         return pacientes;
     }
 
+    /**
+     * Busca un paciente por su DNI.
+     * 
+     * @param dni DNI del paciente a buscar.
+     * @return El paciente encontrado o null si no existe.
+     * @throws SQLException Si ocurre un error durante la operación.
+     */
+    public Paciente selectByDni(String dni) throws SQLException {
+
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(SELECT_BY_DNI_SQL)) {
+
+            stmt.setString(1, dni);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapEntity(rs);
+                }
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Error al seleccionar paciente por DNI: " + e.getMessage(), e);
+        }
+        return null;
+    }
+
+    /**
+     * Recupera (deshace el eliminado lógico) un paciente de la base de datos.
+     * 
+     * @param id ID del paciente a recuperar.
+     * @throws SQLException Si ocurre un error durante la operación.
+     */
     @Override
     public void recover(int id) throws SQLException {
 
@@ -197,6 +287,13 @@ public class PacienteDAO implements GenericDAO<Paciente> {
         }
     }
 
+    /**
+     * Busca pacientes que coincidan con un filtro en su nombre, apellido o DNI.
+     * 
+     * @param filter filtro de búsqueda.
+     * @return iterable de pacientes que coinciden con el filtro.
+     * @throws SQLException Si ocurre un error durante la operación.
+     */
     @Override
     public Iterable<Paciente> searchByFilter(String filter) throws Exception {
 
@@ -262,6 +359,13 @@ public class PacienteDAO implements GenericDAO<Paciente> {
                 historiaClinica);
     }
 
+    /**
+     * Establece los parámetros de un paciente en un `PreparedStatement`.
+     * 
+     * @param stmt     PreparedStatement donde se establecerán los parámetros.
+     * @param paciente entidad cuyos datos se usarán.
+     * @throws SQLException Si ocurre un error durante la operación.
+     */
     @Override
     public void setEntityParameters(PreparedStatement stmt, Paciente paciente) throws SQLException {
 
@@ -289,6 +393,13 @@ public class PacienteDAO implements GenericDAO<Paciente> {
         setHistoriaClinicaId(stmt, 5, paciente.getHistoriaClinica());
     }
 
+    /**
+     * Establece el ID generado después de una inserción en el objeto Paciente.
+     * 
+     * @param stmt     PreparedStatement utilizado para la inserción.
+     * @param paciente Objeto Paciente donde se establecerá el ID generado.
+     * @throws SQLException Si ocurre un error al obtener el ID generado.
+     */
     @Override
     public void setGeneratedId(PreparedStatement stmt, Paciente paciente) throws SQLException {
 
@@ -304,6 +415,14 @@ public class PacienteDAO implements GenericDAO<Paciente> {
         }
     }
 
+    /**
+     * Establece el ID de la historia clínica en el PreparedStatement.
+     * 
+     * @param stmt           PreparedStatement donde se establecerá el ID.
+     * @param parameterIndex Índice del parámetro en el PreparedStatement.
+     * @param historia       Objeto HistoriaClinica del cual obtener el ID.
+     * @throws SQLException Si ocurre un error al establecer el ID.
+     */
     private void setHistoriaClinicaId(PreparedStatement stmt, int parameterIndex, HistoriaClinica historia)
             throws SQLException {
 

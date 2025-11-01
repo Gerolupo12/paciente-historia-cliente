@@ -66,16 +66,38 @@ public interface GenericDAO<T> {
     /**
      * Busca entidades que coincidan con un filtro en sus atributos.
      * 
-     * @param filter
+     * @param filter filtro de búsqueda.
      * @return iterable de entidades que coinciden con el filtro.
      * @throws Exception
      */
     Iterable<T> searchByFilter(String filter) throws Exception;
 
+    /**
+     * Mapea un `ResultSet` a un objeto de entidad.
+     * 
+     * @param rs ResultSet de la consulta.
+     * @return objeto de entidad mapeado.
+     * @throws Exception
+     */
     T mapEntity(ResultSet rs) throws Exception;
 
+    /**
+     * Establece los parámetros de una entidad en un `PreparedStatement`.
+     * 
+     * @param stmt   PreparedStatement donde se establecerán los parámetros.
+     * @param entity entidad cuyos datos se usarán.
+     * @throws Exception
+     */
     void setEntityParameters(PreparedStatement stmt, T entity) throws Exception;
 
+    /**
+     * Establece el ID generado automáticamente en la entidad después de una
+     * inserción.
+     * 
+     * @param stmt   PreparedStatement usado para la inserción.
+     * @param entity entidad donde se establecerá el ID generado.
+     * @throws Exception
+     */
     void setGeneratedId(PreparedStatement stmt, T entity) throws Exception;
 
 }

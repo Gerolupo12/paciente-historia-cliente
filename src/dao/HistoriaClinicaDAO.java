@@ -15,6 +15,7 @@ import models.HistoriaClinica;
  */
 public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
 
+    // Sentencias SQL
     private static final String INSERT_SQL = """
                 INSERT INTO HistoriaClinica
                     (nro_historia, grupo_sanguineo_id, antecedentes,
@@ -29,7 +30,11 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
                 WHERE id = ?
             """;
 
-    private static final String DELETE_SQL = "UPDATE HistoriaClinica SET eliminado = TRUE WHERE id = ?";
+    private static final String DELETE_SQL = """
+                UPDATE HistoriaClinica
+                SET eliminado = TRUE
+                WHERE id = ?
+            """;
 
     private static final String SELECT_BY_ID_SQL = """
                 SELECT
@@ -50,7 +55,11 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
                 ORDER BY hc.id
             """;
 
-    private static final String RECOVER_SQL = "UPDATE HistoriaClinica SET eliminado = FALSE WHERE id = ?";
+    private static final String RECOVER_SQL = """
+                UPDATE HistoriaClinica
+                SET eliminado = FALSE
+                WHERE id = ?
+            """;
 
     private static final String SEARCH_BY_FILTER_SQL = """
                 SELECT hc.*, gs.nombre_enum
@@ -66,6 +75,21 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
                 ORDER BY hc.nro_historia
             """;
 
+    private static final String SELECT_BY_NRO_HISTORIA_SQL = """
+                SELECT
+                    hc.*,
+                    gs.nombre_enum
+                FROM HistoriaClinica hc
+                LEFT JOIN GrupoSanguineo gs ON hc.grupo_sanguineo_id = gs.id
+                WHERE hc.nro_historia = ? AND hc.eliminado = FALSE
+            """;
+
+    /**
+     * Inserta una nueva historia clínica en la base de datos.
+     * 
+     * @param hc HistoriaClinica a insertar.
+     * @throws SQLException Si ocurre un error durante la operación.
+     */
     @Override
     public void insert(HistoriaClinica hc) throws SQLException {
 
@@ -82,6 +106,12 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
         }
     }
 
+    /**
+     * Actualiza una historia clínica existente en la base de datos.
+     * 
+     * @param hc HistoriaClinica a actualizar.
+     * @throws SQLException Si ocurre un error durante la operación.
+     */
     @Override
     public void update(HistoriaClinica hc) throws SQLException {
 
@@ -97,6 +127,12 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
         }
     }
 
+    /**
+     * Elimina (marca como eliminado) una historia clínica de la base de datos.
+     * 
+     * @param id ID de la historia clínica a eliminar.
+     * @throws SQLException Si ocurre un error durante la operación.
+     */
     @Override
     public void delete(int id) throws SQLException {
 
@@ -111,6 +147,13 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
         }
     }
 
+    /**
+     * Selecciona una historia clínica por su ID.
+     * 
+     * @param id ID de la historia clínica a seleccionar.
+     * @return La historia clínica encontrada o null si no existe.
+     * @throws SQLException Si ocurre un error durante la operación.
+     */
     @Override
     public HistoriaClinica selectById(int id) throws SQLException {
 
@@ -130,6 +173,12 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
         return null;
     }
 
+    /**
+     * Selecciona todas las historias clínicas de la base de datos.
+     * 
+     * @return Iterable de todas las historias clínicas.
+     * @throws SQLException Si ocurre un error durante la operación.
+     */
     @Override
     public Iterable<HistoriaClinica> selectAll() throws SQLException {
 
@@ -149,6 +198,12 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
         return historias;
     }
 
+    /**
+     * Recupera una historia clínica eliminada lógicamente por su ID.
+     * 
+     * @param id ID de la historia clínica a recuperar.
+     * @throws SQLException Si ocurre un error durante la operación.
+     */
     @Override
     public void recover(int id) throws SQLException {
 
@@ -163,6 +218,13 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
         }
     }
 
+    /**
+     * Busca historias clínicas que coincidan con un filtro en sus atributos.
+     * 
+     * @param filter Filtro de búsqueda.
+     * @return Iterable de historias clínicas que coinciden con el filtro.
+     * @throws SQLException Si ocurre un error durante la operación.
+     */
     @Override
     public Iterable<HistoriaClinica> searchByFilter(String filter) throws SQLException {
 
@@ -186,6 +248,32 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
             throw new SQLException("Error al buscar historias clínicas: " + e.getMessage(), e);
         }
         return historias;
+    }
+
+    /**
+     * Busca una historia clínica por su número de historia.
+     * 
+     * @param nroHistoria Número de historia clínica a buscar.
+     * @return La historia clínica encontrada o null si no existe.
+     * @throws SQLException Si ocurre un error durante la operación.
+     */
+    public HistoriaClinica selectByNroHistoria(String nroHistoria) throws SQLException {
+
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(SELECT_BY_NRO_HISTORIA_SQL)) {
+
+            stmt.setString(1, nroHistoria);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapEntity(rs);
+                }
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Error al seleccionar historia clínica por número de historia: " + e.getMessage(),
+                    e);
+        }
+        return null;
     }
 
     /**
@@ -239,6 +327,13 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
         return null;
     }
 
+    /**
+     * Establece los parámetros de una historia clínica en un PreparedStatement.
+     * 
+     * @param stmt     PreparedStatement donde se establecerán los parámetros.
+     * @param historia entidad cuyos datos se usarán.
+     * @throws SQLException Si ocurre un error al establecer los parámetros.
+     */
     @Override
     public void setEntityParameters(PreparedStatement stmt, HistoriaClinica historia) throws SQLException {
 
@@ -252,6 +347,13 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
         stmt.setString(5, hc.getObservaciones());
     }
 
+    /**
+     * Establece el ID generado automáticamente después de una inserción.
+     * 
+     * @param stmt     PreparedStatement utilizado para la inserción.
+     * @param historia HistoriaClinica a la que se le asignará el ID generado.
+     * @throws SQLException Si ocurre un error al obtener el ID generado.
+     */
     @Override
     public void setGeneratedId(PreparedStatement stmt, HistoriaClinica historia) throws SQLException {
 
