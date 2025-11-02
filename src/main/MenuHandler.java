@@ -497,7 +497,7 @@ public class MenuHandler {
 
             if (p.getHistoriaClinica() != null) {
                 System.out.printf(
-                        "\tID Historia Clínica: %d | %s%n",
+                        "\tID Historia Clínica: %d | N° Historia: %s%n",
                         p.getHistoriaClinica().getId(),
                         p.getHistoriaClinica().getNumeroHistoria());
                 System.out.println("\t\tGrupo Sanguineo: " + p.getHistoriaClinica().getGrupoSanguineo());
