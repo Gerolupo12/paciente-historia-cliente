@@ -65,9 +65,10 @@ Escenario: Intento de crear paciente con campos vacíos
 
 #### Implementación Técnica
 
-- **Menú**: Opción 2 (`MenuHandler.createPaciente()`)
-- **Servicio**: `PacienteService.insert()`
-- **Validación**: `validateDniUnique()`
+- **Controlador**: `views.pacientes.PacienteMenu.handleCrearPaciente()`
+- **Vista**: `views.pacientes.PacienteView.solicitarDatosPaciente()`
+- **Coordinación**: Llama a `views.historias.HistoriaMenu.handleCrearHistoria()`
+- **Servicio**: `service.PacienteService.insert()`
 
 ---
 
@@ -112,9 +113,9 @@ Escenario: No hay pacientes en el sistema
 
 #### Implementación Técnica
 
-- **Menú**: Opción 1 (`MenuHandler.readPaciente()`)
-- **Servicio**: `PacienteService.selectAll(false)`, `searchByFilter()`, `selectByDni()`
-- **DAO**: `PacienteDAO.SELECT_ALL_SQL`, `SEARCH_BY_FILTER_SQL`, `SELECT_BY_DNI_SQL`
+- **Controlador**: `views.pacientes.PacienteMenu.handleListarPacientes()`
+- **Vista**: `views.pacientes.PacienteView.mostrarPacientes()`
+- **Servicio**: `service.PacienteService.selectAll(false)`, `searchByFilter()`, `selectByDni()`
 
 ---
 
@@ -161,9 +162,10 @@ Escenario: Agregar historia clínica a paciente sin HC
 
 #### Implementación Técnica
 
-- **Menú**: Opción 3 (`MenuHandler.updatePaciente()`)
-- **Servicio**: `PacienteService.update()`
-- **Validación**: `validateDniUnique(dni, pacienteId)`
+- **Controlador**: `views.pacientes.PacienteMenu.handleActualizarPaciente()`
+- **Vista**: `views.pacientes.PacienteView.solicitarIdPaciente()`, `solicitarDatosActualizacion()`
+- **Coordinación**: Llama a `views.historias.HistoriaMenu.handleCrearHistoria()`
+- **Servicio**: `service.PacienteService.update()`
 
 ---
 
@@ -197,8 +199,9 @@ Escenario: Paciente eliminado no aparece en listados
 
 #### Implementación Técnica
 
-- **Menú**: Opción 4 (`MenuHandler.deletePaciente()`)
-- **Servicio**: `PacienteService.delete()` (que internamente llama a `historiaClinicaService.delete()` si existe)
+- **Controlador**: `views.pacientes.PacienteMenu.handleEliminarPaciente()`
+- **Vista**: `views.pacientes.PacienteView.solicitarIdPaciente()`, `solicitarConfirmacion()`
+- **Servicio**: `service.PacienteService.delete()`
 
 ---
 
@@ -232,8 +235,9 @@ Escenario: Intento de crear HC con nroHistoria duplicado
 
 #### Implementación Técnica
 
-- **Menú**: Opción 6 (`MenuHandler.createHistoriaClinica()`)
-- **Servicio**: `HistoriaClinicaService.insert()`
+- **Controlador**: `views.historias.HistoriaMenu.handleCrearHistoriaIndependiente()`
+- **Vista**: `views.historias.HistoriaView.solicitarDatosHistoria()`
+- **Servicio**: `service.HistoriaClinicaService.insert()`
 
 ---
 
@@ -267,8 +271,9 @@ Escenario: Buscar HC por palabra clave (filtro)
 
 #### Implementación Técnica
 
-- **Menú**: Opción 5 (`MenuHandler.readHistoriaClinica()`)
-- **Servicio**: `HistoriaClinicaService.selectAll(false)`, `searchByFilter()`
+- **Controlador**: `views.historias.HistoriaMenu.handleListarHistorias()`
+- **Vista**: `views.historias.HistoriaView.mostrarHistorias()`, `solicitarFiltroBusqueda()`
+- **Servicio**: `service.HistoriaClinicaService.selectAll(false)`, `searchByFilter()`
 
 ---
 
@@ -305,8 +310,9 @@ Escenario: Eliminar HC asociada (Genera referencia huérfana)
 
 #### Implementación Técnica
 
-- **Menú**: Opción 8 (`MenuHandler.deleteHistoriaClinica()`)
-- **Servicio**: `HistoriaClinicaService.delete()`
+- **Controlador**: `views.historias.HistoriaMenu.handleEliminarHistoriaPorId()`
+- **Vista**: `views.historias.HistoriaView.solicitarIdHistoria()`
+- **Servicio**: `service.HistoriaClinicaService.delete()`
 
 ---
 
@@ -344,8 +350,8 @@ Escenario: Intento en paciente sin HC
 
 #### Implementación Técnica
 
-- **Menú**: Opción 10 (`MenuHandler.deleteHistoriaClinicaDePaciente()`)
-- **Servicio**: `PacienteService.update()` (para setear a null) y `HistoriaClinicaService.delete()`
+- **Controlador**: `views.historias.HistoriaMenu.handleEliminarHistoriaPorPaciente()`
+- **Servicio**: `service.PacienteService.deleteHistoriaClinica()`
 
 ---
 
@@ -386,8 +392,9 @@ Escenario: Asignar HC Existente (Paciente no tiene HC)
 
 #### Implementación Técnica
 
-- **Menú**: Opción 9 (`MenuHandler.updateHistoriaClinicaDePaciente()`)
-- **Lógica**: Contiene el `switch` que implementamos para manejar los 3 escenarios.
+- **Controlador**: `views.historias.HistoriaMenu.handleGestionarHistoriaPorPaciente()`
+- **Servicios**: `service.PacienteService.selectById()`, `service.PacienteService.update()`, `service.HistoriaClinicaService.selectById()`, `service.HistoriaClinicaService.update()`
+- **Coordinación**: Llama a `views.historias.HistoriaMenu.handleCrearHistoria()`
 
 ---
 
@@ -405,13 +412,14 @@ Escenario: Asignar HC Existente (Paciente no tiene HC)
 Escenario: Listar Pacientes Eliminados
   Dado que el paciente ID 2048 fue eliminado (eliminado = TRUE)
   Cuando el usuario selecciona "Submenú de recuperación" (11)
-  Y elige "Listar Pacientes Eliminados" (3)
+  Y elige "Listar Pacientes Eliminados" (1)
   Entonces el sistema muestra al paciente ID 2048
 
-Escenario: Recuperar Paciente por ID
-  Dado que el paciente ID 2048 fue eliminado
-  Cuando el usuario elige "Recuperar Paciente por ID" (1) e ingresa 2048
-  Entonces el sistema actualiza 'paciente' (ID 2048) 'eliminado = FALSE'
+Escenario: Recuperar Paciente por ID (Recuperación en Cascada)
+  Dado que el paciente ID 2048 y su HC ID 1024 fueron eliminados
+  Cuando el usuario elige "Recuperar Paciente por ID" (2) e ingresa 2048
+  Entonces el sistema primero recupera la HC ID 1024 (setea eliminado = FALSE)
+  Y luego recupera al paciente ID 2048 (setea eliminado = FALSE)
   Y el paciente ID 2048 vuelve a aparecer en el listado principal (Opción 1)
 ```
 
@@ -420,9 +428,10 @@ Escenario: Recuperar Paciente por ID
 - **RN-028**: El listado principal (HU-002) solo muestra `eliminado = FALSE`.
 - **RN-029**: El listado de recuperación solo muestra `eliminado = TRUE`.
 - **RN-030**: Recuperar es un `UPDATE` que setea `eliminado = FALSE`.
-- **RN-031**: Recuperar un Paciente NO recupera automáticamente su HC (comportamiento actual).
+- **RN-031**: Recuperar un Paciente recupera automáticamente su Historia Clínica asociada para mantener la simetría con la eliminación en cascada (RN-013).
 
 #### Implementación Técnica
 
-- **Menú**: Opción 11 (`MenuHandler.recover()`)
-- **Servicio**: `PacienteService.selectAll(true)`, `HistoriaClinicaService.selectAll(true)`, `PacienteService.recover()`, `HistoriaClinicaService.recover()`
+- **Controlador**: `views.MenuHandler.handleSubmenuRecuperacion()`
+- **Sub-Controlador**: `views.pacientes.PacienteMenu.handleRecuperarPaciente())`, `views.historias.HistoriaMenu.handleRecuperarHistoria()`
+- **Servicio**: `service.PacienteService.recover()`, `service.HistoriaClinicaService.recover()`

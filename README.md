@@ -15,11 +15,14 @@ Sistema desarrollado en Java que gestiona la relación unidireccional 1→1 entr
 
 ```plaintext
 paciente-historia-cliente
-.
 ├── anexos
 ├── informes
+│   ├── informe_db_i.md
+│   └── informe_prog_ii.md
 ├── Libraries
+│   └── mysql-connector-j-8.4.0.jar
 ├── sql
+│   ├── 00_esquema_y_carga_inicial_p_ii.sql
 │   ├── 01_esquema.sql
 │   ├── 02_catalogos.sql
 │   ├── 03_carga_masiva.sql
@@ -38,28 +41,34 @@ paciente-historia-cliente
 │   ├── dao
 │   │   ├── GenericDAO.java
 │   │   ├── HistoriaClinicaDAO.java
-│   │   ├── PacienteDAO.java
-│   │   ├── PersonaDAO.java
-│   │   └── ProfesionalDAO.java
+│   │   └── PacienteDAO.java
 │   ├── main
 │   │   ├── resources
-│   │   ├── AppMenu.java
+│   │   │   └── db.properties
 │   │   ├── Main.java
 │   │   └── TestConnection.java
 │   ├── models
 │   │   ├── Base.java
-│   │   ├── ClasePrincipalParaPruebas.java
-│   │   ├── FactorRh.java
 │   │   ├── GrupoSanguineo.java
 │   │   ├── HistoriaClinica.java
-│   │   ├── Paciente.java
-│   │   ├── Persona.java
-│   │   └── Profesional.java
-│   └── service
-│       ├── GenericService.java
-│       ├── HistoriaClinicaService.java
-│       └── PacienteService.java
-└── test
+│   │   └── Paciente.java
+│   ├── service
+│   │   ├── GenericService.java
+│   │   ├── HistoriaClinicaService.java
+│   │   └── PacienteService.java
+│   └── views
+│       ├── historiasClinicas
+│       │   ├── HistoriaClinicaMenu.java        ← submenú específico para historias clínicas
+│       │   └── HistoriaClinicaView.java        ← muestra o captura datos de historia clínica
+│       ├── pacientes
+│       │   ├── PacienteMenu.java               ← submenú específico para pacientes
+│       │   └── PacienteView.java               ← muestra o captura datos de paciente
+│       ├── AppMenu.java                        ← menú principal con opciones
+│       ├── DisplayMenu.java                    ← utilitario para imprimir opciones
+│       └── MenuHandler.java                    ← controlador de menú
+├── test
+├── HISTORIAS_DE_USUARIO.md
+└── README.md
 ```
 
 ## Diagrama UML
