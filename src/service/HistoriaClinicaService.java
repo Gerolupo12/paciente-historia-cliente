@@ -90,8 +90,6 @@ public class HistoriaClinicaService implements GenericService<HistoriaClinica> {
         validateNroHistoriaUnique(historia.getNumeroHistoria(), null); // null para INSERT
 
         try {
-            System.out.println("Insertando historia clinica ID: " + historia.getId());
-
             // 2. Persistencia
             historiaClinicaDAO.insert(historia);
 
@@ -132,8 +130,6 @@ public class HistoriaClinicaService implements GenericService<HistoriaClinica> {
         validateNroHistoriaUnique(historia.getNumeroHistoria(), historia.getId()); // ID para UPDATE
 
         try {
-            System.out.println("Actualizando historia clinica ID: " + historia.getId());
-
             // 2. Persistencia
             historiaClinicaDAO.update(historia);
 
@@ -166,8 +162,6 @@ public class HistoriaClinicaService implements GenericService<HistoriaClinica> {
         }
 
         try {
-            System.out.println("Eliminando historia clinica con ID: " + id);
-
             historiaClinicaDAO.delete(id);
 
         } catch (SQLException e) {

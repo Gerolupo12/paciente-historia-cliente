@@ -12,7 +12,7 @@ import java.sql.*;
 public class TestConnection {
     // *** Prueba de conexión ***
     public static void main(String[] args) {
-        /*
+        /**
          * Prueba simple para comprobar si la conexión funciona:
          * Se usa un bloque try-with-resources para asegurar que la conexión
          * se cierre automáticamente al salir del bloque.

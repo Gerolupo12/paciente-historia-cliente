@@ -1,11 +1,10 @@
 package views.historias;
 
+import java.util.List;
 import models.HistoriaClinica;
 import models.Paciente;
 import service.HistoriaClinicaService;
 import service.PacienteService;
-
-import java.util.List;
 
 /**
  * Sub-Controlador (o Sub-Menú) para todas las operaciones
@@ -147,7 +146,7 @@ public class HistoriaMenu {
         try {
             HistoriaClinica nuevaHc = this.handleCrearHistoria();
             if (nuevaHc != null) {
-                historiaView.mostrarExito("Historia Clínica independiente creada con ID: " + nuevaHc.getId());
+                historiaView.mostrarExito("\nHistoria Clínica independiente creada con ID: " + nuevaHc.getId());
             } else {
                 historiaView.mostrarError("Creación de Historia Clínica cancelada.");
             }
@@ -187,7 +186,7 @@ public class HistoriaMenu {
             historiaClinicaService.update(hc);
 
             // 5. Vista: Mostrar resultado
-            historiaView.mostrarExito("Historia Clínica actualizada exitosamente.");
+            historiaView.mostrarExito("\nHistoria Clínica actualizada exitosamente.");
 
         } catch (Exception e) {
             historiaView.mostrarError(e.getMessage());
@@ -216,11 +215,13 @@ public class HistoriaMenu {
             System.err.println("⚠️ ADVERTENCIA: Esta opción es peligrosa.");
             System.err.println("Si esta HC está asignada a un Paciente, se creará una referencia huérfana.");
             System.err.println("Use la 'Opción 10: Eliminar HC por Paciente' para una eliminación segura.");
+
+            System.err.print("\nDesea eliminar esta HC de todas formas? (s/n) -> ");
             if (historiaView.getScanner().nextLine().trim().equalsIgnoreCase("s")) {
                 // 3. Servicio: Ejecutar lógica de negocio
                 historiaClinicaService.delete(id);
                 // 4. Vista: Mostrar resultado
-                historiaView.mostrarExito("Historia Clínica ID: " + id + " ha sido eliminada (baja lógica).");
+                historiaView.mostrarExito("\nHistoria Clínica ID: " + id + " ha sido eliminada (baja lógica).");
             } else {
                 historiaView.mostrarError("Eliminación cancelada.");
             }
@@ -286,11 +287,11 @@ public class HistoriaMenu {
 
             } else {
                 // --- CASO 2: Paciente NO TIENE HC (Crear o Asignar) ---
-                System.out.println("El paciente no tiene una Historia Clínica asociada.");
+                System.out.println("El paciente no tiene una Historia Clínica asociada.¿Qué desea hacer?\n");
                 System.out.println("1. Crear y Asignar una Nueva Historia Clínica");
                 System.out.println("2. Asignar una Historia Clínica Existente");
                 System.out.println("0. Volver");
-                System.out.print("Ingrese una opción -> ");
+                System.out.print("\nIngrese una opción -> ");
                 int subopcion = Integer.parseInt(historiaView.getScanner().nextLine().trim());
 
                 HistoriaClinica hcParaAsignar = null;
@@ -352,13 +353,15 @@ public class HistoriaMenu {
             int hcId = paciente.getHistoriaClinica().getId();
 
             // 3. Vista: Pedir confirmación
+            System.out.print("\nDesea eliminar la HC (ID: " + hcId + ") de forma segura? (s/n) -> ");
             if (historiaView.getScanner().nextLine().trim().equalsIgnoreCase("s")) {
 
                 // 4. Servicio: Ejecutar lógica de eliminación segura (HU-008)
                 pacienteService.deleteHistoriaClinica(pacienteId, hcId);
 
                 // 5. Vista: Mostrar resultado
-                historiaView.mostrarExito("Historia Clínica (ID: " + hcId + ") desasociada y eliminada exitosamente.");
+                historiaView
+                        .mostrarExito("\nHistoria Clínica (ID: " + hcId + ") desasociada y eliminada exitosamente.");
             } else {
                 historiaView.mostrarError("Eliminación cancelada.");
             }

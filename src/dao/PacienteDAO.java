@@ -634,7 +634,6 @@ public class PacienteDAO implements GenericDAO<Paciente> {
                 // Asigna el ID de la BD al objeto Java
                 paciente.setId(generatedKeys.getInt(1));
 
-                System.out.println("Paciente insertado con ID: " + paciente.getId());
             } else {
                 throw new SQLException("La inserción del paciente falló! No se pudo obtener el ID generado");
             }

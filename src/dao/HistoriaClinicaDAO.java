@@ -627,7 +627,6 @@ public class HistoriaClinicaDAO implements GenericDAO<HistoriaClinica> {
 
                 // Asigna el ID de la BD al objeto Java
                 historia.setId(generatedKeys.getInt(1));
-                System.out.println("Historia insertada con ID: " + historia.getId());
 
             } else {
                 throw new SQLException("La inserción de la historia falló! No se pudo obtener el ID generado");

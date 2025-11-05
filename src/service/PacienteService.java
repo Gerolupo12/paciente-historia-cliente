@@ -141,8 +141,6 @@ public class PacienteService implements GenericService<Paciente> {
         validateDniUnique(paciente.getDni(), null); // null para INSERT
 
         try {
-            System.out.println("Insertando paciente: " + paciente.getApellido() + ", " + paciente.getNombre());
-
             // 2. Orquestación de Entidades (Insertar B antes que A)
             if (paciente.getHistoriaClinica() != null) {
                 if (paciente.getHistoriaClinica().getId() == 0) {
@@ -197,8 +195,6 @@ public class PacienteService implements GenericService<Paciente> {
         validateDniUnique(paciente.getDni(), paciente.getId()); // ID para UPDATE
 
         try {
-            System.out.println("Actualizando paciente: " + paciente.getApellido() + ", " + paciente.getNombre());
-
             // 2. Orquestación de Entidades
             if (paciente.getHistoriaClinica() != null) {
                 if (paciente.getHistoriaClinica().getId() == 0) {
@@ -418,8 +414,6 @@ public class PacienteService implements GenericService<Paciente> {
         }
 
         try {
-            System.out.println("\nObteniendo paciente con ID: " + id);
-
             return pacienteDAO.selectByIdWithStatus(id, deleted);
 
         } catch (SQLException e) {

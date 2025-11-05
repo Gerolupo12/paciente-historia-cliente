@@ -65,7 +65,7 @@ public final class DisplayMenu { // 'final' porque es una clase utilitaria
      * </ul>
      */
     public static void showMainMenu() {
-        System.out.println("\n========= MENU =========");
+        System.out.println("\n========= MENU PRINCIPAL =========");
         System.out.println("--- Gestión de Pacientes ---");
         System.out.println("1. Listar pacientes");
         System.out.println("2. Crear paciente");
@@ -78,9 +78,9 @@ public final class DisplayMenu { // 'final' porque es una clase utilitaria
         System.out.println("8. Eliminar Historia Clínica por ID (Peligroso)");
         System.out.println("9. Gestionar Historia Clínica por ID de paciente");
         System.out.println("10. Eliminar Historia Clínica por ID de paciente (Seguro)");
-        System.out.println("--- Sistema ---");
-        System.out.println("11. Submenú de recuperación de datos borrados");
-        System.out.println("0. Salir");
+        System.out.println("--- Recuperación de datos borrados ---");
+        System.out.println("11. Submenú de recuperación");
+        System.out.println("\n0. Salir");
         System.out.print("\nIngrese una opcion -> ");
     }
 

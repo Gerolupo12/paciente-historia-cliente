@@ -1,12 +1,11 @@
 package views.pacientes;
 
-import models.HistoriaClinica;
-import models.Paciente;
-import service.PacienteService;
-import views.historias.HistoriaMenu; // Se necesita para la lógica de "agregar HC"
-
 import java.util.List;
 import java.util.Scanner;
+import models.HistoriaClinica;
+import models.Paciente; // Se necesita para la lógica de "agregar HC"
+import service.PacienteService;
+import views.historias.HistoriaMenu;
 
 /**
  * Sub-Controlador (o Sub-Menú) para todas las operaciones
@@ -106,7 +105,7 @@ public class PacienteMenu {
                 HistoriaClinica nuevaHc = historiaMenu.handleCrearHistoria();
                 if (nuevaHc != null) {
                     nuevoPaciente.setHistoriaClinica(nuevaHc);
-                    pacienteView.mostrarExito("Historia Clínica (ID: " + nuevaHc.getId() + ") creada.");
+                    pacienteView.mostrarExito("\nNueva Historia Clínica (ID: " + nuevaHc.getId() + ") creada.");
                 } else {
                     pacienteView.mostrarError("La creación de la Historia Clínica fue cancelada.");
                 }
@@ -116,7 +115,7 @@ public class PacienteMenu {
             pacienteService.insert(nuevoPaciente);
 
             // 5. Vista: Mostrar resultado
-            pacienteView.mostrarExito("Paciente creado exitosamente con ID: " + nuevoPaciente.getId());
+            pacienteView.mostrarExito("Paciente creado exitosamente con ID: " + nuevoPaciente.getId() + "\n");
             pacienteView.mostrarPacienteDetalle(nuevoPaciente);
 
         } catch (Exception e) {
@@ -149,8 +148,8 @@ public class PacienteMenu {
             System.out.println("1. Listar todos los pacientes activos");
             System.out.println("2. Buscar paciente por DNI");
             System.out.println("3. Buscar paciente por Nombre o Apellido");
-            System.out.println("0. Volver");
-            System.out.print("Ingrese una opción -> ");
+            System.out.println("\n0. Volver");
+            System.out.print("\nIngrese una opción -> ");
 
             int subopcion = Integer.parseInt(pacienteView.getScanner().nextLine().trim());
             List<Paciente> pacientes;
@@ -163,7 +162,7 @@ public class PacienteMenu {
                 }
                 case 2 -> {
                     // Buscar por DNI
-                    System.out.print("Ingrese el DNI a buscar -> ");
+                    System.out.print("\nIngrese el DNI a buscar -> ");
                     String dni = pacienteView.getScanner().nextLine().trim();
                     Paciente p = pacienteService.selectByDni(dni);
                     pacienteView.mostrarPacientes(p != null ? List.of(p) : List.of());
@@ -239,7 +238,7 @@ public class PacienteMenu {
             pacienteService.update(paciente);
 
             // 6. Vista: Mostrar resultado
-            pacienteView.mostrarExito("Paciente actualizado exitosamente.");
+            pacienteView.mostrarExito("\nPaciente actualizado exitosamente.");
             pacienteView.mostrarPacienteDetalle(paciente);
 
         } catch (Exception e) {

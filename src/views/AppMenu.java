@@ -161,7 +161,7 @@ public class AppMenu {
                 }
             }
         }
-        System.out.println("Saliendo del sistema... ¡Hasta pronto!");
+        System.out.println("\nSaliendo del sistema... ¡Hasta pronto!");
     }
 
 }

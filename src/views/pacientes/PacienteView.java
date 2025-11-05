@@ -89,7 +89,6 @@ public class PacienteView {
             return;
         }
 
-        System.out.println("\n--- Listado de Pacientes ---");
         for (Paciente p : pacientes) {
             mostrarPacienteDetalle(p);
             System.out.println("------------------------------");
