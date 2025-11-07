@@ -110,27 +110,40 @@ Este DER representa el esquema implementado en la base de datos MySQL, simplific
 
 #### Requisitos Previos
 
-- **Java JDK:** Versión 21 o superior.
-- **MySQL:** Servidor MySQL 8.0 o superior (ejecutándose en `localhost:3306`).
-- **IDE (Opcional):** Apache NetBeans, IntelliJ IDEA, o VS Code.
-- **Driver JDBC:** El conector `mysql-connector-j-8.4.x.jar` está incluido en la carpeta `/Libraries` del proyecto.
+Antes de comenzar, asegúrate de tener instalado lo siguiente:
 
-#### 1. Configurar Base de Datos
+| Componente         | Versión Requerida                  | Descripción                                        |
+| ------------------ | ---------------------------------- | -------------------------------------------------- |
+| **Java JDK**       | 21 o superior                      | Requerido para compilar y ejecutar la aplicación   |
+| **MySQL Server**   | 8.0 o superior                     | Base de datos relacional utilizada por el sistema  |
+| **Gradle Wrapper** | Incluido en el repositorio         | No es necesario instalar Gradle manualmente        |
+| **IDE (Opcional)** | NetBeans / IntelliJ IDEA / VS Code | Solo si deseas ejecutar desde entorno gráfico      |
+| **Driver JDBC**    | `mysql-connector-j-8.4.0.jar`      | Se descarga automáticamente al compilar con Gradle |
 
-Ejecuta los siguientes scripts SQL (disponibles en la carpeta [`/sql/programacion_2`](./sql/programacion_2)) en tu servidor MySQL. Se recomienda ejecutarlos en este orden:
+#### 1. Clonar el Repositorio
+
+Ejecuta el siguiente comando para clonar el proyecto desde GitHub:
+
+```bash
+git clone https://github.com/Gerolupo12/paciente-historia-cliente.git
+cd paciente-historia-cliente
+```
+
+Esto descargará todo el código fuente, scripts SQL y configuración del proyecto.
+
+#### 2. Configurar la Base de Datos
+
+Ejecuta los siguientes scripts SQL en tu servidor MySQL.
+Los archivos están disponibles en la carpeta [`/sql/programacion_2`](./sql/programacion_2). Se recomienda ejecutarlos en este orden:
 
 1. `01_esquema.sql`: Crea el esquema (`CREATE DATABASE`) y las tablas (`Paciente`, `HistoriaClinica`, `GrupoSanguineo`).
 2. `02_catalogos.sql`: Inserta los datos estáticos (los 8 tipos de `GrupoSanguineo`).
 3. `03_carga_masiva.sql`: (Opcional) Inserta datos de prueba para poblar la BD.
 
-#### 2. Compilar el Proyecto
-
 ```bash
-# Windows
-gradlew.bat clean build
-
-# Linux/macOS
-./gradlew clean build
+mysql -u root -p < sql/programacion_2/01_esquema.sql
+mysql -u root -p < sql/programacion_2/02_catalogos.sql
+mysql -u root -p < sql/programacion_2/03_carga_masiva.sql
 ```
 
 #### 3. Configurar la Conexión (`db.properties`)
@@ -154,37 +167,43 @@ db.user=tu_usuario_de_mysql (por ejemplo, root)
 db.password=tu_contraseña_de_mysql
 ```
 
-### Ejecución
+#### 4. Compilar el Proyecto
 
-#### Opción 1: Ejecutar desde un IDE (Recomendado)
+```powershell
+# Windows
+gradlew.bat build
+
+# Linux/macOS
+./gradlew build
+```
+
+#### 5. Ejecutar la Aplicación
+
+##### Opción 1: Ejecutar desde un IDE (Recomendado)
 
 1. Abrer el proyecto en un IDE (NetBeans, IntelliJ, etc.).
-2. Asegúrate de que el driver `mysql-connector-j-8.4.x.jar` esté añadido a las librerías del proyecto.
+2. Verifica que `db.properties` esté configurado correctamente.
 3. Localiza y ejecuta el método `main` en la clase: `main/Main.java`
 
-#### Opción 2: Línea de comandos
+##### Opción 2: Línea de comandos
 
 **Windows:**
 
-```bash
-# Localizar JAR de MySQL
-dir /s /b %USERPROFILE%\.gradle\caches\*mysql-connector-j-8.4.0.jar
-
-# Ejecutar (reemplazar <ruta-mysql-jar>)
-java -cp "build\classes\java\main;<ruta-mysql-jar>" main.Main
+```powershell
+# Ejecutar el proyecto
+gradlew.bat run
 ```
 
 **Linux/macOS:**
 
 ```bash
-# Localizar JAR de MySQL
-find ~/.gradle/caches -name "mysql-connector-j-8.4.0.jar"
-
-# Ejecutar (reemplazar <ruta-mysql-jar>)
-java -cp "build/classes/java/main:<ruta-mysql-jar>" main.Main
+# Ejecutar el proyecto
+./gradlew run
 ```
 
-##### Verificar la Conexión (Opcional)
+Gradle descargará automáticamente el conector de MySQL (`mysql-connector-j`) y ejecutará la aplicación desde la clase principal definida en `build.gradle`.
+
+#### 6. Verificar la Conexión (Opcional)
 
 IDE:
 
@@ -206,6 +225,19 @@ Usuario conectado: root@localhost
 Base de datos: GestionPacientes
 URL: jdbc:mysql://localhost:3306/GestionPacientes
 Driver: MySQL Connector/J vmysql-connector-j-8.4.0
+```
+
+#### 7. Limpieza y Reconstrucción (Opcional)
+
+Si deseas limpiar y recompilar completamente el proyecto:
+
+```bash
+# Windows
+gradlew.bat clean build
+
+# Linux/macOS
+./gradlew clean build
+
 ```
 
 ### Uso del Sistema
