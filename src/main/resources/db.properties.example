@@ -1,0 +1,11 @@
+# Configuración de la Base de Datos
+
+# Driver de conexion a la base de datos
+db.driverClass=com.mysql.cj.jdbc.Driver
+
+# Base de datos a conectarse
+db.url=jdbc:mysql://localhost:3306/GestionPacientes
+
+# Credenciales
+db.user=tu_usuario_de_mysql (por ejemplo, root)
+db.password=tu_contraseña_de_mysql
