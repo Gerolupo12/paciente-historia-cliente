@@ -28,6 +28,9 @@ Sistema desarrollado en Java para el Trabajo Práctico Integrador (TPI) de Progr
 
 ```plaintext
 paciente-historia-cliente
+├── anexos                                  # archivos adicionales para el proyecto
+│   ├── db_1
+│   └── programacion_2
 ├── informes
 │   ├── informe_db_1.md                     ← informe detallado del proyecto de DB1
 │   └── informe_programacion_2.md           ← informe detallado del proyecto de P2
@@ -35,8 +38,9 @@ paciente-historia-cliente
 │   ├── db_1
 │   └── programacion_2
 │       ├── 01_esquema.sql                  ← script para crear el esquema de la BD
-│       └── 02_carga_inicial.sql            ← scripts para poblar la BD
-├── src
+│       ├── 02_catalogos.sql                ← script para poblar tablas de catálogo
+│       └── 03_carga_masiva.sql             ← scripts para poblar la BD con datos de prueba
+├── src                                     # código fuente del proyecto
 │   ├── config                              # configuración de conexión y transacciones
 │   │   ├── DatabaseConnection.java         ← utilitario para conexión a BD
 │   │   └── TransactionManager.java         ← utilitario para manejo de transacciones
@@ -44,6 +48,10 @@ paciente-historia-cliente
 │   │   ├── GenericDAO.java                 ← DAO genérico para entidades
 │   │   ├── HistoriaClinicaDAO.java         ← DAO específico para historias clínicas
 │   │   └── PacienteDAO.java                ← DAO específico para pacientes
+│   ├── exceptions                          # excepciones personalizadas
+│   │   ├── DuplicateEntityException.java   ← excepción para entidades duplicadas
+│   │   ├── ServiceException.java           ← excepción genérica para servicios
+│   │   └── ValidationException.java        ← excepción para validaciones de datos
 │   ├── main                                # punto de entrada de la aplicación
 │   │   ├── resources
 │   │   │   └── db.properties               ← archivo de configuración y propiedades para conexión a BD
@@ -58,19 +66,20 @@ paciente-historia-cliente
 │   │   ├── GenericService.java             ← servicio genérico para entidades
 │   │   ├── HistoriaClinicaService.java     ← servicio específico para historias clínicas
 │   │   └── PacienteService.java            ← servicio específico para pacientes
+│   ├── test                                # pruebas unitarias para entidades
+│   │   └── ServiceTest.java                ← pruebas unitarias para servicios
 │   └── views                               # capa de presentación (menús por entidad)
-│       ├── historiasClinicas               # submenús de Historias Clínicas
-│       │   ├── HistoriaClinicaMenu.java    ← submenú específico para historias clínicas
-│       │   └── HistoriaClinicaView.java    ← muestra o captura datos de historia clínica
+│       ├── historias                       # submenús de Historias Clínicas
+│       │   ├── HistoriaMenu.java           ← submenú específico para historias clínicas
+│       │   └── HistoriaView.java           ← muestra o captura datos de historia clínica
 │       ├── pacientes                       # submenús de Pacientes
 │       │   ├── PacienteMenu.java           ← submenú específico para pacientes
 │       │   └── PacienteView.java           ← muestra o captura datos de paciente
 │       ├── AppMenu.java                    ← menú principal con opciones
 │       ├── DisplayMenu.java                ← utilitario para imprimir opciones
 │       └── MenuHandler.java                ← controlador de menú
-├── test                                    ← sin tests implementados
 ├── HISTORIAS_DE_USUARIO.md                 ← historias de usuario del proyecto
-└── README.md                               ← archivo de lectura inicial
+└── README.md                               ← archivo de lectura inicial (este archivo)
 ```
 
 ### Diagrama UML (Modelo de Dominio)
@@ -108,92 +117,174 @@ Este DER representa el esquema implementado en la base de datos MySQL, simplific
 
 ### Requisitos e Instalación
 
+> **Nota:**
+> Este proyecto cuenta con dos versiones:
+>
+> - **Rama `main`:** versión original (compilación con **Ant**, usada por defecto).
+> - **Rama `gradle`:** versión alternativa, completamente migrada a **Gradle**.
+>
+> Si deseas probar la versión con Gradle, cambia a esa rama después de clonar el repositorio.
+
 #### Requisitos Previos
 
-- **Java JDK:** Versión 21 o superior.
-- **MySQL:** Servidor MySQL 8.0 o superior (ejecutándose en `localhost:3306`).
-- **IDE (Opcional):** Apache NetBeans, IntelliJ IDEA, o VS Code.
-- **Driver JDBC:** El conector `mysql-connector-j-8.4.x.jar` está incluido en la carpeta `/Libraries` del proyecto.
+Antes de comenzar, asegúrate de tener instalado lo siguiente:
 
-#### 1. Configurar Base de Datos
+| Componente                    | Versión Requerida                  | Descripción                                           |
+| ----------------------------- | ---------------------------------- | ----------------------------------------------------- |
+| **Java JDK**                  | 21 o superior                      | Requerido para compilar y ejecutar la aplicación      |
+| **MySQL Server**              | 8.0 o superior                     | Base de datos relacional utilizada por el sistema     |
+| **Gradle Wrapper (Opcional)** | Incluido en la rama `gradle`       | No es necesario instalar Gradle manualmente           |
+| **IDE**                       | NetBeans / IntelliJ IDEA / VS Code | Opcional, para ejecución en entorno gráfico           |
+| **Driver JDBC**               | `mysql-connector-j-8.4.0.jar`      | Descargado automáticamente por Gradle (rama `gradle`) |
 
-Ejecuta los siguientes scripts SQL (disponibles en la carpeta [`/sql/programacion_2`](./sql/programacion_2)) en tu servidor MySQL. Se recomienda ejecutarlos en este orden:
+#### 1. Clonar el Repositorio
 
-1. `01_esquema.sql`: Crea el esquema (`CREATE DATABASE`) y las tablas (`Paciente`, `HistoriaClinica`, `GrupoSanguineo`).
-2. `02_catalogos.sql`: Inserta los datos estáticos (los 8 tipos de `GrupoSanguineo`).
-3. `03_carga_masiva.sql`: (Opcional) Inserta datos de prueba para poblar la BD.
-
-#### 2. Compilar el Proyecto
+Por defecto, esto descarga la versión **Ant** (rama principal) con todo el código fuente, scripts SQL y configuración del proyecto:
 
 ```bash
-# Windows
-gradlew.bat clean build
+git clone https://github.com/Gerolupo12/paciente-historia-cliente.git
+cd paciente-historia-cliente
+```
 
-# Linux/macOS
-./gradlew clean build
+Si deseas trabajar con la versión **Gradle**, cambia a la rama correspondiente:
+
+```bash
+git checkout gradle
+```
+
+Esto cargará toda la estructura adaptada a Gradle (`build.gradle`, `gradlew`, `gradlew.bat`, etc.).
+
+#### 2. Configurar la Base de Datos
+
+Ejecuta los siguientes scripts SQL en tu servidor MySQL.
+Los archivos están ubicados en [`/sql/programacion_2`](./sql/programacion_2).
+
+Ejecuta en este orden:
+
+1. `01_esquema.sql` → crea la base de datos y las tablas (`Paciente`, `HistoriaClinica`, `GrupoSanguineo`).
+2. `02_catalogos.sql` → inserta los datos estáticos (8 grupos sanguíneos).
+3. `03_carga_masiva.sql` → (opcional) agrega registros de ejemplo.
+
+```bash
+mysql -u root -p < sql/programacion_2/01_esquema.sql
+mysql -u root -p < sql/programacion_2/02_catalogos.sql
+mysql -u root -p < sql/programacion_2/03_carga_masiva.sql
 ```
 
 #### 3. Configurar la Conexión (`db.properties`)
 
-El proyecto se conecta a la base de datos usando la configuración del archivo:
-`src/main/resources/db.properties`
+a configuración de conexión a la base de datos se gestiona mediante un archivo de propiedades ubicado en `src/main/resources/db.properties`. Dentro de esa carpeta encontrarás el archivo `db.properties.example`.
 
-Asegúrate de que este archivo coincida con la configuración de tu servidor MySQL local:
+Este archivo actúa como **plantilla de referencia**.
+Antes de ejecutar la aplicación, debes **crear tu propio archivo `db.properties`** en el mismo directorio, copiando el contenido del ejemplo y adaptándolo a tu entorno local:
+
+```bash
+# Desde la raíz del proyecto
+cp src/main/resources/db.properties.example src/main/resources/db.properties
+```
+
+Luego, edita `db.properties` con tus credenciales reales de MySQL:
 
 ```properties
 # Configuración de la Base de Datos
-
-# Driver de conexion a la base de datos
 db.driverClass=com.mysql.cj.jdbc.Driver
-
-# Base de datos a conectarse
 db.url=jdbc:mysql://localhost:3306/GestionPacientes
-
-# Credenciales
 db.user=tu_usuario_de_mysql (por ejemplo, root)
 db.password=tu_contraseña_de_mysql
 ```
 
-### Ejecución
+**Importante:**
 
-#### Opción 1: Ejecutar desde un IDE (Recomendado)
+- El archivo `db.properties` **no se sube al repositorio**, ya que está incluido en `.gitignore` para proteger datos sensibles.
+- Si trabajas en equipo, cada desarrollador debe mantener su propio `db.properties` local.
+- El archivo `db.properties.example` se mantiene versionado como plantilla estándar del proyecto.
+
+> **Nota técnica:**
+> Si el archivo `db.properties` no existe o no puede ser leído, la clase
+> [`DatabaseConnection`](./src/config/DatabaseConnection.java) lanzará un error controlado indicando:
+>
+> ```console
+> ❌ ERROR: archivo db.properties no encontrado en la ruta de clase.
+> ```
+>
+> Esto evita que la aplicación intente conectarse con credenciales vacías o incorrectas.
+
+#### 4. Instalar y Configurar el Driver JDBC (para proyectos con Ant / NetBeans)
+
+Si estás trabajando en la **rama principal (`main`)** del proyecto —que utiliza **Java con Ant**— deberás **añadir manualmente** el conector JDBC de MySQL.
+
+##### Paso 1. Descargar el Driver JDBC
+
+1. Accede al sitio oficial de MySQL Connector/J:
+   [https://dev.mysql.com/downloads/connector/j/](https://dev.mysql.com/downloads/connector/j/)
+2. Descarga la versión **"Platform Independent"** (archivo `.zip` o `.tar.gz`).
+3. Extrae el archivo descargado y localiza el **JAR** principal, por ejemplo:
+
+   ```plaintext
+   mysql-connector-j-8.4.0.jar
+   ```
+
+##### Paso 2. Agregar el JAR al Proyecto en NetBeans
+
+1. Abre NetBeans y localiza tu proyecto (`paciente-historia-cliente`).
+2. En el panel **Projects**, haz clic derecho sobre el nombre del proyecto →
+   **Properties** → **Libraries** → **Compile** → **Add JAR/Folder...**
+3. Busca el archivo `mysql-connector-j-8.4.0.jar` que descargaste y selecciónalo.
+4. Presiona **OK** para guardar los cambios.
+
+> Consejo:
+> Puedes crear una carpeta `/Libraries` dentro del proyecto y colocar allí el `.jar`.
+> Luego, agrégalo desde esa ubicación para mantener el entorno más ordenado.
+
+**Nota:**
+
+> En la rama `gradle`, **no necesitas realizar esta configuración manual**.
+> Gradle descarga automáticamente el conector al compilar la aplicación.
+
+#### 5. Compilar el Proyecto
+
+##### Si usas la versión **Ant** (rama `main`)
+
+Compila y ejecuta desde tu IDE (NetBeans) como un proyecto Java estándar.
+El archivo `build.xml` gestiona las tareas de compilación.
+
+##### Si usas la versión **Gradle** (rama `gradle`)
+
+```bash
+# Windows
+gradlew.bat build
+
+# Linux / macOS
+./gradlew build
+```
+
+Gradle descargará el conector MySQL y otras dependencias automáticamente.
+
+#### 6. Ejecutar la Aplicación
+
+##### Opción 1: Ejecutar desde un IDE (Recomendado)
 
 1. Abrer el proyecto en un IDE (NetBeans, IntelliJ, etc.).
-2. Asegúrate de que el driver `mysql-connector-j-8.4.x.jar` esté añadido a las librerías del proyecto.
+2. Verifica que `db.properties` esté configurado correctamente.
 3. Localiza y ejecuta el método `main` en la clase: `main/Main.java`
 
-#### Opción 2: Línea de comandos
-
-**Windows:**
+##### Opción 2: Desde la Terminal (solo rama `gradle`)
 
 ```bash
-# Localizar JAR de MySQL
-dir /s /b %USERPROFILE%\.gradle\caches\*mysql-connector-j-8.4.0.jar
+# Ejecutar el proyecto en Windows
+gradlew.bat run
 
-# Ejecutar (reemplazar <ruta-mysql-jar>)
-java -cp "build\classes\java\main;<ruta-mysql-jar>" main.Main
+# Ejecutar el proyecto en Linux / macOS
+./gradlew run
 ```
 
-**Linux/macOS:**
+Gradle descargará automáticamente el conector de MySQL (`mysql-connector-j`) y ejecutará la aplicación desde la clase principal definida en `build.gradle`.
+
+#### 7. Verificar la Conexión (Opcional)
+
+Ejecuta la clase `main/TestConnection.java` para probar la conexión a la base de datos:
 
 ```bash
-# Localizar JAR de MySQL
-find ~/.gradle/caches -name "mysql-connector-j-8.4.0.jar"
-
-# Ejecutar (reemplazar <ruta-mysql-jar>)
-java -cp "build/classes/java/main:<ruta-mysql-jar>" main.Main
-```
-
-##### Verificar la Conexión (Opcional)
-
-IDE:
-
-Puedes ejecutar la clase `main/TestConnection.java` para verificar si la configuración de tu db.properties es correcta antes de iniciar la aplicación principal.
-
-CLI:
-
-```bash
-# Usar TestConnection para verificar conexión a BD
 java -cp "build/classes/java/main:<ruta-mysql-jar>" main.TestConnection
 ```
 
@@ -207,6 +298,29 @@ Base de datos: GestionPacientes
 URL: jdbc:mysql://localhost:3306/GestionPacientes
 Driver: MySQL Connector/J vmysql-connector-j-8.4.0
 ```
+
+#### 8. Limpieza y Reconstrucción (solo Gradle)
+
+Si deseas limpiar y recompilar completamente el proyecto:
+
+```bash
+# Windows
+gradlew.bat clean build
+
+# Linux/macOS
+./gradlew clean build
+```
+
+#### Compatibilidad entre versiones
+
+Ambas ramas —`main` (Ant) y `gradle` (Gradle)—
+comparten el **mismo código fuente**, las **mismas clases**, y la **misma lógica de negocio**.
+La única diferencia está en el sistema de compilación y ejecución:
+
+| Rama     | Sistema de Build                   | Ideal para                                                |
+| -------- | ---------------------------------- | --------------------------------------------------------- |
+| `main`   | **Apache Ant (NetBeans)**          | Entornos educativos o integrados en NetBeans              |
+| `gradle` | **Gradle Wrapper multiplataforma** | Entornos modernos o automatizados (CI/CD, terminal, etc.) |
 
 ### Uso del Sistema
 
