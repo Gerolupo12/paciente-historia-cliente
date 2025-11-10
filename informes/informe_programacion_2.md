@@ -57,33 +57,14 @@ Se utilizó **clave foránea (FK) única** en lugar de **clave primaria (PK) com
 - Evita dependencia circular entre claves primarias.  
 - Mejora el mantenimiento y la legibilidad del esquema.  
 
-#### Ejemplo SQL:
-```sql
-CREATE TABLE grupo_sanguineo (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    tipo ENUM('O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-') NOT NULL
-);
+#### Esquema lógico simplificado
+El modelo físico de datos incluye tres tablas:
+- **paciente** → contiene los datos personales y FK `historia_clinica_id`.
+- **historia_clinica** → almacena información médica y referencia a `grupo_sanguineo`.
+- **grupo_sanguineo** → catálogo de tipos válidos de sangre.
 
-CREATE TABLE historia_clinica (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nro_historia VARCHAR(10) UNIQUE NOT NULL,
-    grupo_sanguineo_id INT NOT NULL,
-    antecedentes TEXT,
-    medicacion_actual TEXT,
-    observaciones TEXT,
-    FOREIGN KEY (grupo_sanguineo_id) REFERENCES grupo_sanguineo(id)
-);
+*(El detalle completo del modelo SQL se presenta en el punto 5.1 Persistencia.)*
 
-CREATE TABLE paciente (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(50) NOT NULL,
-    apellido VARCHAR(50) NOT NULL,
-    dni VARCHAR(15) UNIQUE NOT NULL,
-    fecha_nacimiento DATE NOT NULL,
-    historia_clinica_id INT UNIQUE,
-    FOREIGN KEY (historia_clinica_id) REFERENCES historia_clinica(id)
-);
-```
 ### 3.2 Diagrama UML
 
 ```yaml
