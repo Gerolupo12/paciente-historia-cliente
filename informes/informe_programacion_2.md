@@ -21,45 +21,50 @@ Este proyecto fue desarrollado de manera colaborativa por el siguiente equipo:
 
 ## 1. Integrantes y Roles
 
-| Integrante | Rol Principal | Responsabilidades |
-|-------------|----------------|------------------|
-| **Lahoz, Cristian** | Desarrollo de Interfaz (UI / Consola) | Implementación del menú principal, navegación de opciones y validaciones en vistas. Integración con la capa Service. |
-| **Maldonado, Ariana** | Validaciones y Excepciones | Diseño e implementación de las reglas de negocio, creación de excepciones personalizadas (`ValidationException`, `ServiceException`, `DuplicateEntityException`). |
-| **Ramallo, Gerónimo** | Arquitectura, DAO y Persistencia | Diseño de la arquitectura multicapa, manejo de base de datos MySQL, transacciones (commit/rollback), e integración JDBC. |
+| Integrante | Capa(s) a Cargo | Rol Principal | Responsabilidades |
+|-------------|----------------|----------------|------------------|
+| **Lahoz, Cristian** | `views`, `main` | Desarrollo de Interfaz (UI / Consola) | Implementación del menú principal, navegación de opciones y comunicación entre la vista y la capa de servicio. Integración funcional del flujo de usuario. |
+| **Maldonado, Ariana** | `service` (incluye `exceptions` y `test`) | Validaciones y Reglas de Negocio | Desarrollo de la lógica de negocio, validaciones de entrada y manejo de errores mediante excepciones personalizadas. Implementación de pruebas funcionales y transaccionales. |
+| **Ramallo, Gerónimo** | `config`, `dao`, `models` | Arquitectura, Persistencia y Base de Datos | Diseño de la arquitectura multicapa, modelado de entidades y relaciones, desarrollo de DAOs y configuración del acceso a MySQL con manejo transaccional. |
 
 ---
 
 ## 2. Elección del Dominio y Justificación
 
-El sistema fue desarrollado en el dominio **sanitario**, centrado en la gestión de **pacientes** y sus **historias clínicas médicas**.
+El sistema fue desarrollado en el **dominio sanitario**, centrado en la **gestión de pacientes** y sus **historias clínicas** médicas.
 
-La elección se justifica porque permite aplicar una **relación 1→1** entre entidades dependientes (**Paciente–HistoriaClínica**),
-junto con validaciones reales de negocio (unicidad de DNI, formato de historia, fechas válidas, etc.).
+La elección de este dominio se justifica porque permite aplicar una relación **1→1** entre entidades dependientes (**Paciente ↔ HistoriaClínica**), representando un caso real y de alta aplicabilidad dentro de entornos médicos y administrativos.
 
 ### Objetivos del dominio:
-- Practicar **persistencia relacional en MySQL**.  
-- Implementar **reglas de integridad y control transaccional**.  
-- Aplicar **JDBC** dentro de una arquitectura **multicapa**.  
-- Representar un **sistema realista**, aplicando patrones **DAO** y **Service Layer**.  
+
+- Facilitar el **registro, consulta y actualización** de datos de pacientes y su historia clínica correspondiente.  
+- Garantizar la **integridad y unicidad** de la información médica (DNI y número de historia clínica).  
+- Implementar un sistema **transaccional y confiable**, que mantenga la coherencia entre entidades relacionadas.  
+- Representar un **modelo escalable y extensible**, capaz de integrarse con futuras interfaces gráficas o módulos adicionales.  
+- Permitir la **trazabilidad** de los cambios mediante validaciones y manejo de excepciones específicas.  
 
 ---
 
 ## 3. Diseño: Decisiones Clave (1→1, FK única vs PK compartida) + UML
 
 ### 3.1 Relación 1→1: Paciente ↔ Historia Clínica  
+
 Se implementó una **relación 1→1 unidireccional** entre `Paciente` y `HistoriaClinica`.  
 Cada paciente posee una única historia clínica asociada.
 
 #### Decisión técnica:  
+
 Se utilizó **clave foránea (FK) única** en lugar de **clave primaria (PK) compartida**.
 
 #### Justificación:  
+
 - La FK única (`historia_clinica_id`) dentro de `Paciente` simplifica la inserción y actualización.  
 - Mantiene independencia entre tablas y permite rollback transaccional ante errores.  
 - Evita dependencia circular entre claves primarias.  
 - Mejora el mantenimiento y la legibilidad del esquema.  
 
 #### Esquema lógico simplificado
+
 El modelo físico de datos incluye tres tablas:
 - **paciente** → contiene los datos personales y FK `historia_clinica_id`.
 - **historia_clinica** → almacena información médica y referencia a `grupo_sanguineo`.
@@ -84,13 +89,17 @@ El modelo físico de datos incluye tres tablas:
 ```
 
 #### Relaciones:
+
 - Paciente → HistoriaClinica (1→1 unidireccional, FK única).
 - HistoriaClinica → GrupoSanguineo (muchos→uno).
 
+---
+
 ## 4. Arquitectura por Capas y Responsabilidades de Cada Paquete
+
 ### 4.1 Estructura General
 
-```css
+```text
 src/
  ├─ config/
  │   ├─ DatabaseConnection.java
@@ -104,10 +113,12 @@ src/
  │   ├─ ServiceException.java
  │   └─ DuplicateEntityException.java
  ├─ models/
+ │   ├─ Base.java
  │   ├─ Paciente.java
  │   ├─ HistoriaClinica.java
  │   └─ GrupoSanguineo.java
  ├─ service/
+ │   ├─ GenericService.java
  │   ├─ PacienteService.java
  │   └─ HistoriaClinicaService.java
  ├─ views/
@@ -117,46 +128,76 @@ src/
  ├─ test/
  │   └─ ServiceTest.java
  └─ main/
-     └─ Main.java
+     ├─ Main.java
+     └─ TestConnection.java
 ```
 
-### 4.2 Responsabilidad de cada paquete
-**config**
-- Gestiona la configuración de base de datos y las transacciones JDBC.
-- DatabaseConnection: conexión con MySQL, manejo de errores y carga del driver.
-- TransactionManager: controla commits y rollbacks de manera centralizada.
+### 4.2 Capas Principales
 
-**dao**
-- Encapsula el acceso a datos con JDBC puro.
-- GenericDAO: interfaz base con operaciones CRUD.
-- PacienteDAO y HistoriaClinicaDAO: implementación específica con consultas SQL parametrizadas.
+**main**  
 
-**service**
-- Contiene la lógica de negocio.
-- PacienteService: orquesta la creación, actualización y eliminación en cascada (Paciente + HC).
-- HistoriaClinicaService: valida unicidad de número HC y formato antes de persistir.
+- Contiene el punto de entrada del sistema (`Main.java`).  
+- Inicializa los servicios, DAO y controladores.  
+- Incluye `TestConnection.java` para verificar la conexión con la base de datos.  
+- Representa el **inicio del flujo de ejecución** del programa y el nexo entre la capa de presentación y la lógica de negocio.  
 
-**models**
-- Define las entidades del sistema (Modelo de Dominio).
-- Incluye Paciente, HistoriaClinica y GrupoSanguineo (Enum).
+**config**  
 
-**views**
-- Capa de presentación.
-implementa un menú de consola que invoca los servicios según la opción seleccionada.
+- Gestiona la configuración de base de datos y las transacciones JDBC.  
+- `DatabaseConnection`: establece la conexión con MySQL, carga el driver y valida credenciales.  
+- `TransactionManager`: controla commits y rollbacks de manera centralizada, garantizando la atomicidad de las operaciones.  
 
-**test**
-- Incluye las pruebas funcionales manuales.
-- ServiceTest valida transacciones, rollback, y reglas de negocio.
+**dao**  
 
-**exceptions**
-- Diseñada por Ariana Maldonado, centraliza la gestión de errores controlados.
-- Provee excepciones verificadas para reglas de negocio, duplicados y errores del servicio.
+- Encapsula el acceso a datos mediante JDBC puro.  
+- `GenericDAO`: interfaz genérica con operaciones CRUD.  
+- `PacienteDAO` y `HistoriaClinicaDAO`: implementaciones concretas con consultas SQL parametrizadas y control de FK únicas.  
+
+**service**  
+
+- Contiene la **lógica de negocio**, las **validaciones de reglas**, y la **coordinación transaccional**.  
+- `PacienteService`: orquesta la creación, actualización y eliminación en cascada (Paciente + Historia Clínica).  
+- `HistoriaClinicaService`: valida unicidad del número de historia, formato correcto y manejo de cascadas.  
+- `GenericService`: interfaz que define las operaciones base para los servicios.  
+
+**models**  
+
+- Define las entidades del dominio: `Paciente`, `HistoriaClinica`, `GrupoSanguineo` y `Base`.  
+- Representa la estructura de datos y sus relaciones (1→1 y N→1).  
+- Es la capa que **mapea la base de datos al modelo lógico del sistema**.  
+
+**views**  
+
+- Implementa la **interfaz de usuario por consola** (UI).  
+- Contiene los menús, controladores y flujos de interacción (`AppMenu`, `DisplayMenu`, `MenuHandler`).  
+- Permite al usuario ejecutar las operaciones de gestión de pacientes e historias clínicas.  
+
+### 4.3 Capas Auxiliares
+
+**exceptions**  
+
+- Diseñada por *Ariana Maldonado* para centralizar la gestión de errores y excepciones controladas.  
+- Incluye:  
+  - `ValidationException`: errores de datos inválidos (por ejemplo, formato de DNI o nombre).  
+  - `ServiceException`: errores técnicos o transaccionales.  
+  - `DuplicateEntityException`: violaciones de unicidad (DNI o número de historia).  
+- Mejora la trazabilidad y robustez del sistema.  
+
+**test**  
+
+- Contiene pruebas funcionales y de validación (`ServiceTest.java`).  
+- Verifica:  
+  - Inserciones válidas y rollback transaccional.  
+  - Detección de DNI duplicado.  
+  - Validaciones de formato, unicidad y rango de fechas.  
+- Garantiza la estabilidad y coherencia de las reglas de negocio.  
 
 ---
 
 ## 5. Persistencia: Estructura de la Base, Orden de Operaciones y Transacciones
 
 ### 5.1 Estructura de la Base de Datos
+
 El sistema utiliza una base de datos **MySQL 8.0.43** con tres tablas principales:
 
 1. **paciente**  
@@ -199,14 +240,13 @@ CREATE TABLE paciente (
   FOREIGN KEY (historia_clinica_id) REFERENCES historia_clinica(id)
 );
 ```
----
 
 ### 5.2 Orden de Operaciones
 
-- INSERT: primero se inserta la historia clínica, luego el paciente.
-- UPDATE: ambas entidades se actualizan en una transacción compartida.
-- DELETE: se aplica baja lógica (campo eliminado en TRUE).
-- RECOVER: reactiva registros sin crear duplicados.
+- **INSERT:** primero se inserta la historia clínica, luego el paciente.
+- **UPDATE:** ambas entidades se actualizan en una transacción compartida.
+- **DELETE:** se aplica baja lógica (campo eliminado en TRUE).
+- **RECOVER:** reactiva registros sin crear duplicados.
 
 ```java
 // Ejemplo simplificado de inserción transaccional
@@ -220,9 +260,8 @@ try (Connection conn = DatabaseConnection.getConnection()) {
 }
 ```
 
----
-
 ### 5.3 Transacciones y Rollback
+
 - El commit se ejecuta en la capa service una vez que ambas inserciones finalizan correctamente.
 - Si ocurre una excepción (ValidationException, ServiceException o DuplicateEntityException), se ejecuta rollback para revertir los cambios.
 - La atomicidad garantiza que Paciente e HistoriaClínica siempre se mantengan sincronizados.
@@ -230,9 +269,11 @@ try (Connection conn = DatabaseConnection.getConnection()) {
 ---
 
 ## 6. Validaciones y Reglas de Negocio
+
 Las reglas se implementan en las clases del paquete service, y las excepciones personalizadas están definidas en exceptions.
 
 ### 6.1 Validaciones Principales
+
 RN-001: El nombre y apellido solo pueden contener letras y espacios.
 RN-002: El DNI debe ser único y tener entre 7 y 15 dígitos.
 RN-003: La fecha de nacimiento debe estar entre 1900 y la fecha actual.
@@ -249,9 +290,8 @@ if (!nroHistoria.matches("^HC-[0-9]{4,17}$")) {
 }
 ```
 
----
-
 ### 6.2 Excepciones Definidas
+
 - ValidationException: errores de entrada del usuario.
 - ServiceException: errores técnicos o transaccionales.
 - DuplicateEntityException: violación de unicidad (DNI o Nro. HC).
@@ -259,7 +299,9 @@ if (!nroHistoria.matches("^HC-[0-9]{4,17}$")) {
 ---
 
 ## 7. Pruebas Realizadas
+
 ### 7.1 Pruebas de Lógica de Negocio
+
 - Ejecutadas desde la clase ServiceTest, validando:
 - Inserción válida de Paciente + HistoriaClínica.
 - Detección de DNI duplicado.
@@ -277,9 +319,9 @@ if (!nroHistoria.matches("^HC-[0-9]{4,17}$")) {
 === TEST 3: ROLLBACK TRANSACCIONAL ===
 ✅ Se produjo rollback correctamente → Error al insertar historia clínica.
 ```
----
 
 ### 7.2 Pruebas de Interfaz 
+
 Menú por consola funcional:
 
 ```text
@@ -302,11 +344,14 @@ Menú por consola funcional:
 ---
 
 ## 8. Conclusiones y Mejoras Futuras
+
 ### 8.1 Conclusiones
+
 El proyecto permitió aplicar conceptos avanzados de arquitectura en capas, validaciones, persistencia con JDBC y manejo transaccional completo.
 Cada integrante cumplió un rol esencial, logrando un sistema modular, seguro y escalable.
 
 ### 8.2 Posibles Mejoras
+
 - Incorporar interfaz gráfica (Swing o JavaFX).
 - Añadir capa REST API con Spring Boot.
 - Implementar logs persistentes y auditoría.
@@ -315,10 +360,20 @@ Cada integrante cumplió un rol esencial, logrando un sistema modular, seguro y 
 ---
 
 ## 9. Fuentes y Herramientas Utilizadas
+
 ### Herramientas principales:
+
 - IDE: Apache NetBeans 21.0.
 - Base de Datos: MySQL 8.0.43.
 - Lenguaje: Java 21.
 - Control de versiones: Git + GitHub.
 - Testing: JUnit y pruebas manuales por consola.
 - IA Asistida: ChatGPT (uso en redacción técnica y documentación).
+
+---
+
+## Enlaces
+
+- [Link al Repositorio](https://github.com/Gerolupo12/paciente-historia-cliente)
+
+- [Link a la Presentación en Video]()
