@@ -34,13 +34,13 @@ import models.HistoriaClinica;
  *
  * @author alpha team
  * @see HistoriaMenu
- * @see models.HistoriaClinica
+ * @see main.java.models.HistoriaClinica
  */
 public class HistoriaView {
 
     /**
      * El Scanner compartido de la aplicación, inyectado desde
-     * {@link views.AppMenu}.
+     * {@link main.java.views.AppMenu}.
      */
     private final Scanner scanner;
 

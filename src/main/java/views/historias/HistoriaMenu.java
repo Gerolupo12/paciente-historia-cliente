@@ -11,7 +11,7 @@ import service.PacienteService;
  * relacionadas con la entidad HistoriaClinica.
  * <p>
  * Esta clase implementa la lógica de orquestación de la UI para
- * Historias Clínicas. Es llamada por el {@link views.MenuHandler} principal
+ * Historias Clínicas. Es llamada por el {@link main.java.views.MenuHandler} principal
  * y coordina las interacciones entre los Servicios ({@link PacienteService},
  * {@link HistoriaClinicaService}) y la {@link HistoriaView} (lógica de I/O).
  * </p>
@@ -28,10 +28,10 @@ import service.PacienteService;
  * </ul>
  *
  * @author alpha team
- * @see views.MenuHandler
- * @see views.historias.HistoriaView
- * @see service.HistoriaClinicaService
- * @see service.PacienteService
+ * @see main.java.views.MenuHandler
+ * @see main.java.views.historias.HistoriaView
+ * @see main.java.service.HistoriaClinicaService
+ * @see main.java.service.PacienteService
  */
 public class HistoriaMenu {
 

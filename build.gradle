@@ -1,0 +1,37 @@
+// build.gradle
+
+plugins {
+    // 1. Aplica el plugin de Java (para compilar)
+    id 'java'
+    
+    // 2. Aplica el plugin de Aplicación (para poder 'ejecutar')
+    id 'application'
+}
+
+// 3. Define dónde se descargan las dependencias
+repositories {
+    mavenCentral()
+}
+
+// 4. Define las dependencias de tu proyecto
+dependencies {
+    // Reemplaza la carpeta /Libraries
+    // Gradle descarga automáticamente el conector de MySQL
+    implementation 'com.mysql:mysql-connector-j:9.5.0'
+}
+
+// 5. Le dice a Gradle dónde está tu clase Main
+application {
+    // Clase principal (paquete + nombre de clase)
+    mainClass = 'main.Main'
+}
+
+// 6. Asegura que la compilación use UTF-8
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+// 7. Habilita entrada estándar (System.in) para aplicaciones de consola
+tasks.named('run') {
+    standardInput = System.in
+}

@@ -12,7 +12,7 @@ import views.historias.HistoriaMenu;
  * relacionadas con la entidad Paciente.
  * <p>
  * Esta clase implementa la lógica de orquestación de la UI para
- * Pacientes. Es llamada por el {@link views.MenuHandler} principal
+ * Pacientes. Es llamada por el {@link main.java.views.MenuHandler} principal
  * y coordina las interacciones entre el {@link PacienteService}
  * (lógica de negocio) y la {@link PacienteView} (lógica de I/O).
  * </p>
@@ -31,9 +31,9 @@ import views.historias.HistoriaMenu;
  * </ul>
  *
  * @author alpha team
- * @see views.MenuHandler
- * @see views.pacientes.PacienteView
- * @see service.PacienteService
+ * @see main.java.views.MenuHandler
+ * @see main.java.views.pacientes.PacienteView
+ * @see main.java.service.PacienteService
  */
 public class PacienteMenu {
 
@@ -67,7 +67,7 @@ public class PacienteMenu {
 
     /**
      * Proporciona acceso al Scanner de la vista.
-     * Utilizado por {@link views.MenuHandler} para su submenú.
+     * Utilizado por {@link main.java.views.MenuHandler} para su submenú.
      *
      * @return La instancia compartida del {@link Scanner}.
      */

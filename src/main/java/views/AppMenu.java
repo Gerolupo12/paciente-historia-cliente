@@ -44,9 +44,9 @@ import views.pacientes.PacienteView;
  *
  * @author alpha team
  * @see main.Main
- * @see views.MenuHandler
- * @see service.PacienteService
- * @see service.HistoriaClinicaService
+ * @see main.java.views.MenuHandler
+ * @see main.java.service.PacienteService
+ * @see main.java.service.HistoriaClinicaService
  */
 public class AppMenu {
 

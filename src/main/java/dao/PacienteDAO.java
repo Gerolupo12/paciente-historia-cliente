@@ -1,5 +1,6 @@
 package dao;
 
+import dao.GenericDAO;
 import config.DatabaseConnection;
 import java.sql.*;
 import java.util.ArrayList;
@@ -38,9 +39,9 @@ import models.Paciente;
  *
  * @author alpha team
  * @see GenericDAO
- * @see models.Paciente
- * @see models.HistoriaClinica
- * @see config.TransactionManager
+ * @see main.java.models.Paciente
+ * @see main.java.models.HistoriaClinica
+ * @see main.java.config.TransactionManager
  */
 public class PacienteDAO implements GenericDAO<Paciente> {
 

@@ -36,13 +36,13 @@ import models.Paciente;
  *
  * @author alpha team
  * @see PacienteMenu
- * @see models.Paciente
+ * @see main.java.models.Paciente
  */
 public class PacienteView {
 
     /**
      * El Scanner compartido de la aplicación, inyectado desde
-     * {@link views.AppMenu}.
+     * {@link main.java.views.AppMenu}.
      */
     private final Scanner scanner;
 
@@ -62,7 +62,7 @@ public class PacienteView {
     /**
      * Proporciona acceso al Scanner inyectado.
      * <p>
-     * Utilizado por {@link views.MenuHandler} para manejar submenús
+     * Utilizado por {@link main.java.views.MenuHandler} para manejar submenús
      * que residen en el controlador principal (como el menú de recuperación).
      * </p>
      *

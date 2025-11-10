@@ -9,7 +9,7 @@
 -- =====================================================================
 
 -- Aumenta el límite de recursión permitido para este CTE.
-SET SESSION cte_max_recursion_depth = 1500;
+-- SET SESSION cte_max_recursion_depth = 1500;
 
 INSERT INTO
     HistoriaClinica (nro_historia, grupo_sanguineo_id, antecedentes, medicacion_actual, observaciones)
