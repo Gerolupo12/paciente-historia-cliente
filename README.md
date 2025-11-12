@@ -28,63 +28,66 @@ Sistema desarrollado en Java para el Trabajo Práctico Integrador (TPI) de Progr
 
 ```plaintext
 paciente-historia-cliente
-├── anexos                                  # archivos adicionales para el proyecto
-│   ├── db_1
-│   └── programacion_2
+├── anexos                                          # archivos adicionales para el proyecto
 ├── informes
-│   ├── informe_db_1.md                     ← informe detallado del proyecto de DB1
-│   └── informe_programacion_2.md           ← informe detallado del proyecto de P2
-├── sql                                     # scripts SQL
+│   ├── informe_db_1.md                             ← informe detallado del proyecto de DB1
+│   └── informe_programacion_2.md                   ← informe detallado del proyecto de P2
+├── sql                                             # scripts SQL
 │   ├── db_1
 │   └── programacion_2
-│       ├── 01_esquema.sql                  ← script para crear el esquema de la BD
-│       ├── 02_catalogos.sql                ← script para poblar tablas de catálogo
-│       └── 03_carga_masiva.sql             ← scripts para poblar la BD con datos de prueba
-├── src                                     # código fuente del proyecto
-│   ├── config                              # configuración de conexión y transacciones
-│   │   ├── DatabaseConnection.java         ← utilitario para conexión a BD
-│   │   └── TransactionManager.java         ← utilitario para manejo de transacciones
-│   ├── dao                                 # acceso a datos (JDBC)
-│   │   ├── GenericDAO.java                 ← DAO genérico para entidades
-│   │   ├── HistoriaClinicaDAO.java         ← DAO específico para historias clínicas
-│   │   └── PacienteDAO.java                ← DAO específico para pacientes
-│   ├── exceptions                          # excepciones personalizadas
-│   │   ├── DuplicateEntityException.java   ← excepción para entidades duplicadas
-│   │   ├── ServiceException.java           ← excepción genérica para servicios
-│   │   └── ValidationException.java        ← excepción para validaciones de datos
-│   ├── main                                # punto de entrada de la aplicación
-│   │   ├── resources
-│   │   │   └── db.properties               ← archivo de configuración y propiedades para conexión a BD
-│   │   ├── Main.java                       ← clase principal para ejecutar la aplicación
-│   │   └── TestConnection.java             ← clase para probar conexión a BD
-│   ├── models                              # entidades del dominio
-│   │   ├── Base.java                       ← clase base para entidades con id y eliminado
-│   │   ├── GrupoSanguineo.java             ← modelo de dominio GrupoSanguineo
-│   │   ├── HistoriaClinica.java            ← modelo de dominio HistoriaClínica
-│   │   └── Paciente.java                   ← modelo de dominio Paciente
-│   ├── service                             # lógica de negocio y validaciones
-│   │   ├── GenericService.java             ← servicio genérico para entidades
-│   │   ├── HistoriaClinicaService.java     ← servicio específico para historias clínicas
-│   │   └── PacienteService.java            ← servicio específico para pacientes
-│   ├── test                                # pruebas unitarias para entidades
-│   │   └── ServiceTest.java                ← pruebas unitarias para servicios
-│   └── views                               # capa de presentación (menús por entidad)
-│       ├── historias                       # submenús de Historias Clínicas
-│       │   ├── HistoriaMenu.java           ← submenú específico para historias clínicas
-│       │   └── HistoriaView.java           ← muestra o captura datos de historia clínica
-│       ├── pacientes                       # submenús de Pacientes
-│       │   ├── PacienteMenu.java           ← submenú específico para pacientes
-│       │   └── PacienteView.java           ← muestra o captura datos de paciente
-│       ├── AppMenu.java                    ← menú principal con opciones
-│       ├── DisplayMenu.java                ← utilitario para imprimir opciones
-│       └── MenuHandler.java                ← controlador de menú
-├── HISTORIAS_DE_USUARIO.md                 ← historias de usuario del proyecto
-└── README.md                               ← archivo de lectura inicial (este archivo)
+│       ├── 01_esquema.sql                          ← script para crear el esquema de la BD
+│       ├── 02_catalogos.sql                        ← script para poblar tablas de catálogo
+│       └── 03_carga_masiva.sql                     ← scripts para poblar la BD con datos de
+├── src                                             # código fuente del proyecto
+│   ├── main                                        # código fuente principal
+│   │   ├── java                                    # paquetes Java
+│   │   │   ├── config                              # configuración de conexión y transacciones
+│   │   │   │   ├── DatabaseConnection.java         ← utilitario para conexión a BD
+│   │   │   │   └── TransactionManager.java         ← utilitario para manejo de transacciones
+│   │   │   ├── dao                                 # acceso a datos (JDBC)
+│   │   │   │   ├── GenericDAO.java                 ← DAO genérico para entidades
+│   │   │   │   ├── HistoriaClinicaDAO.java         ← DAO específico para historias clínicas
+│   │   │   │   └── PacienteDAO.java                ← DAO específico para pacientes
+│   │   │   ├── exceptions                          # excepciones personalizadas
+│   │   │   │   ├── DuplicateEntityException.java   ← excepción para entidades duplicadas
+│   │   │   │   ├── ServiceException.java           ← excepción genérica para servicios
+│   │   │   │   └── ValidationException.java        ← excepción para validaciones de datos
+│   │   │   ├── main                                # punto de entrada de la aplicación
+│   │   │   │   ├── Main.java                       ← clase principal para ejecutar la aplicación
+│   │   │   │   └── TestConnection.java             ← clase para probar conexión a BD
+│   │   │   ├── models                              # entidades del dominio
+│   │   │   │   ├── Base.java                       ← clase base para entidades con id y eliminado
+│   │   │   │   ├── GrupoSanguineo.java             ← modelo de dominio GrupoSanguineo
+│   │   │   │   ├── HistoriaClinica.java            ← modelo de dominio HistoriaClínica
+│   │   │   │   └── Paciente.java                   ← modelo de dominio Paciente
+│   │   │   ├── service                             # lógica de negocio y validaciones
+│   │   │   │   ├── GenericService.java             ← servicio genérico para entidades
+│   │   │   │   ├── HistoriaClinicaService.java     ← servicio específico para historias clínicas
+│   │   │   │   └── PacienteService.java            ← servicio específico para pacientes
+│   │   │   └── views                               # capa de presentación (menús por entidad)
+│   │   │       ├── historias                       # submenús de Historias Clínicas
+│   │   │       │   ├── HistoriaMenu.java           ← submenú específico para historias clínicas
+│   │   │       │   └── HistoriaView.java           ← muestra o captura datos de historia clínica
+│   │   │       ├── pacientes                       # submenús de Pacientes
+│   │   │       │   ├── PacienteMenu.java           ← submenú específico para pacientes
+│   │   │       │   └── PacienteView.java           ← muestra o captura datos de paciente
+│   │   │       ├── AppMenu.java                    ← menú principal con opciones
+│   │   │       ├── DisplayMenu.java                ← utilitario para imprimir opciones
+│   │   │       └── MenuHandler.java                ← controlador de menú
+│   │   └── resources                               # archivos de configuración
+│   │       ├── db.properties                       ← archivo de configuración de conexión a BD
+│   │       └── db.properties.example               ← plantilla de configuración de conexión a BD
+│   └── test                                        # pruebas unitarias
+│       └── ServiceTest.java                        ← pruebas unitarias para servicios
+├── HISTORIAS_DE_USUARIO.md                         ← historias de usuario del proyecto
+├── README.md                                       ← archivo de lectura inicial (este archivo)
+├── setup-db.ps1                                   ← script de configuración de BD para Windows
+└── setup-db.sh                                    ← script de configuración de BD para Linux/macOS
 ```
 
 ### Diagrama UML (Modelo de Dominio)
 
-![UML](./anexos/programacion_2/capturas/uml.png)
+![UML](./anexos/programacion_2/capturas/uml-simplificado.png)
 
 ## Diagrama Entidad Relación (DER)
 
@@ -99,8 +102,8 @@ Este DER representa el esquema implementado en la base de datos MySQL, simplific
 | **Java JDK 21+**              | Lenguaje principal           |
 | **MySQL 8.4+**                | Base de datos relacional     |
 | **JDBC (Driver Connector/J)** | Persistencia y consultas SQL |
-| **Gradle 8.12**               | Herramienta de build         |
-| **NetBeans / IntelliJ IDEA**  | Entorno de desarrollo        |
+| **Gradle 9+**                 | Herramienta de build         |
+| **NetBeans / IntelliJ IDEA**  | IDE de desarrollo opcional   |
 | **Git & GitHub**              | Control de versiones         |
 
 ### Funcionalidades Principales
@@ -117,42 +120,23 @@ Este DER representa el esquema implementado en la base de datos MySQL, simplific
 
 ### Requisitos e Instalación
 
-> **Nota:**
-> Este proyecto cuenta con dos versiones:
->
-> - **Rama `main`:** versión original (compilación con **Ant**, usada por defecto).
-> - **Rama `gradle`:** versión alternativa, completamente migrada a **Gradle**.
->
-> Si deseas probar la versión con Gradle, cambia a esa rama después de clonar el repositorio.
-
-#### Requisitos Previos
-
 Antes de comenzar, asegúrate de tener instalado lo siguiente:
 
-| Componente                    | Versión Requerida                  | Descripción                                           |
-| ----------------------------- | ---------------------------------- | ----------------------------------------------------- |
-| **Java JDK**                  | 21 o superior                      | Requerido para compilar y ejecutar la aplicación      |
-| **MySQL Server**              | 8.0 o superior                     | Base de datos relacional utilizada por el sistema     |
-| **Gradle Wrapper (Opcional)** | Incluido en la rama `gradle`       | No es necesario instalar Gradle manualmente           |
-| **IDE**                       | NetBeans / IntelliJ IDEA / VS Code | Opcional, para ejecución en entorno gráfico           |
-| **Driver JDBC**               | `mysql-connector-j-8.4.0.jar`      | Descargado automáticamente por Gradle (rama `gradle`) |
+| Componente         | Versión                       | Descripción                        |
+| ------------------ | ----------------------------- | ---------------------------------- |
+| **Java JDK**       | 21 o superior                 | Requerido para compilar y ejecutar |
+| **MySQL Server**   | 8.0 o superior                | Base de datos utilizada            |
+| **Gradle Wrapper** | Incluido                      | No requiere instalación manual     |
+| **IDE (opcional)** | NetBeans / IntelliJ / VS Code | Para ejecución gráfica             |
 
 #### 1. Clonar el Repositorio
-
-Por defecto, esto descarga la versión **Ant** (rama principal) con todo el código fuente, scripts SQL y configuración del proyecto:
 
 ```bash
 git clone https://github.com/Gerolupo12/paciente-historia-cliente.git
 cd paciente-historia-cliente
 ```
 
-Si deseas trabajar con la versión **Gradle**, cambia a la rama correspondiente:
-
-```bash
-git checkout gradle
-```
-
-Esto cargará toda la estructura adaptada a Gradle (`build.gradle`, `gradlew`, `gradlew.bat`, etc.).
+El proyecto ya está listo para compilar con Gradle, sin configuraciones adicionales.
 
 #### 2. Configurar la Base de Datos
 
@@ -173,10 +157,10 @@ mysql -u root -p < sql/programacion_2/03_carga_masiva.sql
 
 #### 3. Configurar la Conexión (`db.properties`)
 
-a configuración de conexión a la base de datos se gestiona mediante un archivo de propiedades ubicado en `src/main/resources/db.properties`. Dentro de esa carpeta encontrarás el archivo `db.properties.example`.
+El archivo de configuración se encuentra en: [`/src/main/resources/db.properties`](./src/main/resources/db.properties`)
 
-Este archivo actúa como **plantilla de referencia**.
-Antes de ejecutar la aplicación, debes **crear tu propio archivo `db.properties`** en el mismo directorio, copiando el contenido del ejemplo y adaptándolo a tu entorno local:
+Dentro de esa carpeta existe un archivo plantilla `db.properties.example`.
+Debes crear tu propio archivo `db.properties` basado en él.
 
 ```bash
 # Desde la raíz del proyecto
@@ -209,46 +193,29 @@ db.password=tu_contraseña_de_mysql
 >
 > Esto evita que la aplicación intente conectarse con credenciales vacías o incorrectas.
 
-#### 4. Instalar y Configurar el Driver JDBC (para proyectos con Ant / NetBeans)
+#### 3.1 Crear `db.properties` automáticamente
 
-Si estás trabajando en la **rama principal (`main`)** del proyecto —que utiliza **Java con Ant**— deberás **añadir manualmente** el conector JDBC de MySQL.
+Para simplificar el proceso, puedes ejecutar uno de los siguientes scripts incluidos en el repositorio:
 
-##### Paso 1. Descargar el Driver JDBC
+```bash
+# Windows
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\setup-db.ps1
 
-1. Accede al sitio oficial de MySQL Connector/J:
-   [https://dev.mysql.com/downloads/connector/j/](https://dev.mysql.com/downloads/connector/j/)
-2. Descarga la versión **"Platform Independent"** (archivo `.zip` o `.tar.gz`).
-3. Extrae el archivo descargado y localiza el **JAR** principal, por ejemplo:
+# Linux / macOS
+chmod +x setup-db.sh
+./setup-db.sh
+```
 
-   ```plaintext
-   mysql-connector-j-8.4.0.jar
-   ```
+Estos scripts:
 
-##### Paso 2. Agregar el JAR al Proyecto en NetBeans
+- Crea el archivo `db.properties`
+- Solicitan usuario, contraseña, Nombre de la Base de Datos y Puerto de MySQL
+- Guardan automáticamente los valores en el nuevo archivo
 
-1. Abre NetBeans y localiza tu proyecto (`paciente-historia-cliente`).
-2. En el panel **Projects**, haz clic derecho sobre el nombre del proyecto →
-   **Properties** → **Libraries** → **Compile** → **Add JAR/Folder...**
-3. Busca el archivo `mysql-connector-j-8.4.0.jar` que descargaste y selecciónalo.
-4. Presiona **OK** para guardar los cambios.
+#### 4. Compilar el Proyecto
 
-> Consejo:
-> Puedes crear una carpeta `/Libraries` dentro del proyecto y colocar allí el `.jar`.
-> Luego, agrégalo desde esa ubicación para mantener el entorno más ordenado.
-
-**Nota:**
-
-> En la rama `gradle`, **no necesitas realizar esta configuración manual**.
-> Gradle descarga automáticamente el conector al compilar la aplicación.
-
-#### 5. Compilar el Proyecto
-
-##### Si usas la versión **Ant** (rama `main`)
-
-Compila y ejecuta desde tu IDE (NetBeans) como un proyecto Java estándar.
-El archivo `build.xml` gestiona las tareas de compilación.
-
-##### Si usas la versión **Gradle** (rama `gradle`)
+No es necesario instalar Gradle: el wrapper incluido lo descarga y usa automáticamente.
 
 ```bash
 # Windows
@@ -258,29 +225,27 @@ gradlew.bat build
 ./gradlew build
 ```
 
-Gradle descargará el conector MySQL y otras dependencias automáticamente.
+#### 5. Ejecutar la Aplicación
 
-#### 6. Ejecutar la Aplicación
-
-##### Opción 1: Ejecutar desde un IDE (Recomendado)
+##### Opción 1: Desde IDE
 
 1. Abrer el proyecto en un IDE (NetBeans, IntelliJ, etc.).
 2. Verifica que `db.properties` esté configurado correctamente.
 3. Localiza y ejecuta el método `main` en la clase: `main/Main.java`
 
-##### Opción 2: Desde la Terminal (solo rama `gradle`)
+##### Opción 2: Desde Terminal
 
 ```bash
-# Ejecutar el proyecto en Windows
+# Windows
 gradlew.bat run
 
-# Ejecutar el proyecto en Linux / macOS
+# Linux / macOS
 ./gradlew run
 ```
 
 Gradle descargará automáticamente el conector de MySQL (`mysql-connector-j`) y ejecutará la aplicación desde la clase principal definida en `build.gradle`.
 
-#### 7. Verificar la Conexión (Opcional)
+#### 6. Verificar la Conexión (Opcional)
 
 Ejecuta la clase `main/TestConnection.java` para probar la conexión a la base de datos:
 
@@ -296,10 +261,10 @@ Salida esperada:
 Usuario conectado: root@localhost
 Base de datos: GestionPacientes
 URL: jdbc:mysql://localhost:3306/GestionPacientes
-Driver: MySQL Connector/J vmysql-connector-j-8.4.0
+Driver: MySQL Connector/J vmysql-connector-j-9.2.0
 ```
 
-#### 8. Limpieza y Reconstrucción (solo Gradle)
+#### 7. Limpieza y Reconstrucción (solo Gradle)
 
 Si deseas limpiar y recompilar completamente el proyecto:
 
@@ -309,275 +274,6 @@ gradlew.bat clean build
 
 # Linux/macOS
 ./gradlew clean build
-```
-
-#### Compatibilidad entre versiones
-
-Ambas ramas —`main` (Ant) y `gradle` (Gradle)—
-comparten el **mismo código fuente**, las **mismas clases**, y la **misma lógica de negocio**.
-La única diferencia está en el sistema de compilación y ejecución:
-
-| Rama     | Sistema de Build                   | Ideal para                                                |
-| -------- | ---------------------------------- | --------------------------------------------------------- |
-| `main`   | **Apache Ant (NetBeans)**          | Entornos educativos o integrados en NetBeans              |
-| `gradle` | **Gradle Wrapper multiplataforma** | Entornos modernos o automatizados (CI/CD, terminal, etc.) |
-
-### Uso del Sistema
-
-#### Menú Principal
-
-La aplicación se controla mediante un menú en la consola.
-
-```console
-========= MENU PRINCIPAL =========
---- Gestión de Pacientes ---
-1. Listar pacientes
-2. Crear paciente
-3. Actualizar paciente
-4. Eliminar paciente
---- Gestión de Historias Clínicas ---
-5. Listar Historia Clínicas
-6. Crear Historia Clínica
-7. Actualizar Historia Clínica por ID
-8. Eliminar Historia Clínica por ID (Peligroso)
-9. Gestionar Historia Clínica por ID de paciente
-10. Eliminar Historia Clínica por ID de paciente (Seguro)
---- Recuperación de datos borrados ---
-11. Submenú de recuperación
-
-0. Salir
-```
-
-#### Gestión de Pacientes
-
-##### 1. Listar Pacientes
-
-Permite listar todos, buscar por DNI, o buscar por filtro de nombre/apellido (HU-002).
-
-**Ejemplo:**
-
-```console
-ID: 466 | DNI: 10003261
-Nombre: Pérez F., Carmen Y.
-Fecha Nac: 1952-08-31 (73 años)
-Eliminado: No
-  HC Nro: HC-000466 (ID: 466)
-  Grupo Sang.: A-
-  Antecedentes: Alergia a penicilina
-```
-
-##### 2. Crear Paciente
-
-Registra un nuevo paciente. Pregunta opcionalmente si se desea crear y asociar una Historia Clínica en el mismo paso (HU-001).
-
-**Resultado:**
-
-```console
---- Ingrese los datos del nuevo Paciente ---
-Nombre -> Pedro
-Apellido -> Fulano
-DNI (solo números) -> 12345679
-Fecha de Nacimiento (AAAA-MM-DD) -> 2000-01-01
-¿Desea agregar una Historia Clínica ahora? (s/n) -> S
-
---- Ingrese los datos de la Historia Clínica ---
-Número de Historia (ej: HC-123456) -> HC-123457
-Grupo Sanguíneo (A, B, AB, O) -> a
-Factor RH (+ o -) -> +
-Grupo seleccionado: A+
-Antecedentes (opcional) -> Diabetes II
-Medicación Actual (opcional) ->
-Observaciones (opcional) ->
-
-✅ Nueva Historia Clínica (ID: 1026) creada.
-
-✅ Paciente creado exitosamente con ID: 2050
-
-ID: 2050 | DNI: 12345679
-Nombre: Fulano, Pedro
-Fecha Nac: 2000-01-01 (25 años)
-Eliminado: No
-  HC Nro: HC-123457 (ID: 1026)
-  Grupo Sang.: A+
-  Antecedentes: Diabetes II
-```
-
-##### 3. Actualizar Paciente
-
-Modifica los datos de un paciente. Si el paciente no tiene HC, ofrece la posibilidad de crear una (HU-003).
-
-**Ejemplo:**
-
-```console
-Ingrese el ID del Paciente que desea actualizar -> 2050
-
-Obteniendo paciente con ID: 2050
-ID: 2050 | DNI: 12345679
-Nombre: Fulano, Pedro
-Fecha Nac: 2000-01-01 (25 años)
-Eliminado: No
-  HC Nro: HC-123457 (ID: 1026)
-  Grupo Sang.: A+
-  Antecedentes: Diabetes II
-
---- Actualizar Paciente (Presione Enter para mantener el valor actual) ---
-Nombre [Pedro] -> Pedro Gabriel
-Apellido [Fulano] ->
-DNI [12345679] ->
-Fecha Nacimiento [2000-01-01] ->
-
-✅ Paciente actualizado exitosamente.
-ID: 2050 | DNI: 12345679
-Nombre: Fulano, Pedro Gabriel
-Fecha Nac: 2000-01-01 (25 años)
-Eliminado: No
-  HC Nro: HC-123457 (ID: 1026)
-  Grupo Sang.: A+
-  Antecedentes: Diabetes II
-```
-
-##### 4. Eliminar Paciente
-
-Realiza una baja lógica (Soft Delete) del paciente y de su Historia Clínica asociada (Cascada Lógica, RN-013).
-
-**Ejemplo:**
-
-```console
-Ingrese el ID del Paciente que desea eliminar (baja lógica) -> 2050
-¿Está seguro que desea eliminar al paciente ID 2050? (Esto también eliminará su HC) (s/n) -> s
-Eliminando historia clínica asociada con ID: 1026
-Eliminando paciente con ID: 2050
-✅ Paciente ID: 2050 y su HC asociada han sido eliminados (baja lógica).
-```
-
-#### Gestión de Historias Clínicas
-
-##### 5. Listar Historias Clínicas
-
-Permite listar todas, buscar por ID, o buscar por filtro de texto (nro, antecedentes, etc.) (HU-006).
-
-**Ejemplo:**
-
-```console
-ID: 884 | Nro. Historia: HC-000884
-Grupo Sanguíneo: B+
-Antecedentes: Antecedentes familiares de diabetes
-Medicación: Atorvastatina 200mg nocturnos
-Observaciones: Paciente estable, control en 6 meses
-Eliminado: No
-```
-
-##### 6. Crear HC independiente
-
-Crea una Historia Clínica sin asociarla a ningún paciente (HU-005).
-
-**Ejemplo:**
-
-```console
---- Ingrese los datos de la Historia Clínica ---
-Número de Historia (ej: HC-123456) -> HC-012345
-Grupo Sanguíneo (A, B, AB, O) -> B
-Factor RH (+ o -) -> -
-Grupo seleccionado: B-
-Antecedentes (opcional) ->
-Medicación Actual (opcional) ->
-Observaciones (opcional) ->
-
-✅ Historia Clínica independiente creada con ID: 1027
-```
-
-##### 7. Actualizar HC por ID
-
-Actualiza los datos de una HC buscándola por su ID.
-
-**Ejemplo:**
-
-```console
-Ingrese el ID de la Historia Clínica que desea actualizar -> 1027
-
-Obteniendo historia clinica con ID: 1027
-ID: 1027 | Nro. Historia: HC-012345
-Grupo Sanguíneo: B-
-Antecedentes:
-Medicación:
-Observaciones:
-Eliminado: No
-
---- Actualizar Historia Clínica (Presione Enter para mantener) ---
-Número de Historia [HC-012345] ->
-Grupo Sanguíneo actual: [B-]. ¿Desea cambiarlo? (s/n) -> n
-Antecedentes [] -> Hipertensión
-Medicación [] ->
-Observaciones [] ->
-
-✅ Historia Clínica actualizada exitosamente.
-```
-
-##### 8. Eliminar HC por ID (Peligroso)
-
-Elimina lógicamente una HC por su ID.
-
-**ADVERTENCIA**: Esto puede dejar una "referencia huérfana" si un paciente la está usando (HU-007).
-
-**Ejemplo:**
-
-```console
-Ingrese el ID de la Historia Clínica que desea eliminar (baja lógica) -> 1027
-⚠️ ADVERTENCIA: Esta opción es peligrosa.
-Si esta HC está asignada a un Paciente, se creará una referencia huérfana.
-Use la 'Opción 10: Eliminar HC por Paciente' para una eliminación segura.
-
-Desea eliminar esta HC de todas formas? (s/n) -> s
-
-✅ Historia Clínica ID: 1027 ha sido eliminada (baja lógica).
-```
-
-##### 9. Gestionar HC de un Paciente
-
-La operación de gestión 1-a-1 más completa (HU-009).
-
-- Si el paciente tiene HC, permite actualizarla.
-- Si el paciente no tiene HC, permite crear una nueva o asignar una existente.
-
-**Ejemplo:**
-
-```console
-Ingrese el ID del Paciente cuya HC desea gestionar -> 1027
-
-El paciente no tiene una Historia Clínica asociada.
-
-1. Crear y Asignar una Nueva Historia Clínica
-2. Asignar una Historia Clínica Existente
-0. Volver
-```
-
-##### 10. Eliminar HC de un Paciente (Seguro)
-
-Realiza la "eliminación segura". Primero desasocia la HC del paciente (historia_clinica_id = NULL) y luego la elimina lógicamente. Esto previene referencias huérfanas (HU-008).
-
-**Ejemplo:**
-
-```console
-Ingrese el ID del Paciente cuya HC desea eliminar (de forma segura) -> 256
-
-Desea eliminar la HC (ID: 256) de forma segura? (s/n) -> s
-
-✅ Historia Clínica (ID: 256) desasociada y eliminada exitosamente.
-```
-
-##### 11. Submenú de recuperación
-
-Permite listar y recuperar (eliminado = FALSE) pacientes e historias clínicas que hayan sido eliminados lógicamente (HU-010).
-
-**Ejemplo:**
-
-```console
-========= SUBMENÚ DE RECUPERACIÓN =========
-1. Listar Pacientes Eliminados
-2. Recuperar Paciente por ID
-3. Listar Historias Clínicas Eliminadas
-4. Recuperar Historia Clínica por ID
-0. Volver al menú principal
 ```
 
 ### Arquitectura en Capas
@@ -634,9 +330,5 @@ El proyecto fue refactorizado de un `MenuHandler` monolítico a un paquete `view
 
 #### Informes
 
-- [x] [Base de Datos I](./informes/informe_db_1.md)
-- [x] [Programación II](./informes/informe_programacion_2.md)
-
-## Video de Demostración
-
-<!-- **[Enlace al video]** -->
+- [Programación II](./informes/informe_programacion_2.md)
+- [Base de Datos I](./informes/informe_db_1.md)
