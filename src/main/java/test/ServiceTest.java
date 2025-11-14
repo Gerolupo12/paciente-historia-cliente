@@ -1,15 +1,15 @@
 package test;
 
-import main.java.dao.HistoriaClinicaDAO;
-import main.java.dao.PacienteDAO;
-import main.java.models.GrupoSanguineo;
-import main.java.models.HistoriaClinica;
-import main.java.models.Paciente;
-import main.java.service.HistoriaClinicaService;
-import main.java.service.PacienteService;
-import main.java.exceptions.DuplicateEntityException;
-import main.java.exceptions.ServiceException;
-import main.java.exceptions.ValidationException;
+import dao.HistoriaClinicaDAO;
+import dao.PacienteDAO;
+import models.GrupoSanguineo;
+import models.HistoriaClinica;
+import models.Paciente;
+import service.HistoriaClinicaService;
+import service.PacienteService;
+import exceptions.DuplicateEntityException;
+import exceptions.ServiceException;
+import exceptions.ValidationException;
 
 import java.time.LocalDate;
 
@@ -22,15 +22,16 @@ import java.time.LocalDate;
  *
  * <h3>Tests Incluidos:</h3>
  * <ul>
- *     <li>✅ Inserción válida (Paciente + Historia Clínica)</li>
- *     <li>🚫 Detección de DNI duplicado (RN-002)</li>
- *     <li>🚫 Validación de DNI con formato inválido (RN-001.6)</li>
- *     <li>🚫 Validación de fecha de nacimiento futura (RN-001.7)</li>
- *     <li>🚫 Rollback transaccional ante error en la Historia Clínica (RN-017)</li>
+ * <li>✅ Inserción válida (Paciente + Historia Clínica)</li>
+ * <li>🚫 Detección de DNI duplicado (RN-002)</li>
+ * <li>🚫 Validación de DNI con formato inválido (RN-001.6)</li>
+ * <li>🚫 Validación de fecha de nacimiento futura (RN-001.7)</li>
+ * <li>🚫 Rollback transaccional ante error en la Historia Clínica (RN-017)</li>
  * </ul>
  *
  * <p>
- * Este test puede ejecutarse directamente desde el método {@link #main(String[])}.
+ * Este test puede ejecutarse directamente desde el método
+ * {@link #main(String[])}.
  * No requiere interfaz gráfica ni frameworks de testing.
  * </p>
  *
@@ -61,8 +62,7 @@ public class ServiceTest {
                     GrupoSanguineo.A_PLUS,
                     "Sin antecedentes",
                     null,
-                    null
-            );
+                    null);
 
             // Se crea un Paciente con datos coherentes
             // 🔹 Se usa un DNI nuevo que no exista en la base
@@ -70,8 +70,7 @@ public class ServiceTest {
                     "María",
                     "Fernández",
                     "39999888", // DNI nuevo para evitar duplicado en BD
-                    LocalDate.of(1990, 5, 12)
-            );
+                    LocalDate.of(1990, 5, 12));
 
             // Se asocia la Historia Clínica al Paciente (relación 1-a-1)
             nuevo.setHistoriaClinica(hc);
@@ -91,8 +90,7 @@ public class ServiceTest {
                         "Carlos",
                         "Pérez",
                         "39999888", // mismo DNI → debe fallar
-                        LocalDate.of(1985, 3, 9)
-                );
+                        LocalDate.of(1985, 3, 9));
 
                 pacienteService.insert(duplicado);
 
@@ -112,8 +110,7 @@ public class ServiceTest {
                         "Lucía",
                         "Gómez",
                         "36A00222", // contiene una letra → formato inválido
-                        LocalDate.of(1988, 7, 3)
-                );
+                        LocalDate.of(1988, 7, 3));
 
                 pacienteService.insert(invalido);
 
@@ -128,7 +125,8 @@ public class ServiceTest {
             System.out.println("\n=== TEST 4: Fecha demasiado antigua ===");
 
             try {
-                // Se crea un paciente con una fecha de nacimiento anterior a 1900 → inválido (RN-001.7)
+                // Se crea un paciente con una fecha de nacimiento anterior a 1900 → inválido
+                // (RN-001.7)
                 Paciente futuro = new Paciente(
                         "Juan",
                         "Rojas",
@@ -156,16 +154,14 @@ public class ServiceTest {
                         GrupoSanguineo.O_MINUS,
                         null,
                         null,
-                        null
-                );
+                        null);
 
                 // Paciente válido
                 Paciente pacienteMalo = new Paciente(
                         "Luis",
                         "Castro",
                         "37333444",
-                        LocalDate.of(1995, 1, 1)
-                );
+                        LocalDate.of(1995, 1, 1));
 
                 // Se vincula la HC errónea al paciente
                 pacienteMalo.setHistoriaClinica(hcMala);
