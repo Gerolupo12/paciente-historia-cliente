@@ -37,10 +37,8 @@ tasks.named('run') {
     standardInput = System.in
 }
 
-// Le dice a Gradle que no falle si no encuentra
-// pruebas de JUnit (ya que usamos un main() para probar)
 test {
-    failOnNoDiscoveredTests = false
+    enabled = false
 }
 
 // Configuración para compilar con Java 21 usando toolchain
