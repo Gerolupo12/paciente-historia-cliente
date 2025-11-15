@@ -1,6 +1,6 @@
 # Sistema de Gestión de Pacientes e Historias Clínicas
 
-![NetBeans](https://img.shields.io/badge/NetBeans-1B6AC6?logo=apache-netbeans-ide&logoColor=white) ![Java](https://img.shields.io/badge/Java-LTS-red.svg) ![JDBC](https://img.shields.io/badge/JDBC-API-orange) ![MySQL](https://img.shields.io/badge/MySQL-LTS-blue?logo=mysql) ![MySQL Workbench](https://img.shields.io/badge/MySQL%20Workbench-4479A1.svg?logo=mysql&logoColor=white) ![DBeaver](https://img.shields.io/badge/DBeaver-38698C?logo=dbeaver&logoColor=white) ![XAMPP](https://img.shields.io/badge/XAMPP-MySQL-green.svg?logo=xampp&logoColor=orange) ![Gradle](https://img.shields.io/badge/Gradle-02303A?logo=gradle&logoColor=white) ![Git](https://img.shields.io/badge/Git-F05032?logo=git&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green.svg) [![Ver en GitHub](https://img.shields.io/badge/Repositorio-GitHub-black?logo=github)](https://github.com/Gerolupo12/paciente-historia-cliente)
+![NetBeans](https://img.shields.io/badge/NetBeans-1B6AC6?logo=apache-netbeans-ide&logoColor=white) ![Java](https://img.shields.io/badge/Java-21-red.svg) ![JDBC](https://img.shields.io/badge/JDBC-API-orange) ![MySQL](https://img.shields.io/badge/MySQL-8.4-blue?logo=mysql) ![Gradle](https://img.shields.io/badge/Gradle-02303A?logo=gradle&logoColor=white) ![Git](https://img.shields.io/badge/Git-F05032?logo=git&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-green.svg) [![Ver en GitHub](https://img.shields.io/badge/Repositorio-GitHub-black?logo=github)](https://github.com/Gerolupo12/paciente-historia-cliente)
 
 ## Trabajo Práctico Integrador - Programación 2
 
@@ -28,72 +28,39 @@ Sistema desarrollado en Java para el Trabajo Práctico Integrador (TPI) de Progr
 
 ```plaintext
 paciente-historia-cliente
-├── anexos                                          # archivos adicionales para el proyecto
-├── informes
-│   ├── informe_db_1.md                             ← informe detallado del proyecto de DB1
-│   └── informe_programacion_2.md                   ← informe detallado del proyecto de P2
-├── sql                                             # scripts SQL
-│   ├── db_1
-│   └── programacion_2
-│       ├── 01_esquema.sql                          ← script para crear el esquema de la BD
-│       ├── 02_catalogos.sql                        ← script para poblar tablas de catálogo
-│       └── 03_carga_masiva.sql                     ← scripts para poblar la BD con datos de
-├── src                                             # código fuente del proyecto
-│   ├── main                                        # código fuente principal
-│   │   ├── java                                    # paquetes Java
-│   │   │   ├── config                              # configuración de conexión y transacciones
-│   │   │   │   ├── DatabaseConnection.java         ← utilitario para conexión a BD
-│   │   │   │   └── TransactionManager.java         ← utilitario para manejo de transacciones
-│   │   │   ├── dao                                 # acceso a datos (JDBC)
-│   │   │   │   ├── GenericDAO.java                 ← DAO genérico para entidades
-│   │   │   │   ├── HistoriaClinicaDAO.java         ← DAO específico para historias clínicas
-│   │   │   │   └── PacienteDAO.java                ← DAO específico para pacientes
-│   │   │   ├── exceptions                          # excepciones personalizadas
-│   │   │   │   ├── DuplicateEntityException.java   ← excepción para entidades duplicadas
-│   │   │   │   ├── ServiceException.java           ← excepción genérica para servicios
-│   │   │   │   └── ValidationException.java        ← excepción para validaciones de datos
-│   │   │   ├── main                                # punto de entrada de la aplicación
-│   │   │   │   ├── Main.java                       ← clase principal para ejecutar la aplicación
-│   │   │   │   └── TestConnection.java             ← clase para probar conexión a BD
-│   │   │   ├── models                              # entidades del dominio
-│   │   │   │   ├── Base.java                       ← clase base para entidades con id y eliminado
-│   │   │   │   ├── GrupoSanguineo.java             ← modelo de dominio GrupoSanguineo
-│   │   │   │   ├── HistoriaClinica.java            ← modelo de dominio HistoriaClínica
-│   │   │   │   └── Paciente.java                   ← modelo de dominio Paciente
-│   │   │   ├── service                             # lógica de negocio y validaciones
-│   │   │   │   ├── GenericService.java             ← servicio genérico para entidades
-│   │   │   │   ├── HistoriaClinicaService.java     ← servicio específico para historias clínicas
-│   │   │   │   └── PacienteService.java            ← servicio específico para pacientes
-│   │   │   └── views                               # capa de presentación (menús por entidad)
-│   │   │       ├── historias                       # submenús de Historias Clínicas
-│   │   │       │   ├── HistoriaMenu.java           ← submenú específico para historias clínicas
-│   │   │       │   └── HistoriaView.java           ← muestra o captura datos de historia clínica
-│   │   │       ├── pacientes                       # submenús de Pacientes
-│   │   │       │   ├── PacienteMenu.java           ← submenú específico para pacientes
-│   │   │       │   └── PacienteView.java           ← muestra o captura datos de paciente
-│   │   │       ├── AppMenu.java                    ← menú principal con opciones
-│   │   │       ├── DisplayMenu.java                ← utilitario para imprimir opciones
-│   │   │       └── MenuHandler.java                ← controlador de menú
-│   │   └── resources                               # archivos de configuración
-│   │       ├── db.properties                       ← archivo de configuración de conexión a BD
-│   │       └── db.properties.example               ← plantilla de configuración de conexión a BD
-│   └── test                                        # pruebas unitarias
-│       └── ServiceTest.java                        ← pruebas unitarias para servicios
-├── HISTORIAS_DE_USUARIO.md                         ← historias de usuario del proyecto
-├── README.md                                       ← archivo de lectura inicial (este archivo)
-├── setup-db.ps1                                   ← script de configuración de BD para Windows
-└── setup-db.sh                                    ← script de configuración de BD para Linux/macOS
+├── anexos                     # archivos adicionales para el proyecto
+├── bin                        # archivos compilados (ejecutables)
+├── build                      # archivos de compilación
+├── gradle                     # scripts de compilación
+├── informes                   # informes técnicos del proyecto
+├── sql                        # scripts SQL
+├── src                        # código fuente del proyecto
+│   └── main                   # código fuente principal
+│       ├── java               # paquetes Java
+│       │   ├── config         # configuración de conexión y transacciones
+│       │   ├── dao            # acceso a datos (JDBC)
+│       │   ├── exceptions     # excepciones personalizadas
+│       │   ├── main           # punto de entrada de la aplicación
+│       │   ├── models         # entidades del dominio
+│       │   ├── service        # lógica de negocio y validaciones
+│       │   ├── test           # pruebas manuales
+│       │   └── views          # capa de presentación (menús por entidad)
+│       └── resources          # archivos de configuración
+├── .gitignore                 ← archivos ignorados por Git
+├── build.gradle               ← script de compilación
+├── gradle.properties          ← propiedades de Gradle
+├── gradlew                    ← script de ejecución en Linux / macOS
+├── gradlew.bat                ← script de ejecución en Windows
+├── HISTORIAS_DE_USUARIO.md    ← historias de usuario del proyecto
+├── README.md                  ← archivo de lectura inicial (este archivo)
+|── settings.gradle            ← archivo de configuración de Gradle
+├── setup-db.ps1               ← script de configuración de BD para Windows
+└── setup-db.sh                ← script de configuración de BD para Linux/macOS
 ```
 
 ### Diagrama UML (Modelo de Dominio)
 
 ![UML](./anexos/programacion_2/capturas/uml-simplificado.png)
-
-## Diagrama Entidad Relación (DER)
-
-Este DER representa el esquema implementado en la base de datos MySQL, simplificado para los requisitos de Programación II.
-
-![DER](./anexos/programacion_2/capturas/der.png)
 
 ### Tecnologías y Herramientas
 
@@ -102,7 +69,7 @@ Este DER representa el esquema implementado en la base de datos MySQL, simplific
 | **Java JDK 21+**              | Lenguaje principal           |
 | **MySQL 8.4+**                | Base de datos relacional     |
 | **JDBC (Driver Connector/J)** | Persistencia y consultas SQL |
-| **Gradle 9+**                 | Herramienta de build         |
+| **Gradle 8+**                 | Herramienta de build         |
 | **NetBeans / IntelliJ IDEA**  | IDE de desarrollo opcional   |
 | **Git & GitHub**              | Control de versiones         |
 
@@ -157,7 +124,7 @@ mysql -u root -p < sql/programacion_2/03_carga_masiva.sql
 
 #### 3. Configurar la Conexión (`db.properties`)
 
-El archivo de configuración se encuentra en: [`/src/main/resources/db.properties`](./src/main/resources/db.properties`)
+El archivo de configuración se encuentra en: `/src/main/resources/db.properties`
 
 Dentro de esa carpeta existe un archivo plantilla `db.properties.example`.
 Debes crear tu propio archivo `db.properties` basado en él.
@@ -215,15 +182,17 @@ Estos scripts:
 
 #### 4. Compilar el Proyecto
 
-No es necesario instalar Gradle: el wrapper incluido lo descarga y usa automáticamente.
+El proyecto usa el Wrapper de Gradle, lo que estandariza la compilación y ejecución.
 
 ```bash
 # Windows
-gradlew.bat build
+gradlew.bat clean build
 
 # Linux / macOS
-./gradlew build
+./gradlew clean build
 ```
+
+Este comando descargará las dependencias (driver MySQL), compilará todo el código y ejecutará las pruebas.
 
 #### 5. Ejecutar la Aplicación
 
@@ -243,7 +212,7 @@ gradlew.bat run
 ./gradlew run
 ```
 
-Gradle descargará automáticamente el conector de MySQL (`mysql-connector-j`) y ejecutará la aplicación desde la clase principal definida en `build.gradle`.
+Gradle ejecutará la aplicación desde la clase principal definida en `build.gradle`. Al iniciar, te pregunta si deseas ejecutar el modo Consola o el modo GUI (JOptionPane).
 
 #### 6. Verificar la Conexión (Opcional)
 
@@ -264,71 +233,14 @@ URL: jdbc:mysql://localhost:3306/GestionPacientes
 Driver: MySQL Connector/J vmysql-connector-j-9.2.0
 ```
 
-#### 7. Limpieza y Reconstrucción (solo Gradle)
+### Documentación Detallada
 
-Si deseas limpiar y recompilar completamente el proyecto:
+Para una explicación completa del diseño, las reglas de negocio y las pruebas, consulta los informes del proyecto:
 
-```bash
-# Windows
-gradlew.bat clean build
+- [Informe de Bases de Datos I](./informes/informe_db_1.md)
+- [Informe de Programación II](./informes/informe_programacion_2.md)
+- [Historias de Usuario (Funcionalidad)](./HISTORIAS_DE_USUARIO.md)
 
-# Linux/macOS
-./gradlew clean build
-```
+### Video de Demostración (Entregable TPI)
 
-### Arquitectura en Capas
-
-El proyecto está organizado en una arquitectura de 4 capas, siguiendo las mejores prácticas y los requisitos del TPI. La refactorización ha movido toda la lógica de UI al paquete `views/`.
-
-![Capas](./anexos/programacion_2/capturas/arquitectura-capas.png)
-
-### Patrones y Buenas Prácticas
-
-- **Seguridad (PreparedStatements):** Todas las consultas SQL utilizan `PreparedStatement` para parametrizar las entradas, previniendo vulnerabilidades de Inyección SQL.
-- **Baja Lógica (Soft Delete):** Ningún registro se borra físicamente (`DELETE`). Todas las eliminaciones son actualizaciones (`UPDATE ... SET eliminado = TRUE`), preservando el historial y la integridad referencial.
-- **Gestión de Recursos (Try-with-Resources):** Todas las conexiones JDBC (`Connection`, `PreparedStatement`, `ResultSet`) se gestionan automáticamente con bloques `try-with-resources` para prevenir la fuga de recursos.
-- **Validación Multi-Capa:**
-  - **Vista (`views/`):** Valida el formato de entrada (ej: que un ID sea numérico).
-  - **Servicio (`service/`):** Valida las reglas de negocio (ej: que un DNI sea único (RN-002) o que una fecha esté en un rango válido).
-  - **Base de Datos (`sql/`):** Garantiza la integridad final con `UNIQUE`, `NOT NULL` y `CHECK constraints`.
-
-### Decisiones de Diseño Clave
-
-El diseño de la base de datos y de la arquitectura de la aplicación se guió por principios de normalización, integridad, escalabilidad y consistencia entre el modelo relacional y el modelo de objetos en Java. A continuación, se detallan las decisiones más importantes tomadas durante el proyecto.
-
-#### 1. Implementación de la Relación 1→1 Unidireccional (Requisito TPI)
-
-Para cumplir con el requisito central de P2 de una relación 1→1 unidireccional `Paciente → HistoriaClinica`, se tomó una decisión específica a nivel de base de datos.
-
-- **Implementación:** La relación se implementó en la tabla `Paciente` mediante una clave foránea (`historia_clinica_id`) que apunta a `HistoriaClinica` y, crucialmente, tiene una restricción `UNIQUE`.
-- **Justificación:**
-  - El `FOREIGN KEY` establece el enlace entre las dos entidades.
-  - El `UNIQUE` garantiza que un registro de `HistoriaClinica` solo pueda ser asociado a un único `Paciente`, cumpliendo así la cardinalidad 1 a 1.
-  - Se permitió que esta clave foránea sea `NULL`, aportando flexibilidad para poder registrar un paciente antes de que su historia clínica sea creada (HU-001).
-
-#### 2. `GrupoSanguineo`: Tabla en la Base de Datos vs. `Enum` en Java
-
-Se tomó una decisión consciente de modelar el grupo sanguíneo de dos maneras distintas en cada capa, optimizando para el contexto de cada una.
-
-- **En la Base de Datos (Tabla):** Se creó una tabla maestra `GrupoSanguineo`. Esto responde a los principios de normalización (BD1), creando una única fuente de verdad (`A_PLUS`, `A_MINUS`, etc.) y usando un `INT` como FK en `HistoriaClinica`.
-- **En Java (`Enum`):** En el código Java, se optó por un `Enum` (`GrupoSanguineo.java`). Esta decisión prioriza la **seguridad de tipos** y la legibilidad del código (P2). El `Enum` asegura que solo se puedan usar valores válidos en tiempo de compilación. El DAO (`HistoriaClinicaDAO`) es responsable de traducir entre el ID de la tabla y el `Enum`.
-
-### 3. Simplificación del Dominio (P2 vs. BD1)
-
-Aunque el proyecto de la materia Bases de Datos I incluía entidades adicionales como `Persona` y `Profesional`, para este TPI de Programación II se decidió simplificar el modelo a las dos entidades centrales: `Paciente` y `HistoriaClinica`.
-
-- **Justificación:** Esta simplificación fue intencional para centrar el esfuerzo en los objetivos de P2: la **arquitectura de software**. El foco del proyecto no es la complejidad del DER, sino la correcta implementación de las capas `views`, `service` y `dao`, la gestión de la persistencia con JDBC, y el manejo de transacciones y reglas de negocio.
-
-### 4. Arquitectura de Vistas (Refactorización)
-
-El proyecto fue refactorizado de un `MenuHandler` monolítico a un paquete `views/` desacoplado, siguiendo el patrón del proyecto modelo `Persona-Domicilio`.
-
-- **`AppMenu`:** Orquestador que inyecta las dependencias.
-- **`MenuHandler`:** Controlador "Router" que delega al sub-menú correspondiente.
-- **`PacienteMenu` / `HistoriaMenu`:** Sub-Controladores que orquestan la lógica de la UI (llaman al Servicio y a la Vista).
-- **`PacienteView` / `HistoriaView`:** Vistas "Tontas" que solo imprimen en consola y leen del `Scanner`.
-
-#### Informes
-
-- [Programación II](./informes/informe_programacion_2.md)
-- [Base de Datos I](./informes/informe_db_1.md)
+- [Enlace al Video de Demostración](youtube.com)
