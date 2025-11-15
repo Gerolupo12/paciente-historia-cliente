@@ -191,7 +191,7 @@ public class HistoriaClinicaService implements GenericService<HistoriaClinica> {
             throw new ValidationException("El número de historia no puede estar vacío.");
         }
         if (!nro.matches("^HC-[0-9]{4,17}$")) {
-            throw new ValidationException("El número de historia debe tener el formato 'HC-####' (ej: HC-000123).");
+            throw new ValidationException("Formato de historia inválido. Debe ser 'HC-' seguido de 4 a 17 dígitos (ej: HC-0023, HC-1234567).");
         }
 
         if (historia.getGrupoSanguineo() == null) {
