@@ -131,6 +131,7 @@ public class MainGUI {
                 "2. Crear Paciente",
                 "3. Actualizar Paciente",
                 "4. Eliminar Paciente",
+                "5. Probar Transacción (Rollback)",
                 "Volver"
         };
 
@@ -156,11 +157,15 @@ public class MainGUI {
             case 3: // 4. Eliminar Paciente
                 pacienteGUI.handleEliminarPaciente();
                 break;
-            case 4: // Volver
+            case 4: // 5. Probar Transacción (Rollback)
+                pacienteGUI.handleTestRollback();
+                break;
+            case 5: // Volver
             default:
-                break; // Simplemente sale de este método y vuelve al loop principal
+                break;
         }
     }
+
 
     /**
      * Muestra el Submenú de Gestión de Historias Clínicas (Opciones 5-10).
@@ -169,12 +174,12 @@ public class MainGUI {
      */
     private void showHistoriaMenu() {
         Object[] options = {
-                "5. Listar Historias Clínicas",
-                "6. Crear HC (Independiente)",
+                "5. Listar HC",
+                "6. Crear HC",
                 "7. Actualizar HC (por ID)",
-                "8. Eliminar HC (Peligroso)",
-                "9. Gestionar HC de Paciente",
-                "10. Eliminar HC de Paciente (Seguro)",
+                "8. Eliminar HC",
+                "9. HC por Paciente",
+                "10. Eliminar HC(Seguro)",
                 "Volver"
         };
         
