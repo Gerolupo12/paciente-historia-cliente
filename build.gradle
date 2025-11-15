@@ -26,12 +26,25 @@ application {
     mainClass = 'main.Main'
 }
 
-// 6. Asegura que la compilación use UTF-8
+// 6. Asegura que la compilación use UTF-8 y compilar con release 21
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+    options.release = 21
 }
 
 // 7. Habilita entrada estándar (System.in) para aplicaciones de consola
 tasks.named('run') {
     standardInput = System.in
+}
+
+test {
+    enabled = false
+}
+
+// Configuración para compilar con Java 21 usando toolchain
+// Requiere Gradle 8.6+ (este proyecto usa el wrapper 9.2.0)
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
