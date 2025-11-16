@@ -253,25 +253,6 @@ Las pruebas se realizaron de dos maneras:
 
 [_Ver Anexo de Capturas de Pantalla_](../anexos/programacion_2/capturas-pantalla.md)
 
-```console
-=== TEST 1: Inserción VÁLIDA ===
-✅ Paciente insertado correctamente con ID: X
-
-=== TEST 2: DNI DUPLICADO ===
-✅ Detectó correctamente DNI duplicado → Ya existe un paciente con el DNI: 39999888
-
-=== TEST 3: DNI INVÁLIDO ===
-✅ Validación atrapó error → El DNI no es válido (debe ser numérico, 7-15 dígitos).
-
-=== TEST 4: Fecha demasiado antigua ===
-✅ Validación atrapó error → La fecha de nacimiento no es válida (debe ser entre 1900 y hoy).
-
-=== TEST 5: Rollback transaccional ===
-✅ Se produjo rollback correctamente → El número de historia no es válido (ej: 'HC-123456').
-
-=== TODOS LOS TESTS FINALIZADOS ===
-```
-
 ---
 
 ### 8. Conclusiones y Mejoras Futuras
