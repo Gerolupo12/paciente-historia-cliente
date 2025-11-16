@@ -6,10 +6,11 @@ import java.time.Period;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane; // Importante: Dependencia del otro handler
-import javax.swing.JTextArea;
-import javax.swing.JTextField; // Necesario para el JScrollPane
+import javax.swing.JFrame;
+import javax.swing.JOptionPane; // Importante: Dependencia del otro handler
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea; // Necesario para el JScrollPane
+import javax.swing.JTextField;
 
 import exceptions.DuplicateEntityException;
 import exceptions.ServiceException;
@@ -46,6 +47,7 @@ public class PacienteGUI {
 
     private final PacienteService pacienteService;
     private final HistoriaGUI historiaGUI; // Dependencia para HU-001 y HU-003
+    private final JFrame parentFrame;
 
     /**
      * Constructor que inyecta las dependencias necesarias.
@@ -54,16 +56,22 @@ public class PacienteGUI {
      * @param historiaGUI     El controlador de GUI de Historias,
      *                        necesario para la lógica de
      *                        "agregar HC" al crear/actualizar un paciente.
+     * @param parentFrame     El JFrame invisible que será el "dueño"
+     *                        de todos los diálogos.
      */
-    public PacienteGUI(PacienteService pacienteService, HistoriaGUI historiaGUI) {
+    public PacienteGUI(PacienteService pacienteService, HistoriaGUI historiaGUI, JFrame parentFrame) {
         if (pacienteService == null) {
             throw new IllegalArgumentException("PacienteService no puede ser nulo.");
         }
         if (historiaGUI == null) {
             throw new IllegalArgumentException("HistoriaGUI no puede ser nulo.");
         }
+        if (parentFrame == null) {
+            throw new IllegalArgumentException("JFrame padre no puede ser nulo.");
+        }
         this.pacienteService = pacienteService;
         this.historiaGUI = historiaGUI;
+        this.parentFrame = parentFrame;
     }
 
     // ======================================================
@@ -179,7 +187,7 @@ public class PacienteGUI {
         try {
             Object[] options = { "Listar Todos (Activos)", "Buscar por DNI", "Buscar por Nombre/Apellido", "Cancelar" };
             int choice = JOptionPane.showOptionDialog(
-                    null,
+                    this.parentFrame, // JFrame padre
                     "Seleccione un método de listado:",
                     "Listar Pacientes",
                     JOptionPane.DEFAULT_OPTION,
@@ -386,7 +394,11 @@ public class PacienteGUI {
         scrollPane.setPreferredSize(new Dimension(500, 300));
 
         // Mostrar el JScrollPane dentro de un JOptionPane
-        JOptionPane.showMessageDialog(null, scrollPane, titulo, JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(
+                this.parentFrame, // JFrame padre
+                scrollPane,
+                titulo,
+                JOptionPane.INFORMATION_MESSAGE);
     }
 
     /**
@@ -411,7 +423,7 @@ public class PacienteGUI {
         };
 
         int option = JOptionPane.showConfirmDialog(
-                null,
+                this.parentFrame, // JFrame padre
                 message,
                 "Crear Nuevo Paciente",
                 JOptionPane.OK_CANCEL_OPTION);
@@ -449,7 +461,7 @@ public class PacienteGUI {
         };
 
         int option = JOptionPane.showConfirmDialog(
-                null,
+                this.parentFrame, // JFrame padre
                 message,
                 "Actualizar Paciente ID: " + paciente.getId(),
                 JOptionPane.OK_CANCEL_OPTION);
@@ -474,7 +486,7 @@ public class PacienteGUI {
      */
     private Integer solicitarIdPacienteGUI(String accion) throws NumberFormatException {
         String idStr = JOptionPane.showInputDialog(
-                null,
+                this.parentFrame, // JFrame padre
                 "Ingrese el ID del Paciente que desea " + accion + ":",
                 "Solicitar ID",
                 JOptionPane.QUESTION_MESSAGE);
@@ -493,7 +505,7 @@ public class PacienteGUI {
      */
     private String solicitarDniGUI() {
         String dni = JOptionPane.showInputDialog(
-                null,
+                this.parentFrame, // JFrame padre
                 "Ingrese el DNI a buscar:",
                 "Buscar por DNI",
                 JOptionPane.QUESTION_MESSAGE);
@@ -508,7 +520,7 @@ public class PacienteGUI {
      */
     private String solicitarFiltroBusquedaGUI() {
         String filtro = JOptionPane.showInputDialog(
-                null,
+                this.parentFrame, // JFrame padre
                 "Ingrese el texto a buscar (por nombre o apellido):",
                 "Buscar por Filtro",
                 JOptionPane.QUESTION_MESSAGE);
@@ -524,7 +536,7 @@ public class PacienteGUI {
      */
     private boolean solicitarConfirmacionGUI(String mensaje) {
         int result = JOptionPane.showConfirmDialog(
-                null,
+                this.parentFrame, // JFrame padre
                 mensaje,
                 "Confirmación",
                 JOptionPane.YES_NO_OPTION,
@@ -539,7 +551,7 @@ public class PacienteGUI {
      */
     private void mostrarError(String mensaje) {
         JOptionPane.showMessageDialog(
-                null,
+                this.parentFrame, // JFrame padre
                 mensaje,
                 "Error",
                 JOptionPane.ERROR_MESSAGE);
@@ -552,7 +564,7 @@ public class PacienteGUI {
      */
     private void mostrarExito(String mensaje) {
         JOptionPane.showMessageDialog(
-                null,
+                this.parentFrame, // JFrame padre
                 mensaje,
                 "Éxito",
                 JOptionPane.INFORMATION_MESSAGE);

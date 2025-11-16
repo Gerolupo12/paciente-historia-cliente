@@ -1,11 +1,12 @@
 package views.gui;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 import dao.HistoriaClinicaDAO;
 import dao.PacienteDAO;
-import service.HistoriaClinicaService;
-import service.PacienteService;
-
-import javax.swing.JOptionPane;
+import service.HistoriaClinicaService; // Necesario para el JOptionPane
+import service.PacienteService; // Necesario para el JScrollPane
 
 /**
  * Orquestador principal de la Interfaz Gráfica (GUI) y punto de entrada.
@@ -18,7 +19,8 @@ import javax.swing.JOptionPane;
  * <ul>
  * <li><b>Ensamblaje (DI):</b> Crea e inyecta todas las dependencias
  * (DAOs, Servicios, y los Handlers de GUI).</li>
- * <li><b>Ciclo de Vida (Main Loop):</b> Ejecuta el bucle <code>while(running)</code>
+ * <li><b>Ciclo de Vida (Main Loop):</b> Ejecuta el bucle
+ * <code>while(running)</code>
  * que muestra el menú principal de la GUI.</li>
  * <li><b>Enrutamiento (Router):</b> Delega la acción seleccionada
  * al sub-controlador de GUI correspondiente ({@link PacienteGUI} o
@@ -31,6 +33,7 @@ import javax.swing.JOptionPane;
 public class MainGUI {
 
     // --- Sub-Controladores de GUI ---
+    private final JFrame parentFrame;
     private final PacienteGUI pacienteGUI;
     private final HistoriaGUI historiaGUI;
 
@@ -49,8 +52,13 @@ public class MainGUI {
      * inyectando los Services.</li>
      * </ol>
      * </p>
+     * 
+     * @param parentFrame El JFrame invisible que será el "dueño"
+     *                    de todos los diálogos.
      */
-    public MainGUI() {
+    public MainGUI(JFrame parentFrame) {
+        this.parentFrame = parentFrame;
+
         // 1. Crear Capa DAO
         HistoriaClinicaDAO historiaClinicaDAO = new HistoriaClinicaDAO();
         PacienteDAO pacienteDAO = new PacienteDAO(historiaClinicaDAO);
@@ -62,9 +70,9 @@ public class MainGUI {
 
         // 3. Crear Handlers de GUI
         // Inyectar servicios
-        this.historiaGUI = new HistoriaGUI(historiaClinicaService, pacienteService);
+        this.historiaGUI = new HistoriaGUI(historiaClinicaService, pacienteService, this.parentFrame);
         // Inyectar servicio Y el otro handler
-        this.pacienteGUI = new PacienteGUI(pacienteService, this.historiaGUI);
+        this.pacienteGUI = new PacienteGUI(pacienteService, this.historiaGUI, this.parentFrame);
     }
 
     /**
@@ -77,9 +85,8 @@ public class MainGUI {
      */
     public void run() {
         boolean running = true;
-        
-        // --- NUEVO: Opciones del Menú Principal (Jerárquico) ---
-        // Ahora solo mostramos las categorías principales
+
+        // Opciones del Menú Principal (Jerárquico)
         Object[] options = {
                 "Gestión de Pacientes",
                 "Gestión de Historias Clínicas",
@@ -89,15 +96,18 @@ public class MainGUI {
 
         while (running) {
             int opcion = JOptionPane.showOptionDialog(
-                    null,
+                    this.parentFrame, // JFrame padre
                     "Seleccione un módulo:", // Mensaje más claro
                     "🏥 Sistema de Gestión de Pacientes (GUI)",
                     JOptionPane.DEFAULT_OPTION,
                     JOptionPane.INFORMATION_MESSAGE,
                     null,
                     options,
-                    options[0]
-            );
+                    options[0]);
+
+            // Desactivar el "siempre al frente" después de que la primera ventana haya
+            // robado el foco.
+            this.parentFrame.setAlwaysOnTop(false);
 
             // 'opcion' es el índice del array 'options' (0-3)
             switch (opcion) {
@@ -110,11 +120,11 @@ public class MainGUI {
                 case 2: // Submenú de Recuperación
                     this.showRecuperacionMenu();
                     break;
-                case 3:  // Salir
+                case 3: // Salir
                 case -1: // Cerrar ventana (X)
                 default:
                     running = false; // Termina el bucle
-                    System.exit(0); // <-- AÑADE ESTA LÍNEA
+                    // System.exit(0);
                     break;
             }
         }
@@ -136,13 +146,12 @@ public class MainGUI {
         };
 
         int opcion = JOptionPane.showOptionDialog(
-                null,
+                this.parentFrame, // JFrame padre
                 "Seleccione una operación para Pacientes:",
                 "Gestión de Pacientes",
                 JOptionPane.DEFAULT_OPTION,
                 JOptionPane.INFORMATION_MESSAGE,
-                null, options, options[0]
-        );
+                null, options, options[0]);
 
         switch (opcion) {
             case 0: // 1. Listar Pacientes
@@ -166,7 +175,6 @@ public class MainGUI {
         }
     }
 
-
     /**
      * Muestra el Submenú de Gestión de Historias Clínicas (Opciones 5-10).
      * Este método es llamado por run() cuando el usuario selecciona
@@ -182,15 +190,14 @@ public class MainGUI {
                 "10. Eliminar HC(Seguro)",
                 "Volver"
         };
-        
+
         int opcion = JOptionPane.showOptionDialog(
-                null,
+                this.parentFrame, // JFrame padre
                 "Seleccione una operación para Historias Clínicas:",
                 "Gestión de Historias Clínicas",
                 JOptionPane.DEFAULT_OPTION,
                 JOptionPane.INFORMATION_MESSAGE,
-                null, options, options[0]
-        );
+                null, options, options[0]);
 
         switch (opcion) {
             case 0: // 5. Listar HCs
@@ -231,68 +238,17 @@ public class MainGUI {
         };
 
         boolean runningSubmenu = true;
+
         while (runningSubmenu) {
             int opcion = JOptionPane.showOptionDialog(
-                    null,
+                    this.parentFrame, // JFrame padre
                     "Seleccione una opción de recuperación:",
                     "Submenú de Recuperación",
                     JOptionPane.DEFAULT_OPTION,
                     JOptionPane.INFORMATION_MESSAGE,
                     null,
                     options,
-                    options[0]
-            );
-
-            switch (opcion) {
-                case 0: // Listar Pacientes Eliminados
-                    pacienteGUI.handleListarPacientesEliminados();
-                    break;
-                case 1: // Recuperar Paciente
-                    pacienteGUI.handleRecuperarPaciente();
-                    break;
-                case 2: // Listar HCs Eliminadas
-                    historiaGUI.handleListarHistoriasEliminadas();
-                    break;
-                case 3: // Recuperar HC
-                    historiaGUI.handleRecuperarHistoria();
-                    break;
-                case 4: // Volver
-                case -1: // Cerrar ventana
-                default:
-                    runningSubmenu = false; // Sale del bucle del submenú
-                    break;
-            }
-        }
-    }
-
-    /**
-     * Maneja el Submenú de Recuperación de datos (Baja Lógica) para la GUI.
-     * <p>
-     * Al igual que en la versión de consola, esta lógica orquesta
-     * acciones de ambos sub-controladores (Paciente y Historia).
-     * </p>
-     */
-    private void handleSubmenuRecuperacionGUI() {
-        Object[] options = {
-                "Listar Pacientes Eliminados",
-                "Recuperar Paciente por ID",
-                "Listar HCs Eliminadas",
-                "Recuperar HC por ID",
-                "Volver al Menú Principal"
-        };
-
-        boolean runningSubmenu = true;
-        while (runningSubmenu) {
-            int opcion = JOptionPane.showOptionDialog(
-                    null,
-                    "Seleccione una opción de recuperación:",
-                    "Submenú de Recuperación",
-                    JOptionPane.DEFAULT_OPTION,
-                    JOptionPane.INFORMATION_MESSAGE,
-                    null,
-                    options,
-                    options[0]
-            );
+                    options[0]);
 
             switch (opcion) {
                 case 0: // Listar Pacientes Eliminados
@@ -326,9 +282,29 @@ public class MainGUI {
      * @param args Argumentos de línea de comandos (no utilizados).
      */
     public static void main(String[] args) {
-        // Crea la instancia que contiene toda la lógica de la GUI
-        MainGUI gui = new MainGUI();
-        // Ejecuta el bucle principal del menú
+
+        // --- INICIO DE LA MODIFICACIÓN ---
+        // 1. Crear un frame padre invisible
+        JFrame parentFrame = new JFrame();
+        parentFrame.setUndecorated(true); // Sin bordes
+
+        // Forzarlo a estar al frente para el primer diálogo
+        parentFrame.setAlwaysOnTop(true);
+        parentFrame.setLocationRelativeTo(null); // Centrar en la pantalla
+        parentFrame.setVisible(true); // Hacerlo visible (aunque sea invisible)
+        parentFrame.toFront(); // Traerlo al frente
+        // --- FIN DE LA MODIFICACIÓN ---
+
+        // 2. Crea la instancia que contiene toda la lógica de la GUI e inyectar el
+        // frame padre
+        MainGUI gui = new MainGUI(parentFrame);
+
+        // 3. Ejecuta el bucle principal del menú
         gui.run();
+
+        // 3. Cuando run() termina, cerrar el frame invisible
+        // Esto también ayuda a que el hilo de Swing se cierre
+        // correctamente y Gradle no se quede "colgado".
+        parentFrame.dispose();
     }
 }
